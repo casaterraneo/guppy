@@ -25,7 +25,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-          - radius-version: edge
+            radius-version: edge
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
