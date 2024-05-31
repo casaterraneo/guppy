@@ -24,7 +24,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest    
+          - os: ubuntu-latest
+          - radius-version: edge
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -38,8 +39,8 @@ jobs:
           helm install dapr dapr/dapr --version=1.6 --namespace dapr-system --create-namespace --wait
       - name: Download rad CLI        
         run: |
-          RADIUS_VERSION="${{ inputs.version }}"
-          if [[ -z "${{ inputs.version }}" ]]; then
+          RADIUS_VERSION="${{ matrix.radius-version }}"
+          if [[ -z "${{ matrix.radius-version }}" ]]; then
             RADIUS_VERSION=edge
           fi
           ./.github/scripts/install-radius.sh $RADIUS_VERSION
