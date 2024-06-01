@@ -1,4 +1,4 @@
-name: build
+name: Build
 
 on:
   push:
@@ -21,4 +21,6 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: dotnet build
-        run: dotnet build -h
+        run: |
+          cd eShopLite 
+          dotnet build eShopLite.sln
