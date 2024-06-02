@@ -26,7 +26,7 @@ jobs:
       - name: Download k3d
         run: wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
       - name: Create k3d cluster
-        run: k3d cluster create --no-lp --agents 2 -p "80:80@loadbalancer" --k3s-arg "--disable=traefik@server:0" --registry-create sampleregistry:51351        
+        run: k3d cluster create --no-lb --agents 2 -p "80:80@loadbalancer" --k3s-arg "--disable=traefik@server:0" --registry-create sampleregistry:51351        
       - name: Install MetalLB
         run: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.5/config/manifests/metallb-native.yaml
       - name: Build images
