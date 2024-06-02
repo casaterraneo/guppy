@@ -29,10 +29,16 @@ jobs:
         run: k3d cluster create --no-lb --agents 2 --k3s-arg "--disable=traefik@server:0" --registry-create sampleregistry:51351        
       - name: Install MetalLB
         run: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.5/config/manifests/metallb-native.yaml            
-      - name: Apply first-pool and l2advertisement
-        run: |            
-            kubectl apply -f ./.github/scripts/first-pool.yaml
-            kubectl apply -f ./.github/scripts/l2advertisement.yaml            
+      - name: Verifica lo stato del deployment di MetalLB
+        run: |
+          kubectl get pods -n metallb-system
+          kubectl get svc -n metallb-system       
+      - name: Wait for MetalLB to be ready
+        run: sleep 30  # Aggiunge un ritardo di 30 secondi  
+      - name: Apply first-pool.yaml
+        run: kubectl apply -f ./.github/scripts/first-pool.yaml        
+      - name: Apply l2advertisement.yaml
+        run: kubectl apply -f ./.github/scripts/l2advertisement.yaml            
       - name: Build images
         run: |
             docker build -t localhost:51351/products:latest -f eShopLite/Products/Dockerfile .
