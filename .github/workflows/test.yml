@@ -45,6 +45,7 @@ jobs:
           helm repo update
           helm upgrade --install authentik authentik/authentik -f ./.github/scripts/values.yaml        
       - name: Build images
+        if: false
         run: |
             docker build -t localhost:51351/products:latest -f eShopLite/Products/Dockerfile .
             docker push localhost:51351/products:latest        
@@ -75,5 +76,7 @@ jobs:
           rad recipe register default -e default -w default --template-kind bicep --template-path ghcr.io/radius-project/recipes/local-dev/mongodatabases:latest --resource-type Applications.Datastores/mongoDatabases
           rad recipe register default -e default -w default --template-kind bicep --template-path ghcr.io/radius-project/recipes/local-dev/sqldatabases:latest --resource-type Applications.Datastores/sqlDatabases
           rad recipe register default -e default -w default --template-kind bicep --template-path ghcr.io/radius-project/recipes/local-dev/rabbitmqqueues:latest --resource-type Applications.Messaging/rabbitMQQueues
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: kubectl get pods
+        run: kubectl get pods -o wide
+      - name: kubectl get services
+        run: kubectl get pods -o wide        
