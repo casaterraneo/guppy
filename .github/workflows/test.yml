@@ -8,12 +8,6 @@ on:
         required: false
         default: "edge"
         type: string        
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  schedule: # Run every day at 12 PM
-    - cron: "0 12 * * *"
 env:
   RUN_IDENTIFIER: samplestest-${{ github.run_id }}-${{ github.run_attempt }}
 jobs:
