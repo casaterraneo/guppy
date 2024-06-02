@@ -38,7 +38,12 @@ jobs:
       - name: Apply first-pool.yaml
         run: kubectl apply -f ./.github/scripts/first-pool.yaml        
       - name: Apply l2advertisement.yaml
-        run: kubectl apply -f ./.github/scripts/l2advertisement.yaml            
+        run: kubectl apply -f ./.github/scripts/l2advertisement.yaml 
+      - name: Install authentik Helm Chart
+        run : |
+          helm repo add authentik https://charts.goauthentik.io
+          helm repo update
+          helm upgrade --install authentik authentik/authentik -f ./.github/scripts/values.yaml        
       - name: Build images
         run: |
             docker build -t localhost:51351/products:latest -f eShopLite/Products/Dockerfile .
