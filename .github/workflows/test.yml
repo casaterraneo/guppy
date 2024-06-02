@@ -65,6 +65,7 @@ jobs:
           fi
           ./.github/scripts/install-radius.sh $RADIUS_VERSION
       - name: Initialize default environment
+        if: false
         run: |
           rad install kubernetes --set rp.publicEndpointOverride=localhost          
           rad group create default
@@ -79,4 +80,8 @@ jobs:
       - name: kubectl get pods
         run: kubectl get pods -o wide
       - name: kubectl get services
-        run: kubectl get pods -o wide        
+        run: kubectl get services -o wide        
+      - name: kubectl get events
+        run: kubectl get events -n default
+      - name: kubectl logs
+        run: kubectl logs -n default
