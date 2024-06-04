@@ -26,7 +26,7 @@ jobs:
       - name: Download k3d
         run: wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
       - name: Create k3d cluster
-        run: k3d cluster create -p "8081:80@loadbalancer" --agents 2 --k3s-arg --registry-create sampleregistry:51351        
+        run: k3d cluster create -p "8081:80@loadbalancer" --agents 2 --k3s-arg "--registry-create@server:0=sampleregistry:51351"
       - name: Install authentik Helm Chart
         run : |
           helm repo add authentik https://charts.goauthentik.io
