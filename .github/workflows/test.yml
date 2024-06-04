@@ -31,7 +31,7 @@ jobs:
         run : |
           helm repo add authentik https://charts.goauthentik.io
           helm repo update
-          helm upgrade --install authentik authentik/authentik -f ./.github/scripts/values.yaml        
+          helm upgrade --install authentik authentik/authentik -f ./.github/scripts/values.yaml  --wait     
       - name: Build images
         if: false
         run: |
