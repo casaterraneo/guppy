@@ -1,16 +1,18 @@
 authentik:
-    secret_key: "PleaseGenerateASecureKey@123!"
+    secret_key: "PleaseGenerateASecurePleaseGenerateASecureKey@123!"
     # This sends anonymous usage-data, stack traces on errors and
     # performance data to sentry.io, and is fully opt-in
     error_reporting:
         enabled: false
+    disable_update_check: true
+    disable_startup_analytics: true        
     postgresql:
-        password: "ThisIsNotASecurePassword@123!"
+        password: "PleaseGenerateASecurePleaseGenerateASecureKey@123!"
 
 server:
     ingress:
         # Specify kubernetes ingress controller class name
-        ingressClassName: nginx
+        ingressClassName: traefik
         enabled: true
         hosts:
             - authentik.domain.tld
@@ -18,6 +20,6 @@ server:
 postgresql:
     enabled: true
     auth:
-        password: "ThisIsNotASecurePassword@123!"
+        password: "PleaseGenerateASecurePleaseGenerateASecureKey@123!"
 redis:
     enabled: true
