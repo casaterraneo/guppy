@@ -23,5 +23,5 @@ jobs:
 
     - name: Merge main into production
       run: |
-        git merge main --no-ff --commit -m "Merge branch 'main' into production"
+        git merge main --no-ff --allow-unrelated-histories --commit -m "Merge branch 'main' into production"
         git push origin production
