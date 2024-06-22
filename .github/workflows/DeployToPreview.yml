@@ -1,0 +1,27 @@
+name: Deploy to Preview
+
+on:
+  workflow_dispatch:
+
+jobs:
+  commit-changes:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Git
+      run: |
+        git config --global user.name "casaterraneo"
+        git config --global user.email "casa.terraneo@gmail.com"      
+
+    - name: Fetch all branches
+      run: git fetch --all
+
+    - name: Checkout preview branch
+      run: git checkout preview
+
+    - name: Merge main into preview
+      run: |
+        git merge -X theirs main --allow-unrelated-histories --commit -m "Merge branch 'main' into preview"
+        git push origin preview
