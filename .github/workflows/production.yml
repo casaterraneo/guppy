@@ -13,10 +13,19 @@ jobs:
     - name: Set up Git
       run: |
         git config --global user.name "casaterraneo"
-        git config --global user.email "casa.terraneo@gmail.com"
-      
-    - name: Commit changes
-      run: |
-        git add .
-        git commit -m "Automated commit from main to production"
-        git push origin main --force
+        git config --global user.email "casa.terraneo@gmail.com"      
+
+    - name: Estrazione modifiche dal ramo main
+        git fetch origin main
+
+    - name: Unione nel ramo production
+        git merge origin/main
+
+    - name: Esecuzione di test automatici (facoltativo)
+        # Inserire qui i comandi per eseguire i test
+
+    - name: Generazione del commit
+        git commit -m "Integrazione automatica modifiche dal ramo main"
+
+    - name: Inoltro al ramo production
+        git push origin HEAD:+productione
