@@ -9,6 +9,12 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    
+    - name: Set up Git
+      run: |
+        git config --global user.name "casaterraneo"
+        git config --global user.email "casa.terraneo@gmail.com"
+      
     - name: Commit changes
       run: |
         git add .
