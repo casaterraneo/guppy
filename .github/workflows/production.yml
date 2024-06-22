@@ -15,14 +15,8 @@ jobs:
         git config --global user.name "casaterraneo"
         git config --global user.email "casa.terraneo@gmail.com"      
 
-    - name: Estrazione modifiche dal ramo main
-      run:  git fetch origin main
-
-    - name: Unione nel ramo production
-      run:  git merge origin/main
-    
-    - name: Generazione del commit
-      run:  git commit -m "Integrazione automatica modifiche dal ramo main"
-
-    - name: Inoltro al ramo production
-      run: git push origin HEAD:+productione
+    - name: Merge main into production
+      run: |
+        git checkout production
+        git merge main --no-ff --commit -m "Merge branch 'main' into production"
+        git push origin production
