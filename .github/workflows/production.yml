@@ -23,6 +23,5 @@ jobs:
 
     - name: Merge main into production
       run: |
-        git merge main --no-ff --allow-unrelated-histories || true
-        git merge --strategy-option theirs main --allow-unrelated-histories --commit -m "Merge branch 'main' into production"
+        git merge -X theirs main --allow-unrelated-histories --commit -m "Merge branch 'main' into production"
         git push origin production
