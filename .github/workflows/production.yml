@@ -4,24 +4,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  commit-changes:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
-      with:
-        ref: main
-
-    - name: Set up Git
+      uses: actions/checkout@v4
+    - name: Commit changes
       run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-    - name: Merge main into production
-      run: |
-        git checkout production
-        git merge main --no-ff --commit -m "Merge branch 'main' into production"
-        git push origin production
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        git add .
+        git commit -m "Automated commit from main to production"
+        git push origin main --force
