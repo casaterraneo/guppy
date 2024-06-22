@@ -15,8 +15,13 @@ jobs:
         git config --global user.name "casaterraneo"
         git config --global user.email "casa.terraneo@gmail.com"      
 
+    - name: Fetch all branches
+      run: git fetch --all
+
+    - name: Checkout production branch
+      run: git checkout production
+
     - name: Merge main into production
       run: |
-        git checkout production
         git merge main --no-ff --commit -m "Merge branch 'main' into production"
         git push origin production
