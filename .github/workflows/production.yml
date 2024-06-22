@@ -20,12 +20,9 @@ jobs:
 
     - name: Unione nel ramo production
       run:  git merge origin/main
-
-    - name: Esecuzione di test automatici (facoltativo)
-        # Inserire qui i comandi per eseguire i test
-
+    
     - name: Generazione del commit
       run:  git commit -m "Integrazione automatica modifiche dal ramo main"
 
     - name: Inoltro al ramo production
-        git push origin HEAD:+productione
+      run: git push origin HEAD:+productione
