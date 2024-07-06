@@ -14,9 +14,7 @@ jobs:
       
       - name: Setup Node.js
         uses: actions/setup-node@v3
-        with:
-          node-version: 'lts/*'
-          # Usa 'lts/*' per specificare la versione LTS corrente di Node.js
+        
       - name: Install dependencies
         run: npm install
         
