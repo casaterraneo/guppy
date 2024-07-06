@@ -2,7 +2,15 @@ name: Deploy Worker Product
 
 on:
   workflow_dispatch:
-      
+    inputs:
+      working_directory:
+        description: 'Select the working directory'
+        required: true
+        default: 'product-api'
+        type: choice
+        options:
+          - northwind-api
+          - product-api
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -19,4 +27,4 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: "product-api"
+          workingDirectory: ${{ github.event.inputs.working_directory }}
