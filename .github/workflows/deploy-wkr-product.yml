@@ -1,9 +1,7 @@
-name: Deploy
+name: Deploy Worker Product
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
       
 jobs:
   deploy:
