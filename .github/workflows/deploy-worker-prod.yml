@@ -28,3 +28,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: ${{ github.event.inputs.working_directory }}
+          postCommands: |
+            echo "*** post commands ***"
+            wrangler d1 execute northwind-demo --file ./data/northwind.sql
+            echo "******"          
