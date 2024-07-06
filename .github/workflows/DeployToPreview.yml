@@ -1,4 +1,4 @@
-name: Deploy to Preview
+name: Deploy Blazor Preview
 
 on:
   workflow_dispatch:
