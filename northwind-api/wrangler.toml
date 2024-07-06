@@ -5,4 +5,4 @@ compatibility_date = "2023-11-21"
 [[d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
 database_name = "northwind"
-database_id = "" # Replace with your ID from `wrangler d1 create`
+database_id = "acb598ce-bf3e-4334-bd8f-7d4f4b2ac888"
