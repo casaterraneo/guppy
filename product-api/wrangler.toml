@@ -1,4 +1,4 @@
-name = "worker-product"
+name = "product-api"
 main = "./src/index.ts"
 compatibility_date = "2022-10-10"
 
