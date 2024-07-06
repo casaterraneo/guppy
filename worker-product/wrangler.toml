@@ -1,4 +1,4 @@
-name = "" # todo
+name = "worker-product"
 main = "./src/index.ts"
 compatibility_date = "2022-10-10"
 
