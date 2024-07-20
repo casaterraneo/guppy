@@ -19,3 +19,6 @@ Authority
 
 
 dotnet run --urls "https://localhost:7020"
+add on page
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]

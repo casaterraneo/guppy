@@ -9,6 +9,12 @@ type Bindings = {
 const app = new Hono<{ Bindings: Bindings }>();
 app.use('/*', cors());
 
+// Middleware per aggiungere l'intestazione personalizzata
+app.use('/*', async (c, next) => {
+	await next()
+	c.res.headers.append('blazor-environment', 'Staging')
+  });
+
 app.get('/', async c => {
 	const tables = await c.env.DB.prepare(
 		`SELECT name
