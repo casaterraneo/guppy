@@ -1,4 +1,6 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@inject IWebAssemblyHostEnvironment Env
 
 <PageTitle>Home</PageTitle>
 
@@ -7,5 +9,7 @@
 <div class="alert alert-warning" role="alert">
     Before authentication will function correctly, you must configure your provider details in <code>Program.cs</code>
 </div>
+
+<p>Environment: @Env.Environment</p>
 
 Welcome to your new app.
