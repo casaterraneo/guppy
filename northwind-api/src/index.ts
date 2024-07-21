@@ -19,7 +19,7 @@ async function verifyToken(token) {
 const app = new Hono<{ Bindings: Bindings }>();
 app.use('/*', cors());
 
-app.use('/*', async (c, next) => {
+app.use('/api/*', async (c, next) => {
 	const token = c.req.headers.get('Authorization')?.split(' ')[1]
 
 	if (!token) {
@@ -34,6 +34,18 @@ app.use('/*', async (c, next) => {
 	  return c.json({ error: 'Token invalid', message: err.message }, 401)
 	}
   });
+
+// Middleware per verificare i permessi
+function checkPermission(permission) {
+	return (c, next) => {
+	  const user = c.get('user')
+	  if (user && user.permissions && user.permissions.includes(permission)) {
+		return next()
+	  } else {
+		return c.json({ error: 'Insufficient permissions' }, 403)
+	  }
+	}
+  }
 
 // Middleware per aggiungere l'intestazione personalizzata
 // app.use('/*', async (c, next) => {
@@ -96,7 +108,7 @@ app.get('/api/CustomerDemographic', async c => {
 	return c.json(resp.results);
 });
 
-app.get('/api/Employee', async c => {
+app.get('/api/Employee', checkPermission('read:data'), async c => {
 	const resp = await c.env.DB.prepare(`SELECT * FROM [Employee]`).all();
 	return c.json(resp.results);
 });
