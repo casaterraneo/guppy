@@ -108,7 +108,7 @@ app.get('/api/CustomerDemographic', async c => {
 	return c.json(resp.results);
 });
 
-app.get('/api/Employee', checkPermission('read:data'), async c => {
+app.get('/api/Employee', checkPermission('read:employees'), async c => {
 	const resp = await c.env.DB.prepare(`SELECT * FROM [Employee]`).all();
 	return c.json(resp.results);
 });
