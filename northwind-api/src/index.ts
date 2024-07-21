@@ -1,19 +1,45 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { html } from 'hono/html';
+import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 type Bindings = {
 	DB: D1Database;
 };
 
+const JWKS = createRemoteJWKSet(new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json'))
+async function verifyToken(token) {
+	const { payload } = await jwtVerify(token, JWKS, {
+	  audience: 'https://myapi.example.com',
+	  issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
+	})
+	return payload
+  }
+
 const app = new Hono<{ Bindings: Bindings }>();
 app.use('/*', cors());
 
-// Middleware per aggiungere l'intestazione personalizzata
 app.use('/*', async (c, next) => {
-	await next()
-	c.res.headers.append('blazor-environment', 'Staging')
+	const token = c.req.headers.get('Authorization')?.split(' ')[1]
+
+	if (!token) {
+	  return c.json({ error: 'No token provided' }, 401)
+	}
+
+	try {
+	  const payload = await verifyToken(token)
+	  c.set('user', payload)
+	  return next()
+	} catch (err) {
+	  return c.json({ error: 'Token invalid', message: err.message }, 401)
+	}
   });
+
+// Middleware per aggiungere l'intestazione personalizzata
+// app.use('/*', async (c, next) => {
+// 	await next()
+// 	c.res.headers.append('blazor-environment', 'Staging')
+//   });
 
 app.get('/', async c => {
 	const tables = await c.env.DB.prepare(
