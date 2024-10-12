@@ -24,6 +24,12 @@ else
 				<th>Value</th>
 				<th></th>
 			</tr>
+			<tr>
+				<th><a href="#" class="bi bi-plus-lg cursor-pointer" @onclick ="() => PostAsync()"></a></th>
+				<th><input type="text" @bind="currentKey" placeholder="Inserisci la chiave" /></th>
+				<th><input type="text" @bind="currentValue" placeholder="Inserisci il valore" /></th>
+				<th></th>
+			</tr>			
 		</thead>
 		<tbody>
 			@foreach (var kv in kvs)
@@ -42,6 +48,8 @@ else
 @code {
     private KV[]? kvs;
 	private KV? kv;
+	private string? currentKey;
+    private string? currentValue;
 
     protected override async Task OnInitializedAsync()
     {
@@ -52,4 +60,9 @@ else
     {		
 		await Http.DeleteAsync($"kv/{key}");
     }
+
+    async Task PostAsync()
+    {		
+		await Http.PostAsJsonAsync<KV>("kv", new KV { Key = currentKey ?? "", Value = currentValue ?? "" });
+    }	
 }
