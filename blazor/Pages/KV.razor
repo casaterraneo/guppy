@@ -36,11 +36,11 @@ else
 }
 
 @code {
-    private MyKV[]? kvs;
+    private KV[]? kvs;
 
     protected override async Task OnInitializedAsync()
     {
-		kvs = await Http.GetFromJsonAsync<MyKV[]>("kvs");
+		kvs = await Http.GetFromJsonAsync<KV[]>("kvs");
     }
 }
 
