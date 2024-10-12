@@ -1,4 +1,4 @@
-@page "/kvs"
+@page "/kv-list"
 @inject HttpClient Http
 @inject IAccessTokenProvider TokenProvider
 @using Microsoft.AspNetCore.Authorization
@@ -36,11 +36,11 @@ else
 }
 
 @code {
-    private KV[]? kvs;
+    private MyKV[]? kvs;
 
     protected override async Task OnInitializedAsync()
     {
-		kvs = await Http.GetFromJsonAsync<KV[]>("kvs");
+		kvs = await Http.GetFromJsonAsync<MyKV[]>("kvs");
     }
 }
 
