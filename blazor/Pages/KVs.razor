@@ -19,16 +19,20 @@ else
 	<table class="table">
 		<thead>
 			<tr>
+				<th></th>
 				<th>Key</th>
 				<th>Value</th>
+				<th></th>
 			</tr>
 		</thead>
 		<tbody>
 			@foreach (var kv in kvs)
 			{
 				<tr>
+					<td><i class="bi bi-pencil"></i></td>
 					<td>@kv.Key</td>
-					<td>@kv.Value</td>	
+					<td>@kv.Value</td>
+					<td><i class="bi bi-trash3"></i></td>	
 				</tr>
 			}
 		</tbody>
@@ -43,4 +47,3 @@ else
 		kvs = await Http.GetFromJsonAsync<KV[]>("kvs");
     }
 }
-
