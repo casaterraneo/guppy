@@ -1,0 +1,46 @@
+@page "/kvs"
+@inject HttpClient Http
+@inject IAccessTokenProvider TokenProvider
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<PageTitle>KVs</PageTitle>
+
+<h1>KVs</h1>
+
+<p>This component demonstrates fetching KV data from and to the server.</p>
+
+@if (kvs == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Key</th>
+				<th>Value</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var kv in kvs)
+			{
+				<tr>
+					<td>@kv.Key</td>
+					<td>@kv.Value</td>	
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+@code {
+    private KV[]? kvs;
+
+    protected override async Task OnInitializedAsync()
+    {
+		kvs = await Http.GetFromJsonAsync<KV[]>("kvs");
+    }
+}
+

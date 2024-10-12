@@ -6,3 +6,7 @@ compatibility_date = "2023-11-21"
 binding = "DB" # i.e. available in your Worker on env.DB
 database_name = "northwind"
 database_id = "acb598ce-bf3e-4334-bd8f-7d4f4b2ac888"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "fcd2c3d223ef49e2b81eeab2a54a3fba"

@@ -5,6 +5,7 @@ import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 type Bindings = {
 	DB: D1Database;
+	KV: KVNamespace;
 };
 
 const JWKS = createRemoteJWKSet(new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json'))
@@ -152,6 +153,48 @@ app.get('/api/Territory', async c => {
 	const resp = await c.env.DB.prepare(`SELECT * FROM [Territory]`).all();
 	return c.json(resp.results);
 });
+
+
+
+app.get('/api/kv/:key', async (c) => {
+	const key = c.req.param('key');
+	if (!key) return c.json({ error: 'Key is required' }, 400);
+	const value = await c.env.KV.get(key);
+	if (!value) return c.json({ error: 'Key not found' }, 404);
+	return c.json({ key, value });
+  });
+
+  app.get('/api/kvs', async (c) => {
+	const list = await c.env.KV.list();
+	const result = await Promise.all(list.keys.map(async (key) => {
+	  const value = await c.env.KV.get(key.name);
+	  return { key: key.name, value };
+	}));
+	return c.json(result);
+  });
+
+  app.post('/api/kv', async (c) => {
+	const { key, value } = await c.req.json();
+	if (!key || !value) return c.json({ error: 'Key and value are required' }, 400);
+	await c.env.KV.put(key, value);
+	return c.json({ message: 'Item created successfully', key, value });
+  });
+
+  app.put('/api/kv/:key', async (c) => {
+	const key = c.req.param('key');
+	if (!key) return c.json({ error: 'Key is required' }, 400);
+	const { value } = await c.req.json();
+	if (!value) return c.json({ error: 'Value is required' }, 400);
+	await c.env.KV.put(key, value);
+	return c.json({ message: 'Item updated successfully', key, value });
+  });
+
+  app.delete('/api/kv/:key', async (c) => {
+	const key = c.req.param('key');
+	if (!key) return c.json({ error: 'Key is required' }, 400);
+	await c.env.KV.delete(key);
+	return c.json({ key, deleted: true });
+  });
 
 app.onError((err, c) => {
 	console.error(`${err}`);
