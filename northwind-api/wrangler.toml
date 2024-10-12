@@ -10,3 +10,7 @@ database_id = "acb598ce-bf3e-4334-bd8f-7d4f4b2ac888"
 [[kv_namespaces]]
 binding = "KV"
 id = "fcd2c3d223ef49e2b81eeab2a54a3fba"
+
+# wrangler.toml (wrangler v3.78.6^)
+[observability]
+enabled = true
