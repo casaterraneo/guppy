@@ -29,10 +29,10 @@ else
 			@foreach (var kv in kvs)
 			{
 				<tr>
-					<td><i class="bi bi-pencil"></i></td>
+					<td><i class="bi bi-pencil cursor-pointer"></i></td>
 					<td>@kv.Key</td>
 					<td>@kv.Value</td>
-					<td><i class="bi bi-trash3"></i></td>	
+					<td><i class="bi bi-trash3 cursor-pointer" @onclick="() => DeleteAsync(kv)"></i></td>	
 				</tr>
 			}
 		</tbody>
@@ -41,9 +41,15 @@ else
 
 @code {
     private KV[]? kvs;
+	private KV? kv;
 
     protected override async Task OnInitializedAsync()
     {
 		kvs = await Http.GetFromJsonAsync<KV[]>("kvs");
+    }
+
+    async Task DeleteAsync(KV item)
+    {		
+		kv = await Http.DeleteFromJsonAsync<KV>("kvs");
     }
 }
