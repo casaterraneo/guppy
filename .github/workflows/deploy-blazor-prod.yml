@@ -24,12 +24,4 @@ jobs:
     - name: Merge main into production
       run: |
         git merge -X theirs main --allow-unrelated-histories --commit -m "Merge branch 'main' into production"
-
-    - name: Remove files deleted in main branch
-      run: |
-          git checkout main -- . # Checkout all changes from main
-          git clean -f -d        # Remove untracked files and directories
-          git commit -am "Remove files that no longer exist in main"
-  
-    - name: Force push changes to production
-      run: git push origin production --force
+        git push origin production
