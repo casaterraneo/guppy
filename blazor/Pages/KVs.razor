@@ -32,7 +32,7 @@ else
 					<td><i class="bi bi-pencil cursor-pointer"></i></td>
 					<td>@kv.Key</td>
 					<td>@kv.Value</td>
-					<td><i class="bi bi-trash3 cursor-pointer" @onclick="() => DeleteAsync(kv)"></i></td>	
+					<td><i class="bi bi-trash3 cursor-pointer" @onclick="() => DeleteAsync(kv.Key)"></i></td>	
 				</tr>
 			}
 		</tbody>
@@ -48,8 +48,8 @@ else
 		kvs = await Http.GetFromJsonAsync<KV[]>("kvs");
     }
 
-    async Task DeleteAsync(KV item)
+    async Task DeleteAsync(string key)
     {		
-		kv = await Http.DeleteFromJsonAsync<KV>("kvs");
+		await Http.DeleteAsync($"kv/{key}");
     }
 }
