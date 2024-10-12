@@ -24,4 +24,9 @@ jobs:
     - name: Merge main into production
       run: |
         git merge -X theirs main --allow-unrelated-histories --commit -m "Merge branch 'main' into production"
-        git push origin production
+
+    - name: Force delete files that are not in the main branch
+      run: git ls-files -d | xargs git rm
+  
+    - name: Force push changes to production
+      run: git push origin production --force
