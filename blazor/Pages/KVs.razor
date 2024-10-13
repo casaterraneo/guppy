@@ -25,7 +25,7 @@ else
 				<th></th>
 			</tr>
 			<tr>
-				<th><a href="#" class="bi bi-plus-lg cursor-pointer" @onclick ="() => PostAsync()"></a></th>
+				<th><i class="bi bi-plus-lg pointer" @onclick ="() => PostAsync()"></i></th>
 				<th><input type="text" @bind="currentKey" placeholder="Inserisci la chiave" /></th>
 				<th><input type="text" @bind="currentValue" placeholder="Inserisci il valore" /></th>
 				<th></th>
@@ -35,10 +35,10 @@ else
 			@foreach (var kv in kvs)
 			{
 				<tr>
-					<td><i class="bi bi-pencil cursor-pointer"></i></td>
+					<td><i class="bi bi-pencil pointer"></i></td>
 					<td>@kv.Key</td>
 					<td>@kv.Value</td>
-					<td><i class="bi bi-trash3 cursor-pointer" @onclick="() => DeleteAsync(kv.Key)"></i></td>	
+					<td><i class="bi bi-trash3 pointer" @onclick="() => DeleteAsync(kv.Key)"></i></td>	
 				</tr>
 			}
 		</tbody>
@@ -53,16 +53,24 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-		kvs = await Http.GetFromJsonAsync<KV[]>("kvs");
+		kvs = await GetFromJsonAsync();
     }
+
+    async Task<KV[]?> GetFromJsonAsync()
+    {		
+		return await Http.GetFromJsonAsync<KV[]?>("kvs");
+    }	
 
     async Task DeleteAsync(string key)
     {		
 		await Http.DeleteAsync($"kv/{key}");
+		kvs = await GetFromJsonAsync();
     }
 
     async Task PostAsync()
     {		
-		await Http.PostAsJsonAsync<KV>("kv", new KV { Key = currentKey ?? "", Value = currentValue ?? "" });
+		var newItem = new KV { Key = currentKey ?? "", Value = currentValue ?? "" };
+		await Http.PostAsJsonAsync<KV>("kv", newItem);
+		kvs = await GetFromJsonAsync();
     }	
 }

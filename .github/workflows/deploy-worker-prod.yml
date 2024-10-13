@@ -11,6 +11,7 @@ on:
         options:
           - northwind-api
           - product-api
+          - kv-api
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -28,6 +29,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: ${{ github.event.inputs.working_directory }}
+          if: ${{ github.event.inputs.working_directory == 'northwind-api' }}
           postCommands: |
             echo "*** post commands ***"
             wrangler d1 execute northwind --file ./data/northwind.sql
