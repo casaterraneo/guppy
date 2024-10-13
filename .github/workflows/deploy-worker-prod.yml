@@ -6,12 +6,12 @@ on:
       working_directory:
         description: 'Select the working directory'
         required: true
-        default: 'product-api'
+        default: 'product'
         type: choice
         options:
-          - northwind-api
-          - product-api
-          - kv-api
+          - northwind
+          - product
+          - kv
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -28,9 +28,8 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: ${{ github.event.inputs.working_directory }}
-          if: ${{ github.event.inputs.working_directory == 'northwind-api' }}
+          workingDirectory: "${{ github.event.inputs.working_directory }}-api"          
           postCommands: |
             echo "*** post commands ***"
-            wrangler d1 execute northwind --file ./data/northwind.sql
+            wrangler d1 execute ${{ github.event.inputs.working_directory }} --file ./data/${{ github.event.inputs.working_directory }}.sql
             echo "******"          
