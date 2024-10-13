@@ -2,6 +2,11 @@ name = "kv-api"
 main = "src/index.ts"
 compatibility_date = "2023-11-21"
 
+[[d1_databases]]
+binding = "DB" # i.e. available in your Worker on env.DB
+database_name = "kv"
+database_id = "ad8bae1c-7e24-4883-80e2-4d6b7b415578"
+
 [[kv_namespaces]]
 binding = "KV"
 id = "fcd2c3d223ef49e2b81eeab2a54a3fba"
