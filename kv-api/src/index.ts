@@ -77,6 +77,7 @@ app.get('/api/kv/:key', async (c) => {
 
 	const result = await Promise.all(list.keys.map(async (key) => {
 	  const value = await c.env.KV.get(key.name);
+	  console.log({key_name: key.name})
 	  // Se il prefisso è dei file, restituisce una stringa vuota
 	  if (key.name.startsWith("f||")) {
 		return { key: key.name, value: "" };
