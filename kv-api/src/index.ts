@@ -61,13 +61,33 @@ app.get('/api/kv/:key', async (c) => {
   });
 
   app.get('/api/kvs', async (c) => {
-	const list = await c.env.KV.list();
+	// Recupera i parametri dalla query string
+	const prefix = c.req.query('prefix');
+	const limit = c.req.query('limit');
+	const cursor = c.req.query('cursor');
+
+	// Costruisce l'oggetto options solo con i valori presenti
+	const options = {};
+	if (prefix) options.prefix = prefix;
+	if (limit) options.limit = limit;
+	if (cursor) options.cursor = cursor;
+
+	// Esegue la chiamata KV.list con le options (se presenti)
+	const list = await c.env.KV.list(options);
+
 	const result = await Promise.all(list.keys.map(async (key) => {
 	  const value = await c.env.KV.get(key.name);
+	  // Se il prefisso è dei file, restituisce una stringa vuota
+	  if (key.name.startsWith("f||")) {
+		return { key: key.name, value: "" };
+	  }
 	  return { key: key.name, value };
+
 	}));
+
 	return c.json(result);
   });
+
 
   app.post('/api/kv', async (c) => {
 	const { key, value } = await c.req.json();

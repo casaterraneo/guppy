@@ -32,8 +32,7 @@ else
 			</tr>	
 			<tr>
 				<th>file</th>
-				<th>@loadedFile?.Name</th>
-				<th><InputFile OnChange="OnInputFileChange" multiple /></th>
+				<th colspan="2"><InputFile OnChange="OnInputFileChange" /></th>
 				<th></th>
 			</tr>					
 		</thead>
@@ -42,7 +41,7 @@ else
 			{
 				<tr>
 					<td><i class="bi bi-pencil pointer"></i></td>
-					<td>@kv.Key</td>
+					<td>@kv.Key?.Replace(file_prefix, "")?.Replace(string_prefix, "")</td>
 					<td>@kv.Value</td>
 					<td><i class="bi bi-trash3 pointer" @onclick="() => DeleteAsync(kv.Key)"></i></td>	
 				</tr>
@@ -59,16 +58,28 @@ else
 	private List<IBrowserFile> loadedFiles = new();
 	private IBrowserFile? loadedFile;
 
+	const string file_prefix = "f||";
+	const string string_prefix = "s||";
+
     private List<UploadResult> uploadResults = new();
     protected override async Task OnInitializedAsync()
     {
 		kvs = await GetFromJsonAsync();
     }
 
-    async Task<KV<string>[]?> GetFromJsonAsync()
-    {		
-		return await Http.GetFromJsonAsync<KV<string>[]?>("kvs");
-    }	
+	async Task<KV<string>[]?> GetFromJsonAsync(string? prefix = null, string? limit = null, string? cursor = null)
+	{
+		// Costruisce la query string in base ai parametri forniti
+		var query = new List<string>();
+		if (!string.IsNullOrEmpty(prefix)) query.Add($"prefix={Uri.EscapeDataString(prefix)}");
+		if (!string.IsNullOrEmpty(limit)) query.Add($"limit={Uri.EscapeDataString(limit)}");
+		if (!string.IsNullOrEmpty(cursor)) query.Add($"cursor={Uri.EscapeDataString(cursor)}");
+
+		var queryString = query.Count > 0 ? "?" + string.Join("&", query) : string.Empty;
+
+		// Aggiunge la query string all'URL della richiesta
+		return await Http.GetFromJsonAsync<KV<string>[]?>($"kvs{queryString}");
+	}
 
     async Task DeleteAsync(string key)
     {		
@@ -78,7 +89,9 @@ else
 
     async Task PostAsync()
     {		
-		var newItem = new KV<string> { Key = currentKey ?? "", Value = currentValue ?? "" };
+		if(string.IsNullOrEmpty(currentKey)) return;
+
+		var newItem = new KV<string> { Key = $"{string_prefix}{currentKey}", Value = currentValue ?? "" };
 		await Http.PostAsJsonAsync<KV<string>>("kv", newItem);
 		kvs = await GetFromJsonAsync();
     }	
@@ -92,7 +105,7 @@ else
 		using var stream = file.OpenReadStream();
 		using var memoryStream = new MemoryStream();
 		await stream.CopyToAsync(memoryStream);
-		var newItem = new KV<byte[]> { Key = loadedFile?.Name ?? "", Value = memoryStream.ToArray() };
+		var newItem = new KV<byte[]> { Key = $"{file_prefix}{loadedFile?.Name}" ?? "", Value = memoryStream.ToArray() };
 		await Http.PostAsJsonAsync<KV<byte[]>>("kv", newItem);
 		kvs = await GetFromJsonAsync();			            		
     }
