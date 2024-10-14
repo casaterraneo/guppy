@@ -25,7 +25,7 @@ else
 				<th></th>
 			</tr>
 			<tr>
-				<th><i class="bi bi-plus-lg" style="cursor:pointer;" @onclick ="() => PostAsync()"></i></th>
+				<th><i class="bi bi-plus-lg pointer" @onclick ="() => PostAsync()"></i></th>
 				<th><input type="text" @bind="currentKey" placeholder="Inserisci la chiave" /></th>
 				<th><input type="text" @bind="currentValue" placeholder="Inserisci il valore" /></th>
 				<th></th>
@@ -52,8 +52,8 @@ else
 }
 
 @code {
-    private KV[]? kvs;
-	private KV? kv;
+    private KV<string>[]? kvs;
+	private KV<string>? kv;
 	private string? currentKey;
     private string? currentValue;
 	private List<IBrowserFile> loadedFiles = new();
@@ -65,9 +65,9 @@ else
 		kvs = await GetFromJsonAsync();
     }
 
-    async Task<KV[]?> GetFromJsonAsync()
+    async Task<KV<string>[]?> GetFromJsonAsync()
     {		
-		return await Http.GetFromJsonAsync<KV[]?>("kvs");
+		return await Http.GetFromJsonAsync<KV<string>[]?>("kvs");
     }	
 
     async Task DeleteAsync(string key)
@@ -78,17 +78,22 @@ else
 
     async Task PostAsync()
     {		
-		var newItem = new KV { Key = currentKey ?? "", Value = currentValue ?? "" };
-		await Http.PostAsJsonAsync<KV>("kv", newItem);
+		var newItem = new KV<string> { Key = currentKey ?? "", Value = currentValue ?? "" };
+		await Http.PostAsJsonAsync<KV<string>>("kv", newItem);
 		kvs = await GetFromJsonAsync();
     }	
 
 	private async Task OnInputFileChange(InputFileChangeEventArgs e)
     {
         var file = e.GetMultipleFiles(1).FirstOrDefault();
-        if (file != null)
-        {
-            loadedFile = file;
-        }
+        if (file == null) return;
+
+		loadedFile = file;
+		using var stream = file.OpenReadStream();
+		using var memoryStream = new MemoryStream();
+		await stream.CopyToAsync(memoryStream);
+		var newItem = new KV<byte[]> { Key = currentKey ?? "", BufferValue = memoryStream.ToArray() };
+		await Http.PostAsJsonAsync<KV<byte[]>>("kv", newItem);
+		kvs = await GetFromJsonAsync();			            		
     }
 }
