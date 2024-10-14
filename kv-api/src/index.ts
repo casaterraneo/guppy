@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { logger } from 'hono/logger'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 type Bindings = {
@@ -16,6 +17,7 @@ async function verifyToken(token) {
   }
 
 const app = new Hono<{ Bindings: Bindings }>();
+app.use(logger());
 app.use('/*', cors());
 
 app.use('/api/*', async (c, next) => {
@@ -77,9 +79,9 @@ app.get('/api/kv/:key', async (c) => {
 
 	const result = await Promise.all(list.keys.map(async (key) => {
 	  const value = await c.env.KV.get(key.name);
-	  console.log(`Key "${key.name}"`);
+	  console.log('Key "${key.name}"');
 	  // Se il prefisso è dei file, restituisce una stringa vuota
-	  if (key.name.startsWith("f||")) {
+	  if (key.name.startsWith('f||')) {
 		return { key: key.name, value: "" };
 	  }
 	  return { key: key.name, value };
