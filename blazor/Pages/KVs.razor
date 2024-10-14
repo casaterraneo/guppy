@@ -92,7 +92,7 @@ else
 		using var stream = file.OpenReadStream();
 		using var memoryStream = new MemoryStream();
 		await stream.CopyToAsync(memoryStream);
-		var newItem = new KV<byte[]> { Key = currentKey ?? "", BufferValue = memoryStream.ToArray() };
+		var newItem = new KV<byte[]> { Key = currentKey ?? "", Value = memoryStream.ToArray() };
 		await Http.PostAsJsonAsync<KV<byte[]>>("kv", newItem);
 		kvs = await GetFromJsonAsync();			            		
     }
