@@ -25,11 +25,17 @@ else
 				<th></th>
 			</tr>
 			<tr>
-				<th><i class="bi bi-plus-lg pointer" @onclick ="() => PostAsync()"></i></th>
+				<th><i class="bi bi-plus-lg" style="cursor:pointer;" @onclick ="() => PostAsync()"></i></th>
 				<th><input type="text" @bind="currentKey" placeholder="Inserisci la chiave" /></th>
 				<th><input type="text" @bind="currentValue" placeholder="Inserisci il valore" /></th>
 				<th></th>
-			</tr>			
+			</tr>	
+			<tr>
+				<th>file</th>
+				<th>@loadedFile?.Name</th>
+				<th><InputFile OnChange="OnInputFileChange" multiple /></th>
+				<th></th>
+			</tr>					
 		</thead>
 		<tbody>
 			@foreach (var kv in kvs)
@@ -50,7 +56,10 @@ else
 	private KV? kv;
 	private string? currentKey;
     private string? currentValue;
+	private List<IBrowserFile> loadedFiles = new();
+	private IBrowserFile? loadedFile;
 
+    private List<UploadResult> uploadResults = new();
     protected override async Task OnInitializedAsync()
     {
 		kvs = await GetFromJsonAsync();
@@ -73,4 +82,13 @@ else
 		await Http.PostAsJsonAsync<KV>("kv", newItem);
 		kvs = await GetFromJsonAsync();
     }	
+
+	private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.GetMultipleFiles(1).FirstOrDefault();
+        if (file != null)
+        {
+            loadedFile = file;
+        }
+    }
 }
