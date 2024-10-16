@@ -1,7 +1,6 @@
 @page "/employees"
-@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
 @inject IAccessTokenProvider TokenProvider
-@* @inject EmployeeClient Client *@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 
@@ -85,7 +84,8 @@ else
         	employees = await Http.GetFromJsonAsync<Employee[]>("https://northwind-api.casa-terraneo.workers.dev/api/Employee");
 		} *@
 
-		employees = await Http.GetFromJsonAsync<Employee[]>("Employee");		
+		var http = HttpClientFactory.CreateClient("northwind");
+		employees = await http.GetFromJsonAsync<Employee[]>("Employee");		
 		//employees = await Client.GetEmployeeAsync();		
     }
 }

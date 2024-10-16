@@ -42,7 +42,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 //         authorizedUrls: new [] { "https://northwind-api.casa-terraneo.workers.dev/api/" },
 //         scopes: new[] { "example.read", "example.write" }));
 
-builder.Services.AddHttpClient("WebAPI",
+builder.Services.AddHttpClient("northwind",
         client => client.BaseAddress = new Uri("https://northwind-api.casa-terraneo.workers.dev/api/"))
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
     .ConfigureHandler(
@@ -50,8 +50,16 @@ builder.Services.AddHttpClient("WebAPI",
         //,scopes: new[] { "example.read", "example.write" }
         ));
 
- builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
-     .CreateClient("WebAPI"));        
+builder.Services.AddHttpClient("kv",
+        client => client.BaseAddress = new Uri("https://kv-api.casa-terraneo.workers.dev/api/"))
+    .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
+    .ConfigureHandler(
+        authorizedUrls: new [] { "https://kv-api.casa-terraneo.workers.dev/api/" }
+        //,scopes: new[] { "example.read", "example.write" }
+        ));        
+
+// builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
+//     .CreateClient("WebAPI"));        
 
 builder.Services.AddOidcAuthentication(options =>
 {

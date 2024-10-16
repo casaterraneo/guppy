@@ -74,8 +74,6 @@ app.get('/api/kv/:key', async (c) => {
 	if (limit) options.limit = limit;
 	if (cursor) options.cursor = cursor;
 
-	console.log('/api/kvs');
-
 	// Esegue la chiamata KV.list con le options (se presenti)
 	const list = await c.env.KV.list(options);
 
@@ -85,7 +83,7 @@ app.get('/api/kv/:key', async (c) => {
 	  if (key.name.startsWith("f_")) {
 		return { key: key.name, value: "" };
 	  }
-	  return { key: key.name, value: "" };
+	  return { key: key.name, value };
 	}));
 
 	return c.json(result);
