@@ -85,7 +85,7 @@ app.get('/api/kv/:key', async (c) => {
 	  if (key.name.startsWith("f_")) {
 		return { key: key.name, value: "" };
 	  }
-	  return { key: key.name, value };
+	  return { key: key.name, value: typeof value };
 	}));
 
 	return c.json(result);
