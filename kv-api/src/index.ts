@@ -74,20 +74,18 @@ app.get('/api/kv/:key', async (c) => {
 	if (limit) options.limit = limit;
 	if (cursor) options.cursor = cursor;
 
+	console.log('/api/kvs');
+
 	// Esegue la chiamata KV.list con le options (se presenti)
 	const list = await c.env.KV.list(options);
 
 	const result = await Promise.all(list.keys.map(async (key) => {
 	  const value = await c.env.KV.get(key.name);
-	  console.log(key.name);
-	  console.error(key.name);
 	  // Se il prefisso è dei file, restituisce una stringa vuota
 	  if (key.name.startsWith("f_")) {
-		console.error(key.name);
 		return { key: key.name, value: "" };
 	  }
 	  return { key: key.name, value };
-
 	}));
 
 	return c.json(result);
