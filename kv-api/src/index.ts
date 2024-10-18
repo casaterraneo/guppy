@@ -98,7 +98,22 @@ app.get('/api/kv/:key', async (c) => {
   });
 
   app.post('/api/stream', async (c) => {
-	console.log(`Type of c.req.body: ${typeof c.req.body}`);
+
+	const body = c.req.body;
+
+    // Log del tipo di body ricevuto
+    if (body instanceof ReadableStream) {
+        console.log("Body is a ReadableStream");
+    } else if (body instanceof ArrayBuffer) {
+        console.log("Body is an ArrayBuffer");
+    } else if (typeof body === 'string') {
+        console.log("Body is a string");
+    } else if (body instanceof FormData) {
+        console.log("Body is FormData");
+    } else {
+        console.log(`Unknown body type: ${typeof body}`);
+    }
+
 	await c.env.KV.put("stream", c.req.body);
 	return c.json({ message: 'Item stream created successfully'});
   });
