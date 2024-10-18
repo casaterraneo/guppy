@@ -124,7 +124,9 @@ else
 		//var httpContent = new MultipartFormDataContent();
 		//httpContent.Add(new StreamContent(stream), "file", e.File.Name);
 		var httpClient = HttpClientFactory.CreateClient("kv");
-		var response = await httpClient.PostAsync("stream", new StreamContent(stream));
+		using var content = new StreamContent(stream);
+		content.Headers.Add("Content-Type", "application/octet-stream");
+		var response = await httpClient.PostAsync("stream", content);
         if (response.IsSuccessStatusCode)
         {
             Console.WriteLine("File uploaded successfully!");
