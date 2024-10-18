@@ -98,7 +98,7 @@ app.get('/api/kv/:key', async (c) => {
   });
 
   app.post('/api/stream', async (c) => {
-	await c.env.KV.put("stream", c.req.body);
+	await c.env.KV.put("stream", c.req.body?.getReader());
 	return c.json({ message: 'Item stream created successfully'});
   });
 
