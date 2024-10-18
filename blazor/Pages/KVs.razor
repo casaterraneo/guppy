@@ -34,7 +34,12 @@ else
 				<th>file</th>
 				<th colspan="2"><InputFile OnChange="OnInputFileChange" /></th>
 				<th></th>
-			</tr>					
+			</tr>
+			<tr>
+				<th>stream</th>
+				<th colspan="2"><InputFile OnChange="OnInputFileChangeByStream" /></th>
+				<th></th>
+			</tr>								
 		</thead>
 		<tbody>
 			@foreach (var kv in kvs)
@@ -55,13 +60,9 @@ else
 	private KV<string>? kv;
 	private string? currentKey;
     private string? currentValue;
-	private List<IBrowserFile> loadedFiles = new();
-	private IBrowserFile? loadedFile;
-
 	const string file_prefix = "f_";
 	const string string_prefix = "s_";
-
-    private List<UploadResult> uploadResults = new();
+    
     protected override async Task OnInitializedAsync()
     {
 		kvs = await GetFromJsonAsync();
@@ -104,13 +105,33 @@ else
         var file = e.GetMultipleFiles(1).FirstOrDefault();
         if (file == null) return;
 
-		loadedFile = file;
 		using var stream = file.OpenReadStream();
 		using var memoryStream = new MemoryStream();
 		await stream.CopyToAsync(memoryStream);
-		var newItem = new KV<byte[]> { Key = $"{file_prefix}{loadedFile?.Name}" ?? "", Value = memoryStream.ToArray() };
+		var newItem = new KV<byte[]> { Key = $"{file_prefix}{file?.Name}" ?? "", Value = memoryStream.ToArray() };
 		var http = HttpClientFactory.CreateClient("kv");
 		await http.PostAsJsonAsync<KV<byte[]>>("kv", newItem);
 		kvs = await GetFromJsonAsync();			            		
     }
+
+	private async Task OnInputFileChangeByStream(InputFileChangeEventArgs e)
+    {
+        var file = e.GetMultipleFiles(1).FirstOrDefault();
+        if (file == null) return;
+
+		using var stream = file.OpenReadStream();
+		var httpContent = new MultipartFormDataContent();
+		httpContent.Add(new StreamContent(stream), "file", e.File.Name);
+		var httpClient = HttpClientFactory.CreateClient("kv");
+		var response = await httpClient.PostAsync("stream", httpContent);
+        if (response.IsSuccessStatusCode)
+        {
+            Console.WriteLine("File uploaded successfully!");
+        }
+        else
+        {
+            Console.WriteLine("Error uploading file.");
+        }
+		kvs = await GetFromJsonAsync();			            		
+    }	
 }

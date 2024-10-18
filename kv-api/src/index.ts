@@ -97,6 +97,11 @@ app.get('/api/kv/:key', async (c) => {
 	return c.json({ message: 'Item created successfully', key, value });
   });
 
+  app.post('/api/stream', async (c) => {
+	await c.env.KV.put("stream", c.req.body);
+	return c.json({ message: 'Item stream created successfully'});
+  });
+
   app.put('/api/kv/:key', async (c) => {
 	const key = c.req.param('key');
 	if (!key) return c.json({ error: 'Key is required' }, 400);
