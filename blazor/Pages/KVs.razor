@@ -121,10 +121,10 @@ else
         if (file == null) return;
 
 		using var stream = file.OpenReadStream();
-		var httpContent = new MultipartFormDataContent();
-		httpContent.Add(new StreamContent(stream), "file", e.File.Name);
+		//var httpContent = new MultipartFormDataContent();
+		//httpContent.Add(new StreamContent(stream), "file", e.File.Name);
 		var httpClient = HttpClientFactory.CreateClient("kv");
-		var response = await httpClient.PostAsync("stream", httpContent);
+		var response = await httpClient.PostAsync("stream", new StreamContent(stream));
         if (response.IsSuccessStatusCode)
         {
             Console.WriteLine("File uploaded successfully!");
@@ -134,5 +134,5 @@ else
             Console.WriteLine("Error uploading file.");
         }
 		kvs = await GetFromJsonAsync();			            		
-    }	
+    }		
 }
