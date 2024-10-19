@@ -14,3 +14,6 @@ id = "fcd2c3d223ef49e2b81eeab2a54a3fba"
 # wrangler.toml (wrangler v3.78.6^)
 [observability]
 enabled = true
+
+[env.staging]
+workers_dev = true
