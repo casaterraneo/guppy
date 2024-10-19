@@ -1,7 +1,7 @@
 name: Deploy Blazor Test
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Avvio manuale
 
 jobs:
   commit-changes:
