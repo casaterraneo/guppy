@@ -28,7 +28,8 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: "${{ github.event.inputs.working_directory }}-api"          
+          workingDirectory: "${{ github.event.inputs.working_directory }}-api"   
+          environment: "staging"       
           postCommands: |
             echo "*** post commands ***"
             wrangler d1 execute ${{ github.event.inputs.working_directory }} --file ./data/${{ github.event.inputs.working_directory }}.sql
