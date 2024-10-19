@@ -1,4 +1,4 @@
-name: Deploy Blazor Preview
+name: Deploy Blazor Test
 
 on:
   workflow_dispatch:
@@ -18,10 +18,10 @@ jobs:
     - name: Fetch all branches
       run: git fetch --all
 
-    - name: Checkout preview branch
-      run: git checkout preview
+    - name: Checkout staging branch
+      run: git checkout staging
 
-    - name: Merge main into preview
+    - name: Merge main into staging
       run: |
-        git merge -X theirs main --allow-unrelated-histories --commit -m "Merge branch 'main' into preview"
-        git push origin preview
+        git merge -X theirs main --allow-unrelated-histories --commit -m "Merge branch 'main' into staging"
+        git push origin staging
