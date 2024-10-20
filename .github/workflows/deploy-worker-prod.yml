@@ -1,4 +1,4 @@
-name: Deploy Worker Product
+name: Deploy Worker Prod
 
 on:
   workflow_dispatch:
