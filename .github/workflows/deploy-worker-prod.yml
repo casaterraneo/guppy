@@ -6,11 +6,10 @@ on:
       working_directory:
         description: 'Select the working directory'
         required: true
-        default: 'product'
+        default: 'northwind'
         type: choice
         options:
           - northwind
-          - product
           - kv
 jobs:
   deploy:
@@ -29,6 +28,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: "${{ github.event.inputs.working_directory }}-api"        
+					environment: "staging"
           postCommands: |
             echo "*** post commands ***"
             wrangler d1 execute ${{ github.event.inputs.working_directory }} --file ./data/${{ github.event.inputs.working_directory }}.sql --remote 
