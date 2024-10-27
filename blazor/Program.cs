@@ -50,6 +50,7 @@ if (environment.IsStaging())
     Console.WriteLine("Siamo in ambiente di staging");
 }
 
+
 builder.Services.AddHttpClient("northwind",
         client => client.BaseAddress = new Uri("https://northwind-api.casa-terraneo.workers.dev/api/"))
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
