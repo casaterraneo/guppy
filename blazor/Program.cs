@@ -42,6 +42,14 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 //         authorizedUrls: new [] { "https://northwind-api.casa-terraneo.workers.dev/api/" },
 //         scopes: new[] { "example.read", "example.write" }));
 
+//var environment = builder.HostEnvironment.Environment;
+var environment = builder.HostEnvironment;
+if (environment.IsStaging())
+{
+    // Logica per ambiente di staging
+    Console.WriteLine("Siamo in ambiente di staging");
+}
+
 builder.Services.AddHttpClient("northwind",
         client => client.BaseAddress = new Uri("https://northwind-api.casa-terraneo.workers.dev/api/"))
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
