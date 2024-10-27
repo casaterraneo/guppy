@@ -11,4 +11,4 @@ chmod +x dotnet-install.sh
 echo "DOTNET_ENVIRONMENT: $DOTNET_ENVIRONMENT"
 
 # Pubblica l'app con dotnet
-./dotnet/dotnet publish -c Release -o output
+./dotnet/dotnet publish -c Release -o output -p:EnvironmentName=$DOTNET_ENVIRONMENT
