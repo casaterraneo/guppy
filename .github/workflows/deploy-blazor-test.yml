@@ -1,7 +1,7 @@
 name: Deploy Blazor Test
 
 on:
-  workflow_dispatch:  # Avvio manuale
+  workflow_dispatch:
 
 jobs:
   commit-changes:
@@ -18,10 +18,14 @@ jobs:
     - name: Fetch all branches
       run: git fetch --all
 
-    - name: Checkout staging branch
-      run: git checkout staging
-
-    - name: Merge main into staging
+    - name: Delete staging branch from remote
       run: |
-        git merge -X theirs main --allow-unrelated-histories --commit -m "Merge branch 'main' into staging"
-        git push origin staging
+        git push origin --delete staging || echo "Production branch doesn't exist"
+
+    - name: Create new staging branch from main
+      run: |
+        git checkout main
+        git checkout -b staging
+
+    - name: Push new staging branch to remote
+      run: git push origin staging --force
