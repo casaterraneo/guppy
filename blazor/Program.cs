@@ -5,44 +5,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
-
 builder.RootComponents.Add<HeadOutlet>("head::after");
-//builder.Services.AddAuthorizationCore();
-
-//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-
-// builder.Services.AddHttpClient("WebAPI", 
-//         client => client.BaseAddress = new Uri("https://localhost:7020"))
-//     .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
-
-//builder.Services.AddTransient<CustomAuthorizationMessageHandler>();
-
-// builder.Services.AddHttpClient("WebAPI",
-//         client => client.BaseAddress = new Uri("https://northwind-api.casa-terraneo.workers.dev/api/"))
-//     .AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
-
-// builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
-//     .CreateClient("WebAPI"));
-
-//Non va
-// builder.Services.AddScoped(sp => new HttpClient(
-//     sp.GetRequiredService<AuthorizationMessageHandler>()
-//     .ConfigureHandler(
-//         authorizedUrls: new[] { "https://northwind-api.casa-terraneo.workers.dev/api/" },
-//         scopes: new[] { "example.read", "example.write" }))
-//     {
-//         BaseAddress = new Uri("https://northwind-api.casa-terraneo.workers.dev/api/")
-//     });
-
-
-// builder.Services.AddHttpClient<EmployeeClient>(
-//         client => client.BaseAddress = new Uri("https://northwind-api.casa-terraneo.workers.dev/api/"))
-//     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
-//     .ConfigureHandler(
-//         authorizedUrls: new [] { "https://northwind-api.casa-terraneo.workers.dev/api/" },
-//         scopes: new[] { "example.read", "example.write" }));
-
-//var environment = builder.HostEnvironment.Environment;
 var environment = builder.HostEnvironment;
 if (environment.IsStaging())
 {
@@ -50,6 +13,8 @@ if (environment.IsStaging())
     Console.WriteLine("Siamo in ambiente di staging");
 }
 
+// Usa BaseAddress dell'host environment come fallback se non c'è un URL personalizzato
+var baseUrl = builder.Configuration["BaseUrl"] ?? builder.HostEnvironment.BaseAddress;
 
 builder.Services.AddHttpClient("northwind",
         client => client.BaseAddress = new Uri("https://northwind-api.casa-terraneo.workers.dev/api/"))
@@ -60,10 +25,10 @@ builder.Services.AddHttpClient("northwind",
         ));
 
 builder.Services.AddHttpClient("kv",
-        client => client.BaseAddress = new Uri("https://kv-api.casa-terraneo.workers.dev/api/"))
+        client => client.BaseAddress = new Uri(baseUrl))
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
     .ConfigureHandler(
-        authorizedUrls: new [] { "https://kv-api.casa-terraneo.workers.dev/api/" }
+        authorizedUrls: new [] { baseUrl }
         //,scopes: new[] { "example.read", "example.write" }
         ));        
 
