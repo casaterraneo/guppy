@@ -15,8 +15,6 @@ if [ "$DOTNET_ENVIRONMENT" = "Production" ]; then
     cp ./wwwroot/_headers_Production ./wwwroot/_headers
 elif [ "$DOTNET_ENVIRONMENT" = "Staging" ]; then
     cp ./wwwroot/_headers_Staging ./wwwroot/_headers
-elif [ "$DOTNET_ENVIRONMENT" = "Development" ]; then
-    cp ./wwwroot/_headers_Development ./wwwroot/_headers
 else
     echo "Ambiente non riconosciuto, usando file _headers di default"
 fi
