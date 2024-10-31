@@ -17,3 +17,7 @@ enabled = true
 
 [env.staging]
 workers_dev = true
+
+[[env.staging.kv_namespaces]]
+binding = "KV"
+id = "4120f525244949ebbd838df112882cdc"
