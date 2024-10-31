@@ -1,4 +1,4 @@
-name: Deploy Blazor Test
+name: Deploy Blazor Dev
 
 on:
   workflow_dispatch:
