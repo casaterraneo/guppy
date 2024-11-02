@@ -7,33 +7,16 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 var environment = builder.HostEnvironment;
-if (environment.IsStaging())
-{
-    // Logica per ambiente di staging
-    Console.WriteLine("Siamo in ambiente di staging");
-}
 
-// Usa BaseAddress dell'host environment come fallback se non c'è un URL personalizzato
 var baseUrl = builder.Configuration["BaseUrl"] ?? builder.HostEnvironment.BaseAddress;
 
-builder.Services.AddHttpClient("northwind",
-        client => client.BaseAddress = new Uri("https://northwind-api.casa-terraneo.workers.dev/api/"))
-    .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
-    .ConfigureHandler(
-        authorizedUrls: new [] { "https://northwind-api.casa-terraneo.workers.dev/api/" }
-        //,scopes: new[] { "example.read", "example.write" }
-        ));
-
-builder.Services.AddHttpClient("kv",
+builder.Services.AddHttpClient("api",
         client => client.BaseAddress = new Uri(baseUrl))
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
     .ConfigureHandler(
         authorizedUrls: new [] { baseUrl }
         //,scopes: new[] { "example.read", "example.write" }
-        ));        
-
-// builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
-//     .CreateClient("WebAPI"));        
+        ));              
 
 builder.Services.AddOidcAuthentication(options =>
 {

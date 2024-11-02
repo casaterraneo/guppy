@@ -1,0 +1,39 @@
+name = "guppy-api"
+main = "src/index.ts"
+compatibility_date = "2023-11-21"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "guppy-db-development"
+database_id = "4f9dada0-4da7-4794-a167-ef73eb666908"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "732f400c57184569b1923135b41b1450"
+
+[observability]
+enabled = true
+
+[env.staging]
+workers_dev = true
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "guppy-db-staging"
+database_id = "7ea075db-e0cc-4a7a-bd35-33f13827e3d0"
+
+[[env.staging.kv_namespaces]]
+binding = "KV"
+id = "87a1f59c5a194e2789d9ffac22e9bd38"
+
+[env.production]
+workers_dev = true
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "guppy-db-production"
+database_id = "0958528c-91a1-4c34-8e14-b805513600a4"
+
+[[env.production.kv_namespaces]]
+binding = "KV"
+id = "024cb8ce59f8466daef9e7c5d6058a4e"

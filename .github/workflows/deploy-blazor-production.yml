@@ -1,4 +1,4 @@
-name: Deploy Blazor Prod
+name: deploy-blazor-production
 
 on:
   workflow_dispatch:

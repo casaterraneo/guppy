@@ -1,16 +1,8 @@
-name: Deploy Worker Prod
+name: deploy-worker-staging
 
 on:
   workflow_dispatch:
-    inputs:
-      working_directory:
-        description: 'Select the working directory'
-        required: true
-        default: 'northwind'
-        type: choice
-        options:
-          - northwind
-          - kv
+    
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -27,9 +19,9 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: "${{ github.event.inputs.working_directory }}-api"
+          workingDirectory: "api"
           environment: "staging"
           postCommands: |
             echo "*** post commands ***"
-            wrangler d1 execute ${{ github.event.inputs.working_directory }} --file ./data/${{ github.event.inputs.working_directory }}.sql --remote 
+            wrangler d1 execute guppy-db-staging --file ./data/scripts.sql --remote 
             echo "******"          

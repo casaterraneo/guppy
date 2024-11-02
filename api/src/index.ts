@@ -54,6 +54,11 @@ function checkPermission(permission) {
 // 	c.res.headers.append('blazor-environment', 'Staging')
 //   });
 
+app.get('/api/Employee', checkPermission('read:employees'), async c => {
+	const resp = await c.env.DB.prepare(`SELECT * FROM [Employee]`).all();
+	return c.json(resp.results);
+});
+
 app.get('/api/kv/:key', async (c) => {
 	const key = c.req.param('key');
 	if (!key) return c.json({ error: 'Key is required' }, 400);

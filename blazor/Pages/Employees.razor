@@ -76,17 +76,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-		@* var tokenResult = await TokenProvider.RequestAccessToken();
-		
-		if (tokenResult.TryGetToken(out var token))
-        {
-			Http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token.Value);
-        	employees = await Http.GetFromJsonAsync<Employee[]>("https://northwind-api.casa-terraneo.workers.dev/api/Employee");
-		} *@
-
-		var http = HttpClientFactory.CreateClient("northwind");
-		employees = await http.GetFromJsonAsync<Employee[]>("Employee");		
-		//employees = await Client.GetEmployeeAsync();		
+		var http = HttpClientFactory.CreateClient("api");
+		employees = await http.GetFromJsonAsync<Employee[]>("Employee");			
     }
 }
 

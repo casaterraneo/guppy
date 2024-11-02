@@ -1,0 +1,27 @@
+name: deploy-worker-production
+
+on:
+  workflow_dispatch:
+    
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*'                
+        
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: "api"
+          environment: "production"
+          postCommands: |
+            echo "*** post commands ***"
+            wrangler d1 execute guppy-db-production --file ./data/scripts.sql --remote 
+            echo "******"          

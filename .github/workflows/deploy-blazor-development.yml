@@ -1,4 +1,4 @@
-name: Deploy Blazor Test
+name: deploy-blazor-development
 
 on:
   workflow_dispatch:
@@ -18,14 +18,14 @@ jobs:
     - name: Fetch all branches
       run: git fetch --all
 
-    - name: Delete staging branch from remote
+    - name: Delete development branch from remote
       run: |
-        git push origin --delete staging || echo "Staging branch doesn't exist"
+        git push origin --delete development || echo "Development branch doesn't exist"
 
-    - name: Create new staging branch from main
+    - name: Create new development branch from main
       run: |
         git checkout main
-        git checkout -b staging
+        git checkout -b development
 
-    - name: Push new staging branch to remote
-      run: git push origin staging --force
+    - name: Push new development branch to remote
+      run: git push origin development --force

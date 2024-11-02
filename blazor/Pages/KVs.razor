@@ -80,13 +80,13 @@ else
 		var queryString = query.Count > 0 ? "?" + string.Join("&", query) : string.Empty;
 
 		// Aggiunge la query string all'URL della richiesta
-		var http = HttpClientFactory.CreateClient("kv");
+		var http = HttpClientFactory.CreateClient("api");
 		return await http.GetFromJsonAsync<KV<string>[]?>($"kvs{queryString}");
 	}
 
     async Task DeleteAsync(string key)
     {		
-		var http = HttpClientFactory.CreateClient("kv");
+		var http = HttpClientFactory.CreateClient("api");
 		await http.DeleteAsync($"kv/{key}");
 		kvs = await GetFromJsonAsync();
     }
@@ -95,7 +95,7 @@ else
     {		
 		if(string.IsNullOrEmpty(currentKey)) return;
 
-		var http = HttpClientFactory.CreateClient("kv");
+		var http = HttpClientFactory.CreateClient("api");
 		var newItem = new KV<string> { Key = $"{string_prefix}{currentKey}", Value = currentValue ?? "" };
 		await http.PostAsJsonAsync<KV<string>>("kv", newItem);
 		kvs = await GetFromJsonAsync();
@@ -110,7 +110,7 @@ else
 		using var memoryStream = new MemoryStream();
 		await stream.CopyToAsync(memoryStream);
 		var newItem = new KV<byte[]> { Key = $"{file_prefix}{file?.Name}" ?? "", Value = memoryStream.ToArray() };
-		var http = HttpClientFactory.CreateClient("kv");
+		var http = HttpClientFactory.CreateClient("api");
 		await http.PostAsJsonAsync<KV<byte[]>>("kv", newItem);
 		kvs = await GetFromJsonAsync();			            		
     }
@@ -123,7 +123,7 @@ else
 		using var stream = file.OpenReadStream();
 		//var httpContent = new MultipartFormDataContent();
 		//httpContent.Add(new StreamContent(stream), "file", e.File.Name);
-		var httpClient = HttpClientFactory.CreateClient("kv");
+		var httpClient = HttpClientFactory.CreateClient("api");
 		using var content = new StreamContent(stream);
 		content.Headers.Add("Content-Type", "application/octet-stream");
 		var response = await httpClient.PostAsync("stream", content);
