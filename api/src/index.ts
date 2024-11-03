@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
-import { employee } from './employee';
+import employee from './employee';
 
 type Bindings = {
 	KV: KVNamespace;
