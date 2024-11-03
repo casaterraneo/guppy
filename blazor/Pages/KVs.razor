@@ -87,7 +87,7 @@ else
     async Task DeleteAsync(string key)
     {		
 		var http = HttpClientFactory.CreateClient("api");
-		await http.DeleteAsync($"kv/{key}");
+		await http.DeleteAsync($"kvs/{key}");
 		kvs = await GetFromJsonAsync();
     }
 
@@ -97,7 +97,7 @@ else
 
 		var http = HttpClientFactory.CreateClient("api");
 		var newItem = new KV<string> { Key = $"{string_prefix}{currentKey}", Value = currentValue ?? "" };
-		await http.PostAsJsonAsync<KV<string>>("kv", newItem);
+		await http.PostAsJsonAsync<KV<string>>("kvs", newItem);
 		kvs = await GetFromJsonAsync();
     }	
 
@@ -111,7 +111,7 @@ else
 		await stream.CopyToAsync(memoryStream);
 		var newItem = new KV<byte[]> { Key = $"{file_prefix}{file?.Name}" ?? "", Value = memoryStream.ToArray() };
 		var http = HttpClientFactory.CreateClient("api");
-		await http.PostAsJsonAsync<KV<byte[]>>("kv", newItem);
+		await http.PostAsJsonAsync<KV<byte[]>>("kvs", newItem);
 		kvs = await GetFromJsonAsync();			            		
     }
 
@@ -126,7 +126,7 @@ else
 		var httpClient = HttpClientFactory.CreateClient("api");
 		using var content = new StreamContent(stream);
 		content.Headers.Add("Content-Type", "application/octet-stream");
-		var response = await httpClient.PostAsync("stream", content);
+		var response = await httpClient.PostAsync("kvs/stream", content);
         if (response.IsSuccessStatusCode)
         {
             Console.WriteLine("File uploaded successfully!");
