@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
+import { employee } from './employee';
 
 type Bindings = {
 	KV: KVNamespace;
@@ -36,28 +37,7 @@ app.use('/api/*', async (c, next) => {
 	}
   });
 
-// Middleware per verificare i permessi
-function checkPermission(permission) {
-	return (c, next) => {
-	  const user = c.get('user')
-	  if (user && user.permissions && user.permissions.includes(permission)) {
-		return next()
-	  } else {
-		return c.json({ error: 'Insufficient permissions' }, 403)
-	  }
-	}
-  }
-
-// Middleware per aggiungere l'intestazione personalizzata
-// app.use('/*', async (c, next) => {
-// 	await next()
-// 	c.res.headers.append('blazor-environment', 'Staging')
-//   });
-
-app.get('/api/Employee', checkPermission('read:employees'), async c => {
-	const resp = await c.env.DB.prepare(`SELECT * FROM [Employee]`).all();
-	return c.json(resp.results);
-});
+app.route('/api/employee', employee);
 
 app.get('/api/kv/:key', async (c) => {
 	const key = c.req.param('key');
