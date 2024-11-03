@@ -77,7 +77,7 @@ else
     protected override async Task OnInitializedAsync()
     {
 		var http = HttpClientFactory.CreateClient("api");
-		employees = await http.GetFromJsonAsync<Employee[]>("employee");			
+		employees = await http.GetFromJsonAsync<Employee[]>("employees");			
     }
 }
 
