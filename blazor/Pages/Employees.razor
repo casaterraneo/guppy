@@ -13,6 +13,7 @@
 
 <div>
 	<input type="text" @bind="cli" placeholder="Inserisci la chiave" />
+	<i class="bi bi-plus-lg pointer" @onclick ="() => GetEmployees()"
 </div>
 
 
@@ -82,6 +83,11 @@ else
 	private string? cli;
 
     protected override async Task OnInitializedAsync()
+    {
+		await GetEmployees();			
+    }
+
+	async Task GetEmployees()
     {
 		var queryString = string.IsNullOrWhiteSpace(cli) ? Env.Environment : cli;
 		var http = HttpClientFactory.CreateClient("api");
