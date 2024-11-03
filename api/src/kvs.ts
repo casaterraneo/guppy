@@ -1,10 +1,7 @@
 import { Hono } from 'hono';
 
-type Bindings = {
-	KV: KVNamespace;
-};
 
-const app = new Hono<{ Bindings: Bindings }>()
+const app = new Hono()
 .get('/', async (c) => {
 	// Recupera i parametri dalla query string
 	const prefix = c.req.query('prefix');

@@ -1,6 +1,7 @@
 @page "/employees"
 @inject IHttpClientFactory HttpClientFactory
 @inject IAccessTokenProvider TokenProvider
+@inject IWebAssemblyHostEnvironment Env
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 
@@ -9,6 +10,11 @@
 <h1>Employees</h1>
 
 <p>This component demonstrates fetching data from the server.</p>
+
+<div>
+	<input type="text" @bind="cli" placeholder="Inserisci la chiave" />
+</div>
+
 
 @if (employees == null)
 {
@@ -73,11 +79,13 @@ else
 
 @code {
     private Employee[]? employees;
+	private string? cli;
 
     protected override async Task OnInitializedAsync()
     {
+		var queryString = string.IsNullOrWhiteSpace(cli) ? Env.Environment : cli;
 		var http = HttpClientFactory.CreateClient("api");
-		employees = await http.GetFromJsonAsync<Employee[]>("employees");			
+		employees = await http.GetFromJsonAsync<Employee[]>($"employees?cli={queryString}");			
     }
 }
 

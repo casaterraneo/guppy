@@ -14,7 +14,12 @@ function checkPermission(permission) {
 
 const app = new Hono()
 	.get('/', checkPermission('read:employees'), async c => {
-		const resp = await c.env.DB_CLI.prepare(`SELECT * FROM [Employee]`).all();
+		const cli = c.req.query('cli');
+		var db = c.env.DB;
+		if(cli == "cli"){
+			db = c.env.DB_CLI;
+		}
+		const resp = await db.prepare(`SELECT * FROM [Employee]`).all();
 		return c.json(resp.results);
 	});
 
