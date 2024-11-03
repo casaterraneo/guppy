@@ -37,3 +37,8 @@ database_id = "0958528c-91a1-4c34-8e14-b805513600a4"
 [[env.production.kv_namespaces]]
 binding = "KV"
 id = "024cb8ce59f8466daef9e7c5d6058a4e"
+
+[[env.production.d1_databases]]
+binding = "DB_CLI"
+database_name = "guppy-db-cli"
+database_id = "bce13a19-6d4b-4a11-9aaa-87606a1343a0"

@@ -1,9 +1,5 @@
 import { Hono } from 'hono';
 
-type Bindings = {
-	KV: KVNamespace;
-};
-
 // Middleware per verificare i permessi
 function checkPermission(permission) {
 	return (c, next) => {
@@ -16,9 +12,9 @@ function checkPermission(permission) {
 	}
   }
 
-const app = new Hono<{ Bindings: Bindings }>()
+const app = new Hono()
 	.get('/', checkPermission('read:employees'), async c => {
-		const resp = await c.env.DB.prepare(`SELECT * FROM [Employee]`).all();
+		const resp = await c.env.DB_CLI.prepare(`SELECT * FROM [Employee]`).all();
 		return c.json(resp.results);
 	});
 

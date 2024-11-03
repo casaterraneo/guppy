@@ -24,4 +24,5 @@ jobs:
           postCommands: |
             echo "*** post commands ***"
             wrangler d1 execute guppy-db-production --file ./data/scripts.sql --remote 
+            wrangler d1 execute guppy-db-cli --file ./data/scripts.sql --remote 
             echo "******"          
