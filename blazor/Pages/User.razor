@@ -2,6 +2,7 @@
 @attribute [Authorize]
 @using System.Text.Json
 @using System.Security.Claims
+@using System.Net.Http.Headers
 @inject IAccessTokenProvider AuthorizationService
 
 <h1>@AuthenticatedUser?.Identity?.Name</h1>
@@ -14,6 +15,8 @@ https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standa
 {
     <p class="claim">@(claim.Type): @claim.Value</p>
 }
+
+<input type="text" >
 
 <h2>Access token</h2>
 
@@ -41,12 +44,33 @@ https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standa
     }
 }
 
+<h3>Update User Metadata</h3>
+
+<div>
+    <label>Key:</label>
+    <input @bind="Key" placeholder="Enter key" />
+</div>
+<div>
+    <label>Value:</label>
+    <input @bind="Value" placeholder="Enter value" />
+</div>
+
+<button @onclick="UpdateMetadata">Update Metadata</button>
+
+@if (!string.IsNullOrEmpty(StatusMessage))
+{
+    <p>@StatusMessage</p>
+}
+
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> AuthenticationState { get; set; }
 
     public ClaimsPrincipal AuthenticatedUser { get; set; }
     public AccessToken AccessToken { get; set; }
+    private string Key { get; set; }
+    private string Value { get; set; }
+    private string StatusMessage { get; set; }    
 
     protected override async Task OnInitializedAsync()
     {
@@ -85,4 +109,40 @@ https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standa
         return JsonSerializer.Deserialize<IDictionary<string, object>>(
             Convert.FromBase64String(base64Payload));
     }
+
+    private async Task UpdateMetadata()
+    {
+        try
+        {
+            string userId = "auth0|65d875633cd5642ab64694e9";  // Sostituisci con l'ID dell'utente da aggiornare
+            string authToken = AccessToken?.Value;  // Sostituisci con un token valido
+            
+            // Chiama il metodo UpdateUserMetadataAsync
+            await UpdateUserMetadataAsync(userId, authToken, Key, Value);
+            StatusMessage = "User metadata updated successfully!";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error updating metadata: {ex.Message}";
+        }
+    }
+
+    public async Task UpdateUserMetadataAsync(string userId, string authToken, string key, string value)
+    {
+        var client = new HttpClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+        var url = $"https://dev-lnkfyfu1two0vaem.us.auth0.com/api/v2/users/{userId}";
+        
+        // Usare un dizionario per i dati user_metadata
+        var data = new
+        {
+            user_metadata = new Dictionary<string, string> { { key, value } }
+        };
+        
+        var content = new StringContent(JsonSerializer.Serialize(data), System.Text.Encoding.UTF8, "application/json");
+
+        var response = await client.PatchAsync(url, content);
+        response.EnsureSuccessStatusCode();
+    }   
 }
