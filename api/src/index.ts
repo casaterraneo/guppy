@@ -16,51 +16,51 @@ async function verifyToken(token) {
 	return payload
   }
 
-  const dbSetter = createMiddleware(async (c, next) => {
+const tokenValidator = createMiddleware(async (c, next) => {
+	const token = c.req.headers.get('Authorization')?.split(' ')[1]
+
+	if (!token) {
+		return c.json({ error: 'No token provided' }, 401)
+	}
+
+	try {
+		const payload = await verifyToken(token)
+		c.set('user', payload)
+		return next()
+	} catch (err) {
+		return c.json({ error: 'Token invalid', message: err.message }, 401)
+	}
+})
+
+const dbSetter = createMiddleware(async (c, next) => {
 	const user = c.get('user');
 	const { NAME } = env<{ NAME: string }>(c);
 
 	if (user && user.company_name) {
 		var db = c.env.DB;
-		if(NAME == "production" && user.company_name == "cli"){
+		if(NAME == "production" && user.company_name == "cli") {
 			db = c.env.DB_CLI;
 		}
 		c.set('db', db)
 		return next()
-	  } else {
+	} else {
 		return c.json({ error: 'No company_name provided' }, 401)
-	  }
-  })
+	}
+})
+
+
 
 const app = new Hono();
 app.use(logger());
 app.use('/*', cors());
-app.use('/api/*', async (c, next) => {
-	const token = c.req.headers.get('Authorization')?.split(' ')[1]
-
-	if (!token) {
-	  return c.json({ error: 'No token provided' }, 401)
-	}
-
-	try {
-	  const payload = await verifyToken(token)
-	  c.set('user', payload)
-	  return next()
-	} catch (err) {
-	  return c.json({ error: 'Token invalid', message: err.message }, 401)
-	}
-  });
-
+app.use('/api/*', tokenValidator);
 app.use('/api/*', dbSetter);
-
 app.route('/api/employees', employees);
 app.route('/api/kvs', kvs);
-
 app.onError((err, c) => {
 	console.error(`${err}`);
 	return c.text(err.toString());
 });
-
 app.notFound(c => c.text('Not found', 404));
 
 export default app;
