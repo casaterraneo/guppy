@@ -18,6 +18,8 @@ async function verifyToken(token) {
   const dbSetter = createMiddleware(async (c, next) => {
 	const user = c.get('user');
 
+	console.log(user);
+
 	if (user && user.company_name) {
 		var db = c.env.DB;
 		if(user.company_name == "cli"){
