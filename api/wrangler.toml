@@ -30,7 +30,9 @@ id = "87a1f59c5a194e2789d9ffac22e9bd38"
 
 [env.production]
 workers_dev = true
-vars = { ENVIRONMENT = "production" }
+
+[env.production.vars]
+ENVIRONMENT = "production"
 
 [[env.production.d1_databases]]
 binding = "DB"
