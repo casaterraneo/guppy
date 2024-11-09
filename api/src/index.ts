@@ -34,13 +34,14 @@ const tokenValidator = createMiddleware(async (c, next) => {
 
 const dbSetter = createMiddleware(async (c, next) => {
 	const user = c.get('user');
-	const { workers_env } = env<{ workers_env: string }>(c);
+	//const { workers_env } = env<{ workers_env: string }>(c);
 
-	console.log(c.env);
+	//console.log(c.env);
 
 	if (user && user.company_name) {
 		var db = c.env.DB;
-		if(workers_env == "production" && user.company_name == "cli") {
+		//if(workers_env == "production" && user.company_name == "cli") {
+		if(ENVIRONMENT == "production" && user.company_name == "cli") {
 			db = c.env.DB_CLI;
 		}
 		c.set('db', db)
