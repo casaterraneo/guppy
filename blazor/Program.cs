@@ -23,9 +23,8 @@ builder.Services.AddOidcAuthentication(options =>
     // For more information, see https://aka.ms/blazor-standalone-auth
     builder.Configuration.Bind("Auth0", options.ProviderOptions);
     options.ProviderOptions.ResponseType = "code";        
-    options.ProviderOptions.AdditionalProviderParameters.Add("audience", "guppy_api");
-    //options.ProviderOptions.AdditionalProviderParameters.Add("audience", "https://myapi.example.com");
-    //options.ProviderOptions.DefaultScopes.Add("https://myapi.example.com");
+    //options.ProviderOptions.AdditionalProviderParameters.Add("audience", "guppy_api");
+    options.ProviderOptions.AdditionalProviderParameters.Add("audience", "https://dev-lnkfyfu1two0vaem.us.auth0.com/api/v2/");    
 });
 
 await builder.Build().RunAsync();

@@ -8,7 +8,7 @@ import kvs from './kvs';
 const JWKS = createRemoteJWKSet(new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json'))
 async function verifyToken(token) {
 	const { payload } = await jwtVerify(token, JWKS, {
-	  audience: 'guppy_api',
+	  audience: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/api/v2/',
 	  issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
 	})
 	return payload
