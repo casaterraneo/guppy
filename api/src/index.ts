@@ -36,7 +36,7 @@ const dbSetter = createMiddleware(async (c, next) => {
 	const user = c.get('user');
 	const { NAME } = env<{ NAME: string }>(c);
 
-	console.log(NAME);
+	console.log(c.env);
 
 	if (user && user.company_name) {
 		var db = c.env.DB;
