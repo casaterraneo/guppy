@@ -2,7 +2,6 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger'
 import { createMiddleware } from 'hono/factory'
-import { env } from 'hono/adapter'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 import employees from './employees';
 import kvs from './kvs';
@@ -17,6 +16,7 @@ async function verifyToken(token) {
   }
 
 const tokenValidator = createMiddleware(async (c, next) => {
+
 	const token = c.req.headers.get('Authorization')?.split(' ')[1]
 
 	if (!token) {
@@ -33,14 +33,11 @@ const tokenValidator = createMiddleware(async (c, next) => {
 })
 
 const dbSetter = createMiddleware(async (c, next) => {
-	const user = c.get('user');
-	//const { workers_env } = env<{ workers_env: string }>(c);
 
-	console.log(c.env);
+	const user = c.get('user');
 
 	if (user && user.company_name) {
 		var db = c.env.DB;
-		//if(workers_env == "production" && user.company_name == "cli") {
 		if(c.env.ENVIRONMENT == "production" && user.company_name == "cli") {
 			db = c.env.DB_CLI;
 		}
@@ -58,8 +55,10 @@ app.use(logger());
 app.use('/*', cors());
 app.use('/api/*', tokenValidator);
 app.use('/api/*', dbSetter);
+
 app.route('/api/employees', employees);
 app.route('/api/kvs', kvs);
+
 app.onError((err, c) => {
 	console.error(`${err}`);
 	return c.text(err.toString());
