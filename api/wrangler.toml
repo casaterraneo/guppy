@@ -1,6 +1,10 @@
 name = "guppy-api"
 main = "src/index.ts"
 compatibility_date = "2023-11-21"
+workers_env = "development"
+
+[observability]
+enabled = true
 
 [[d1_databases]]
 binding = "DB"
@@ -11,11 +15,9 @@ database_id = "4f9dada0-4da7-4794-a167-ef73eb666908"
 binding = "KV"
 id = "732f400c57184569b1923135b41b1450"
 
-[observability]
-enabled = true
-
 [env.staging]
 workers_dev = true
+workers_env = "staging"
 
 [[env.staging.d1_databases]]
 binding = "DB"
@@ -28,7 +30,7 @@ id = "87a1f59c5a194e2789d9ffac22e9bd38"
 
 [env.production]
 workers_dev = true
-workers_env = production
+workers_env = "production"
 
 [[env.production.d1_databases]]
 binding = "DB"
