@@ -28,6 +28,7 @@ id = "87a1f59c5a194e2789d9ffac22e9bd38"
 
 [env.production]
 workers_dev = true
+workers_env = production
 
 [[env.production.d1_databases]]
 binding = "DB"
