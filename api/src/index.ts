@@ -49,7 +49,7 @@ app.use('/api/*', async (c, next) => {
 	}
   });
 
-app.use('/api/*', dbSetter());
+app.use('/api/*', dbSetter);
 
 app.route('/api/employees', employees);
 app.route('/api/kvs', kvs);
