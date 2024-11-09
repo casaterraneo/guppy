@@ -10,11 +10,10 @@ var environment = builder.HostEnvironment;
 
 var baseUrl = builder.Configuration["BaseUrl"] ?? builder.HostEnvironment.BaseAddress;
 
-builder.Services.AddHttpClient("api",
-        client => client.BaseAddress = new Uri(baseUrl))
+builder.Services.AddHttpClient("api", client => client.BaseAddress = new Uri(baseUrl))
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
     .ConfigureHandler(
-        authorizedUrls: new [] { baseUrl }
+        authorizedUrls: [baseUrl]
         //,scopes: new[] { "example.read", "example.write" }
         ));              
 
@@ -24,7 +23,7 @@ builder.Services.AddOidcAuthentication(options =>
     // For more information, see https://aka.ms/blazor-standalone-auth
     builder.Configuration.Bind("Auth0", options.ProviderOptions);
     options.ProviderOptions.ResponseType = "code";    
-    options.ProviderOptions.AdditionalProviderParameters.Add("audience", "https://myapi.example.com");
+    //options.ProviderOptions.AdditionalProviderParameters.Add("audience", "https://myapi.example.com");
     //options.ProviderOptions.DefaultScopes.Add("https://myapi.example.com");
 });
 

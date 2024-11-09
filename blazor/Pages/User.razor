@@ -16,8 +16,6 @@ https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standa
     <p class="claim">@(claim.Type): @claim.Value</p>
 }
 
-<input type="text" >
-
 <h2>Access token</h2>
 
 <p id="access-token">@AccessToken?.Value</p>
@@ -47,15 +45,15 @@ https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standa
 <h3>Update User Metadata</h3>
 
 <div>
-    <label>Key:</label>
-    <input @bind="Key" placeholder="Enter key" />
+    <label class="form-label">Key:</label>
+    <input type="text" class="form-control" @bind="Key" placeholder="Enter key" />
 </div>
 <div>
-    <label>Value:</label>
-    <input @bind="Value" placeholder="Enter value" />
+    <label class="form-label">Value:</label>
+    <input type="text" class="form-control" @bind="Value" placeholder="Enter value" />
 </div>
 
-<button @onclick="UpdateMetadata">Update Metadata</button>
+<button type="button" class="btn" @onclick="UpdateMetadata">Update Metadata</button>
 
 @if (!string.IsNullOrEmpty(StatusMessage))
 {
