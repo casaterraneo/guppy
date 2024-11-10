@@ -5,6 +5,7 @@ import { createMiddleware } from 'hono/factory'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 import employees from './employees';
 import kvs from './kvs';
+import users from './users';
 
 const JWKS = createRemoteJWKSet(new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json'))
 async function verifyToken(token) {
@@ -58,6 +59,7 @@ app.use('/api/*', dbSetter);
 
 app.route('/api/employees', employees);
 app.route('/api/kvs', kvs);
+app.route('/api/users', users);
 
 app.onError((err, c) => {
 	console.error(`${err}`);

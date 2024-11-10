@@ -4,6 +4,7 @@
 @using System.Security.Claims
 @using System.Net.Http.Headers
 @inject IAccessTokenProvider AuthorizationService
+@inject IHttpClientFactory HttpClientFactory
 
 <h1>@AuthenticatedUser?.Identity?.Name</h1>
 
@@ -90,6 +91,14 @@ https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standa
         AccessToken = token;
 
         AuthenticatedUser = state.User;
+        await GetUser();
+    }
+
+	async Task GetUser()
+    {		
+        string userId = "auth0|65d875633cd5642ab64694e9";
+		var http = HttpClientFactory.CreateClient("api");
+		await http.GetFromJsonAsync<string>($"users?id={userId}");
     }
 
     protected IDictionary<string, object> GetAccessTokenClaims()
