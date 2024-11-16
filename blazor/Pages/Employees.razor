@@ -90,7 +90,7 @@ else
 	async Task GetEmployees()
     {
 		var queryString = string.IsNullOrWhiteSpace(cli) ? Env.Environment : cli;
-		var http = HttpClientFactory.CreateClient("api");
+		using var http = HttpClientFactory.CreateClient("api");
 		employees = await http.GetFromJsonAsync<Employee[]>($"employees?cli={queryString}");			
     }
 }

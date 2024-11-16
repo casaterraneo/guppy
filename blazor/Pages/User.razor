@@ -97,7 +97,7 @@ https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standa
 	async Task GetUser()
     {		
         string userId = "auth0|65d875633cd5642ab64694e9";
-		var http = HttpClientFactory.CreateClient("api");
+		using var http = HttpClientFactory.CreateClient("api");
 		await http.GetFromJsonAsync<string>($"users?id={userId}");
     }
 

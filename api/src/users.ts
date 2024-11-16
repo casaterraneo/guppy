@@ -2,7 +2,9 @@ import { Hono } from 'hono';
 
 const app = new Hono()
 .get('/:id', async (c) => {
+	console.log('api user');
 	const userId = c.req.param('id');
+	if (!userId) return c.json({ error: 'UserId is required' }, 400);
 	console.log(`api user ${userId}`);
 
 	// Variabili di configurazione
