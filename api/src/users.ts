@@ -6,10 +6,10 @@ const app = new Hono()
 	if (!userId) return c.json({ error: 'UserId is required' }, 400);
 
 	// Variabili di configurazione
-	const authUrl = `https://${c.env.AUTH0_DOMAIN}/oauth/token`;
+	const authUrl = 'https://dev-lnkfyfu1two0vaem.us.auth0.com/oauth/token';
 	const clientId = '1hirdGQO6H34hzXqPXDVLbq5d1xaU93K'; //Auth0 Management API (Test Application)
 	const clientSecret = c.env.AUTH0_CLIENT_SECRET; // Variabile d'ambiente per il client secret
-	const audience = `https://${c.env.AUTH0_DOMAIN}/api/v2/`;
+	const audience = 'https://dev-lnkfyfu1two0vaem.us.auth0.com/api/v2/';
 
 	// Prima chiamata per ottenere l'access token
 	const tokenParams = new URLSearchParams();
