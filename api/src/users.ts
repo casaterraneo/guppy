@@ -2,10 +2,8 @@ import { Hono } from 'hono';
 
 const app = new Hono()
 .get('/:id', async (c) => {
-	console.log('api user');
 	const userId = c.req.param('id');
 	if (!userId) return c.json({ error: 'UserId is required' }, 400);
-	console.log(`api user ${userId}`);
 
 	// Variabili di configurazione
 	const authUrl = 'https://dev-lnkfyfu1two0vaem.us.auth0.com/oauth/token';
@@ -32,6 +30,7 @@ const app = new Hono()
 
 	// Verifica che l'access token sia stato ottenuto
 	if (!tokenData.access_token) {
+		console.log('Failed to retrieve access token');
 		return c.json({ error: 'Failed to retrieve access token' }, 400);
 	}
 
@@ -47,6 +46,7 @@ const app = new Hono()
 	});
 
 	if (!userResponse.ok) {
+	  console.log('Failed to retrieve user');
 	  return c.json({ error: 'Failed to retrieve user' }, userResponse.status);
 	}
 
