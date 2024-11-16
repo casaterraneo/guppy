@@ -42,7 +42,7 @@ const app = new Hono()
 	const { access_token } = tokenData.access_token;
 
 	// Now call the Management API to get user info
-	const userResponse = await fetch(`https://${c.env.AUTH0_DOMAIN}/api/v2/users/${userId}`, {
+	const userResponse = await fetch(`https://dev-lnkfyfu1two0vaem.us.auth0.com/api/v2/${userId}`, {
 	  method: 'GET',
 	  headers: {
 		Authorization: `Bearer ${access_token}`,
@@ -51,7 +51,7 @@ const app = new Hono()
 	});
 
 	if (!userResponse.ok) {
-	  console.log('Failed to retrieve user');
+	  console.log(`Failed to retrieve user:${userResponse.status}`);
 	  return c.json({ error: 'Failed to retrieve user' }, userResponse.status);
 	}
 
