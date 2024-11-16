@@ -45,7 +45,7 @@ const app = new Hono()
 	const userResponse = await fetch('https://dev-lnkfyfu1two0vaem.us.auth0.com/api/v2/users', {
 	  method: 'GET',
 	  headers: {
-		Authorization: `Bearer ${access_token}`,
+		Authorization: `Bearer ${tokenData.access_token}`,
 		'Accept': 'application/json',
 	  },
 	  redirect: 'follow'
