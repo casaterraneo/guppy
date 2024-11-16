@@ -23,7 +23,7 @@ const app = new Hono()
 	const tokenResponse = await fetch(authUrl, {
 		method: 'POST',
 		headers: {
-		'content-type': 'application/json',
+		'content-type': 'application/x-www-form-urlencoded',
 		},
 		body: tokenParams.toString(),
 	});
