@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 const app = new Hono()
 .get('/:id', async (c) => {
 	const userId = c.req.param('id');
+	console.log(`api user ${userId}`);
 
 	// Variabili di configurazione
 	const authUrl = 'https://dev-lnkfyfu1two0vaem.us.auth0.com/oauth/token';
