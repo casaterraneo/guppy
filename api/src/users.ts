@@ -42,7 +42,7 @@ const app = new Hono()
 	const { access_token } = tokenData.access_token;
 
 	// Now call the Management API to get user info
-	const userResponse = await fetch(`https://dev-lnkfyfu1two0vaem.us.auth0.com/api/v2/${userId}`, {
+	const userResponse = await fetch(`https://dev-lnkfyfu1two0vaem.us.auth0.com/api/v2/users/${userId}`, {
 	  method: 'GET',
 	  headers: {
 		Authorization: `Bearer ${access_token}`,
