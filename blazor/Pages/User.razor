@@ -70,6 +70,7 @@ https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standa
     private string Key { get; set; }
     private string Value { get; set; }
     private string StatusMessage { get; set; }    
+    private GuppyUser GuppyUser { get; set; }    
 
     protected override async Task OnInitializedAsync()
     {
@@ -98,7 +99,7 @@ https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standa
     {		
         string userId = "auth0|65d875633cd5642ab64694e9";
 		using var http = HttpClientFactory.CreateClient("api");
-		await http.GetFromJsonAsync<string>($"users/{userId}");
+		GuppyUser = await http.GetFromJsonAsync<GuppyUser>($"users/{userId}");
     }
 
     protected IDictionary<string, object> GetAccessTokenClaims()
