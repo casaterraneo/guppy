@@ -49,7 +49,7 @@ const app = new Hono()
 	});
 
 	if (!userResponse.ok) {
-	  console.log(`Failed to retrieve user:${userResponse}`);
+	  console.log(`Failed to retrieve user:${userResponse.status}`);
 	  return c.json({ error: 'Failed to retrieve user' }, userResponse.status);
 	}
 
