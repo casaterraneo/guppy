@@ -28,21 +28,13 @@ const app = new Hono()
 
 	const tokenData = await tokenResponse.json();
 
-	console.log(`tokenData ${tokenData}`);
-
 	// Verifica che l'access token sia stato ottenuto
 	if (!tokenData.access_token) {
-		console.log('Failed to retrieve access token');
 		return c.json({ error: 'Failed to retrieve access token' }, 400);
 	}
 
-	console.log('Access token ok');
-	const { access_token } = tokenData.access_token;
-	console.log(`Bearer ${access_token}`);
-	console.log(`Bearer 2 ${tokenData.access_token}`);
-
 	// Now call the Management API to get user info
-	const userResponse = await fetch('https://dev-lnkfyfu1two0vaem.us.auth0.com/api/v2/users', {
+	const userResponse = await fetch(`https://dev-lnkfyfu1two0vaem.us.auth0.com/api/v2/users/${userId}`, {
 	  method: 'GET',
 	  headers: {
 		Authorization: `Bearer ${tokenData.access_token}`,
@@ -52,7 +44,6 @@ const app = new Hono()
 	});
 
 	if (!userResponse.ok) {
-	  console.log(`Failed to retrieve user:${userResponse.status}`);
 	  return c.json({ error: 'Failed to retrieve user' }, userResponse.status);
 	}
 
