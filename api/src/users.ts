@@ -18,7 +18,7 @@ const app = new Hono()
 	tokenParams.append('client_secret', clientSecret);
 	tokenParams.append('audience', audience);
 
-	console.log('tokenParams :' + tokenParams.toString());
+	//console.log('tokenParams :' + tokenParams.toString());
 
 	const tokenResponse = await fetch(authUrl, {
 		method: 'POST',
@@ -30,7 +30,7 @@ const app = new Hono()
 
 	const tokenData = await tokenResponse.json();
 
-	console.log('tokenData: ' + tokenData);
+	//console.log('tokenData: ' + tokenData);
 
 	// Verifica che l'access token sia stato ottenuto
 	if (!tokenData.access_token) {
