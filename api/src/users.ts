@@ -54,7 +54,7 @@ const app = new Hono()
 	const userId = c.req.param('id');
 	if (!userId) return c.json({ error: 'UserId is required' }, 400);
 	const user_metadata = await c.req.json();
-	console.log(user_metadata);
+	console.log(c.req);
 
 	if (!user_metadata) {
 	  return c.json({ error: 'user_metadata required' }, 400);
