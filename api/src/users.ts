@@ -51,11 +51,12 @@ const app = new Hono()
 	return c.json(userData);
   })
 .patch('/:id', async (c) => {
-	// Estrazione dei dati dal corpo della richiesta
+	const userId = c.req.param('id');
+	if (!userId) return c.json({ error: 'UserId is required' }, 400);
 	const user_metadata = await c.req.json();
+	console.log(user_metadata);
 
 	if (!user_metadata) {
-	  console.log(user_metadata);
 	  return c.json({ error: 'user_metadata required' }, 400);
 	}
 
