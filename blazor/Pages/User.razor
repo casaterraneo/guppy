@@ -43,24 +43,6 @@ https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standa
     }
 }
 
-<h3>Update User Metadata</h3>
-
-<div>
-    <label class="form-label">Key:</label>
-    <input type="text" class="form-control" @bind="Key" placeholder="Enter key" />
-</div>
-<div>
-    <label class="form-label">Value:</label>
-    <input type="text" class="form-control" @bind="Value" placeholder="Enter value" />
-</div>
-
-<button type="button" class="btn" @onclick="UpdateMetadata">Update Metadata</button>
-
-@if (!string.IsNullOrEmpty(StatusMessage))
-{
-    <p>@StatusMessage</p>
-}
-
 @if (GuppyUser is null)
 {
     <p>Loading...</p>
@@ -68,16 +50,22 @@ https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standa
 else
 {
     <GuppyUserComponent User="GuppyUser" />
+    <div>Update User</div>
+
+    <div>
+        <label class="form-label">Favorite olor:</label>
+        <input type="text" class="form-control" placeholder="Enter value" @bind="favoriteColor"  />
+    </div>
+
+    <button type="button" class="btn" @onclick="UpdateMetadata">Update Metadata</button>    
 }
 
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> AuthenticationState { get; set; }
-
     public ClaimsPrincipal AuthenticatedUser { get; set; }
-    public AccessToken AccessToken { get; set; }
-    private string Key { get; set; }
-    private string Value { get; set; }
+    public AccessToken AccessToken { get; set; }    
+    private string favoriteColor { get; set; }
     private string StatusMessage { get; set; }    
     private GuppyUser GuppyUser { get; set; }    
 
@@ -86,11 +74,6 @@ else
         await base.OnInitializedAsync();
         var state = await AuthenticationState;
         var accessTokenResult = await AuthorizationService.RequestAccessToken();
-        //var accessTokenResult = await TokenProvider.RequestAccessToken(
-        //    new AccessTokenRequestOptions
-        //    {
-        //        Scopes = new[] { "https://myapi.example.com"}
-        //    });        
 
         if (!accessTokenResult.TryGetToken(out var token))
         {
@@ -101,6 +84,7 @@ else
 
         AuthenticatedUser = state.User;
         await GetUser();
+        favoriteColor = GuppyUser?.user_metadata?.favorite_color;
     }
 
 	async Task GetUser()
@@ -125,40 +109,11 @@ else
         return JsonSerializer.Deserialize<IDictionary<string, object>>(
             Convert.FromBase64String(base64Payload));
     }
-
-    private async Task UpdateMetadata()
-    {
-        try
-        {
-            string userId = "auth0|65d875633cd5642ab64694e9";  // Sostituisci con l'ID dell'utente da aggiornare
-            string authToken = AccessToken?.Value;  // Sostituisci con un token valido
-            
-            // Chiama il metodo UpdateUserMetadataAsync
-            await UpdateUserMetadataAsync(userId, authToken, Key, Value);
-            StatusMessage = "User metadata updated successfully!";
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"Error updating metadata: {ex.Message}";
-        }
-    }
-
-    public async Task UpdateUserMetadataAsync(string userId, string authToken, string key, string value)
-    {
-        var client = new HttpClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
-
-        var url = $"https://dev-lnkfyfu1two0vaem.us.auth0.com/api/v2/users/{userId}";
-        
-        // Usare un dizionario per i dati user_metadata
-        var data = new
-        {
-            user_metadata = new Dictionary<string, string> { { key, value } }
-        };
-        
-        var content = new StringContent(JsonSerializer.Serialize(data), System.Text.Encoding.UTF8, "application/json");
-
-        var response = await client.PatchAsync(url, content);
-        response.EnsureSuccessStatusCode();
+    public async Task UpdateMetadata()
+    {        
+        GuppyUser.user_metadata.favorite_color = favoriteColor;
+		using var http = HttpClientFactory.CreateClient("api");
+		var response = await http.PatchAsJsonAsync<UserMetadata>($"users/{GuppyUser.user_id}", GuppyUser.user_metadata);
+        response.EnsureSuccessStatusCode();     
     }   
 }

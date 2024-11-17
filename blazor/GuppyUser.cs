@@ -1,39 +1,36 @@
-using System;
-using System.Collections.Generic;
-
-public record GuppyUser
+public class GuppyUser
 {
-    public DateTime created_at { get; init; }
-    public string email { get; init; } = string.Empty;
-    public bool email_verified { get; init; }
-    public List<Identity> identities { get; init; } = new();
-    public string name { get; init; } = string.Empty;
-    public string nickname { get; init; } = string.Empty;
-    public string picture { get; init; } = string.Empty;
-    public DateTime updated_at { get; init; }
-    public string user_id { get; init; } = string.Empty;
-    public DateTime? last_password_reset { get; init; }
-    public UserMetadata? user_metadata { get; init; }
-    public AppMetadata? app_metadata { get; init; }
-    public string last_ip { get; init; } = string.Empty;
-    public DateTime last_login { get; init; }
-    public int logins_count { get; init; }
+    public DateTime created_at { get; set; }
+    public string email { get; set; } = string.Empty;
+    public bool email_verified { get; set; }
+    public List<Identity> identities { get; set; } = new();
+    public string name { get; set; } = string.Empty;
+    public string nickname { get; set; } = string.Empty;
+    public string picture { get; set; } = string.Empty;
+    public DateTime updated_at { get; set; }
+    public string user_id { get; set; } = string.Empty;
+    public DateTime? last_password_reset { get; set; }
+    public UserMetadata? user_metadata { get; set; }
+    public AppMetadata? app_metadata { get; set; }
+    public string last_ip { get; set; } = string.Empty;
+    public DateTime last_login { get; set; }
+    public int logins_count { get; set; }
 }
 
-public record Identity
+public class Identity
 {
-    public string connection { get; init; } = string.Empty;
-    public string provider { get; init; } = string.Empty;
-    public string user_id { get; init; } = string.Empty;
-    public bool isSocial { get; init; }
+    public string connection { get; set; } = string.Empty;
+    public string provider { get; set; } = string.Empty;
+    public string user_id { get; set; } = string.Empty;
+    public bool isSocial { get; set; }
 }
 
-public record UserMetadata
+public class UserMetadata
 {
-    public string favorite_color { get; init; } = string.Empty;
+    public string favorite_color { get; set; } = string.Empty;
 }
 
-public record AppMetadata
+public class AppMetadata
 {
-    public string company_name { get; init; } = string.Empty;
+    public string company_name { get; set; } = string.Empty;
 }
