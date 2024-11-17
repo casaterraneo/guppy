@@ -1,34 +1,34 @@
 <div class="guppy-user-card">
-    <h3>@User?.Name</h3>
-    <img src="@User?.Picture" alt="Profile Picture" class="profile-picture" />
-    <p><strong>Email:</strong> @User?.Email</p>
-    <p><strong>Email Verified:</strong> @(User?.EmailVerified == true ? "Yes" : "No")</p>
-    <p><strong>Nickname:</strong> @User?.Nickname</p>
-    <p><strong>Last Login:</strong> @User?.LastLogin.ToString("yyyy-MM-dd HH:mm:ss")</p>
-    <p><strong>Logins Count:</strong> @User?.LoginsCount</p>
+    <h3>@User?.name</h3>
+    <img src="@User?.picture" alt="Profile Picture" class="profile-picture" />
+    <p><strong>Email:</strong> @User?.email</p>
+    <p><strong>Email Verified:</strong> @(User?.email_verified == true ? "Yes" : "No")</p>
+    <p><strong>Nickname:</strong> @User?.nickname</p>
+    <p><strong>Last Login:</strong> @User?.last_login.ToString("yyyy-MM-dd HH:mm:ss")</p>
+    <p><strong>Logins Count:</strong> @User?.logins_count</p>
     
     <h4>Identities</h4>
     <ul>
-        @foreach (var identity in User?.Identities ?? Enumerable.Empty<Identity>())
+        @foreach (var identity in User?.identities ?? Enumerable.Empty<Identity>())
         {
             <li>
-                <strong>Provider:</strong> @identity.Provider<br />
-                <strong>Connection:</strong> @identity.Connection<br />
-                <strong>Social Account?</strong> @identity.IsSocial<br />
+                <strong>Provider:</strong> @identity.provider<br />
+                <strong>Connection:</strong> @identity.connection<br />
+                <strong>Social Account?</strong> @identity.isSocial<br />
             </li>
         }
     </ul>
 
-    @if (User?.UserMetadata is not null)
+    @if (User?.user_metadata is not null)
     {
         <h4>User Metadata</h4>
-        <p><strong>Favorite Color:</strong> @User.UserMetadata.FavoriteColor</p>
+        <p><strong>Favorite Color:</strong> @User.user_metadata.favorite_color</p>
     }
 
-    @if (User?.AppMetadata is not null)
+    @if (User?.app_metadata is not null)
     {
         <h4>App Metadata</h4>
-        <p><strong>Company Name:</strong> @User.AppMetadata.CompanyName</p>
+        <p><strong>Company Name:</strong> @User.app_metadata.company_name</p>
     }
 </div>
 

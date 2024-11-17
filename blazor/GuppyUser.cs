@@ -1,36 +1,39 @@
+using System;
+using System.Collections.Generic;
+
 public record GuppyUser
 {
-    public DateTime CreatedAt { get; init; }
-    public string Email { get; init; } = string.Empty;
-    public bool EmailVerified { get; init; }
-    public List<Identity> Identities { get; init; } = new();
-    public string Name { get; init; } = string.Empty;
-    public string Nickname { get; init; } = string.Empty;
-    public string Picture { get; init; } = string.Empty;
-    public DateTime UpdatedAt { get; init; }
-    public string UserId { get; init; } = string.Empty;
-    public DateTime? LastPasswordReset { get; init; }
-    public UserMetadata? UserMetadata { get; init; }
-    public AppMetadata? AppMetadata { get; init; }
-    public string LastIp { get; init; } = string.Empty;
-    public DateTime LastLogin { get; init; }
-    public int LoginsCount { get; init; }
+    public DateTime created_at { get; init; }
+    public string email { get; init; } = string.Empty;
+    public bool email_verified { get; init; }
+    public List<Identity> identities { get; init; } = new();
+    public string name { get; init; } = string.Empty;
+    public string nickname { get; init; } = string.Empty;
+    public string picture { get; init; } = string.Empty;
+    public DateTime updated_at { get; init; }
+    public string user_id { get; init; } = string.Empty;
+    public DateTime? last_password_reset { get; init; }
+    public UserMetadata? user_metadata { get; init; }
+    public AppMetadata? app_metadata { get; init; }
+    public string last_ip { get; init; } = string.Empty;
+    public DateTime last_login { get; init; }
+    public int logins_count { get; init; }
 }
 
 public record Identity
 {
-    public string Connection { get; init; } = string.Empty;
-    public string Provider { get; init; } = string.Empty;
-    public string UserId { get; init; } = string.Empty;
-    public bool IsSocial { get; init; }
+    public string connection { get; init; } = string.Empty;
+    public string provider { get; init; } = string.Empty;
+    public string user_id { get; init; } = string.Empty;
+    public bool isSocial { get; init; }
 }
 
 public record UserMetadata
 {
-    public string FavoriteColor { get; init; } = string.Empty;
+    public string favorite_color { get; init; } = string.Empty;
 }
 
 public record AppMetadata
 {
-    public string CompanyName { get; init; } = string.Empty;
+    public string company_name { get; init; } = string.Empty;
 }
