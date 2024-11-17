@@ -1,0 +1,38 @@
+<div class="guppy-user-card">
+    <h3>@User?.Name</h3>
+    <img src="@User?.Picture" alt="Profile Picture" class="profile-picture" />
+    <p><strong>Email:</strong> @User?.Email</p>
+    <p><strong>Email Verified:</strong> @(User?.EmailVerified == true ? "Yes" : "No")</p>
+    <p><strong>Nickname:</strong> @User?.Nickname</p>
+    <p><strong>Last Login:</strong> @User?.LastLogin.ToString("yyyy-MM-dd HH:mm:ss")</p>
+    <p><strong>Logins Count:</strong> @User?.LoginsCount</p>
+    
+    <h4>Identities</h4>
+    <ul>
+        @foreach (var identity in User?.Identities ?? Enumerable.Empty<Identity>())
+        {
+            <li>
+                <strong>Provider:</strong> @identity.Provider<br />
+                <strong>Connection:</strong> @identity.Connection<br />
+                <strong>Social Account?</strong> @identity.IsSocial<br />
+            </li>
+        }
+    </ul>
+
+    @if (User?.UserMetadata is not null)
+    {
+        <h4>User Metadata</h4>
+        <p><strong>Favorite Color:</strong> @User.UserMetadata.FavoriteColor</p>
+    }
+
+    @if (User?.AppMetadata is not null)
+    {
+        <h4>App Metadata</h4>
+        <p><strong>Company Name:</strong> @User.AppMetadata.CompanyName</p>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public GuppyUser? User { get; set; }
+}

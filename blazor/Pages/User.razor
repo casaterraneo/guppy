@@ -61,6 +61,15 @@ https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standa
     <p>@StatusMessage</p>
 }
 
+@if (GuppyUser is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <GuppyUserComponent User="GuppyUser" />
+}
+
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> AuthenticationState { get; set; }
@@ -85,8 +94,7 @@ https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/standa
 
         if (!accessTokenResult.TryGetToken(out var token))
         {
-            throw new InvalidOperationException(
-                "Failed to provision the access token.");
+            throw new InvalidOperationException("Failed to provision the access token.");
         }
 
         AccessToken = token;
