@@ -54,7 +54,6 @@ const app = new Hono()
 	const userId = c.req.param('id');
 	if (!userId) return c.json({ error: 'UserId is required' }, 400);
 	const user_metadata = await c.req.json();
-	console.log(c.req);
 
 	if (!user_metadata) {
 	  return c.json({ error: 'user_metadata required' }, 400);
@@ -88,15 +87,20 @@ const app = new Hono()
 		return c.json({ error: 'Failed to retrieve access token' }, 400);
 	}
 
+	console.log(user_metadata.favorite_color);
+
 	// Now call the Management API to get user info
 	const userResponse = await fetch(`https://dev-lnkfyfu1two0vaem.us.auth0.com/api/v2/users/${userId}`, {
 	  method: 'PATCH',
 	  headers: {
 		Authorization: `Bearer ${tokenData.access_token}`,
-		'Accept': 'application/json',
+		'Content-Type': 'application/json',
 	  },
-      body: user_metadata,
-	  redirect: 'follow'
+	  body: JSON.stringify({
+		user_metadata: {
+		  favorite_color: user_metadata.favorite_color,
+		},
+	  }),
 	});
 
 	if (!userResponse.ok) {

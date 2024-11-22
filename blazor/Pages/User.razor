@@ -117,7 +117,7 @@ else
             user_metadata = GuppyUser.user_metadata
         };
 		using var http = HttpClientFactory.CreateClient("api");
-		var response = await http.PatchAsJsonAsync($"users/{GuppyUser.user_id}", payload);
+		var response = await http.PatchAsJsonAsync($"users/{GuppyUser.user_id}", new { user_metadata = payload });
         response.EnsureSuccessStatusCode();     
     }   
 }
