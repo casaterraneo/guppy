@@ -19,5 +19,9 @@ else
     echo "Ambiente non riconosciuto, usando file _headers di default"
 fi
 
+# Pulisce i file della build precedente
+echo "Eseguo dotnet clean..."
+./dotnet/dotnet clean
+
 # Pubblica l'app con dotnet
 ./dotnet/dotnet publish -c Release -o output -p:EnvironmentName=$DOTNET_ENVIRONMENT
