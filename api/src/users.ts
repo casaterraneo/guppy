@@ -53,10 +53,9 @@ const app = new Hono()
 .patch('/:id', async (c) => {
 	const userId = c.req.param('id');
 	if (!userId) return c.json({ error: 'UserId is required' }, 400);
-	const body = await c.req.json(); // Leggi il corpo della richiesta
+	const body = await c.req.json();
 
-	// Verifica che il corpo contenga `user_metadata` e che sia un oggetto
-	if (!body.user_metadata || typeof body.user_metadata !== 'object') {
+	if (!body.user_metadata || !body.user_metadata.favorite_color) {
 		return c.json({ error: 'Invalid user_metadata' }, 400);
 	}
 
@@ -83,15 +82,9 @@ const app = new Hono()
 
 	const tokenData = await tokenResponse.json();
 
-	// Verifica che l'access token sia stato ottenuto
 	if (!tokenData.access_token) {
 		return c.json({ error: 'Failed to retrieve access token' }, 400);
 	}
-
-  	// Accedi al valore di favorite_color
-  	const favoriteColor = body.user_metadata.favorite_color;
-
-  	console.log('Favorite color:', favoriteColor); // Ora vedrai il colore atteso
 
 	// Now call the Management API to get user info
 	const userResponse = await fetch(`https://dev-lnkfyfu1two0vaem.us.auth0.com/api/v2/users/${userId}`, {
@@ -102,7 +95,7 @@ const app = new Hono()
 	  },
 	  body: JSON.stringify({
 		user_metadata: {
-		  favorite_color: favoriteColor,
+		  favorite_color: body?.user_metadata?.favorite_color,
 		},
 	  }),
 	});
