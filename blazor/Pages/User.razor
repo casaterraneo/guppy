@@ -112,12 +112,16 @@ else
     public async Task UpdateMetadata()
     {        
         GuppyUser.user_metadata.favorite_color = favoriteColor;
+        // Invio diretto di GuppyUser.user_metadata come user_metadata
         var payload = new
         {
-            user_metadata = GuppyUser.user_metadata
+            user_metadata = new
+            {
+                favorite_color = GuppyUser.user_metadata.favorite_color
+            }
         };
 		using var http = HttpClientFactory.CreateClient("api");
-		var response = await http.PatchAsJsonAsync($"users/{GuppyUser.user_id}", new { user_metadata = payload });
+		var response = await http.PatchAsJsonAsync($"users/{GuppyUser.user_id}", payload );
         response.EnsureSuccessStatusCode();     
     }   
 }
