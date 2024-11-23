@@ -82,6 +82,7 @@ export default {
 		env: Env,
 		ctx: ExecutionContext,
 	  ) => {
+		console.log(env.ENVIRONMENT);
     // Write code for updating your API
     switch (controller.cron) {
 		case "*/3 * * * *":

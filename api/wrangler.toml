@@ -20,6 +20,9 @@ id = "732f400c57184569b1923135b41b1450"
 workers_dev = true
 vars = { ENVIRONMENT = "staging" }
 
+[env.staging.triggers]
+crons = ["*/3 * * * *", "*/10 * * * *", "*/45 * * * *"]
+
 [[env.staging.d1_databases]]
 binding = "DB"
 database_name = "guppy-db-staging"
