@@ -87,15 +87,15 @@ export default {
     switch (controller.cron) {
 		case "*/3 * * * *":
 		  // Every three minutes
-		  await updateAPI();
+		  await ctx.waitUntil(updateAPI());
 		  break;
 		case "*/10 * * * *":
 		  // Every ten minutes
-		  await updateAPI2();
+		  await ctx.waitUntil(updateAPI2());
 		  break;
 		case "*/45 * * * *":
 		  // Every forty-five minutes
-		  await updateAPI3();
+		  await ctx.waitUntil(updateAPI3());
 		  break;
 	  }
 	  console.log("cron processed");
