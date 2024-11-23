@@ -49,8 +49,6 @@ const dbSetter = createMiddleware(async (c, next) => {
 	}
 })
 
-
-
 const app = new Hono();
 app.use(logger());
 app.use('/*', cors());
@@ -67,9 +65,38 @@ app.onError((err, c) => {
 });
 app.notFound(c => c.text('Not found', 404));
 
-app.on('scheduled', async (c) => {
-	// Your scheduled code here
-	console.log('Cron job executed!');
-  });
+async function updateAPI() {
+	console.log("cron processed api");
+}
+async function updateAPI2() {
+	console.log("cron processe api 2");
+}
+async function updateAPI3() {
+	console.log("cron processed api 3");
+}
 
-export default app;
+export default {
+	fetch: app.fetch,
+	scheduled: async (
+		controller: ScheduledController,
+		env: Env,
+		ctx: ExecutionContext,
+	  ) => {
+    // Write code for updating your API
+    switch (controller.cron) {
+		case "*/3 * * * *":
+		  // Every three minutes
+		  await updateAPI();
+		  break;
+		case "*/10 * * * *":
+		  // Every ten minutes
+		  await updateAPI2();
+		  break;
+		case "*/45 * * * *":
+		  // Every forty-five minutes
+		  await updateAPI3();
+		  break;
+	  }
+	  console.log("cron processed");
+	},
+  }
