@@ -67,4 +67,9 @@ app.onError((err, c) => {
 });
 app.notFound(c => c.text('Not found', 404));
 
-export default app;
+export default {
+	fetch: app.fetch,
+	scheduled: async (batch, env) => {
+		console.log("cron processed");
+	},
+  }

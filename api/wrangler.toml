@@ -1,5 +1,6 @@
 name = "guppy-api"
 main = "src/index.ts"
+minify = true
 compatibility_date = "2023-11-21"
 vars = { ENVIRONMENT = "development" }
 
