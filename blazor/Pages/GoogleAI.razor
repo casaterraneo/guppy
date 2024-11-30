@@ -1,0 +1,77 @@
+@page "/google-ai"
+@inject IHttpClientFactory HttpClientFactory
+@attribute [Authorize]
+
+<PageTitle>Google AI</PageTitle>
+
+<h1>Google AI</h1>
+
+<p>This component demonstrates fetching data from and to the AI server.</p>
+
+<div class="input-section">
+    <form @onsubmit="HandleSubmit">
+        <label for="userInput">Inserisci il tuo messaggio:</label>
+        <textarea id="userInput" @bind="UserInput" placeholder="Scrivi qualcosa..." rows="4"></textarea>
+        <button type="submit" class="btn-submit" disabled="@IsLoading">Invia</button>
+    </form>
+</div>
+
+<div class="response-section">
+    @if (IsLoading)
+    {
+        <p>Caricamento...</p>
+    }
+    else if (!string.IsNullOrEmpty(ResponseText))
+    {
+        <p><strong>Risposta:</strong> @ResponseText</p>
+    }
+</div>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="error">
+        <p>@ErrorMessage</p>
+    </div>
+}
+
+@code {
+    private string UserInput { get; set; } = string.Empty;
+    private string? ResponseText { get; set; }
+    private bool IsLoading { get; set; } = false;
+    private string? ErrorMessage { get; set; }
+
+    private async Task HandleSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(UserInput))
+        {
+            ErrorMessage = "Inserire un messaggio valido.";
+            return;
+        }
+
+        IsLoading = true;
+        ErrorMessage = null;
+        ResponseText = null;
+
+        try
+        {
+			using var http = HttpClientFactory.CreateClient("api");		
+            var response = await http.PostAsJsonAsync("google-ai", new { message = UserInput });
+            if (response.IsSuccessStatusCode)
+            {
+                ResponseText = await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                ErrorMessage = $"Errore API: {response.ReasonPhrase}";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Errore nella richiesta: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+}
