@@ -12,13 +12,13 @@ const app = new Hono()
 	const model = genAI.getGenerativeModel(
 		{
 			model: "gemini-1.5-flash"
-		},
-		{
-			baseUrl: 'https://gateway.ai.cloudflare.com/v1/fe04af051f86d0ff6f22622b45242473/guppy-ai-gateway/google-ai-studio',
-			headers: {
-				'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`,
-			  },
-		},
+		}
+		// {
+		// 	baseUrl: 'https://gateway.ai.cloudflare.com/v1/fe04af051f86d0ff6f22622b45242473/guppy-ai-gateway/google-ai-studio',
+		// 	headers: {
+		// 		'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`,
+		// 	  },
+		// },
 	);
 
 	const result = await model.generateContent([message]);
