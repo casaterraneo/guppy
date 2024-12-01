@@ -23,7 +23,7 @@
     }
     else if (!string.IsNullOrEmpty(ResponseText))
     {
-        <p><strong>Risposta:</strong> @ResponseText</p>
+        <p><strong>Risposta:</strong> @((MarkupString)ResponseText)</p>
     }
 </div>
 
@@ -58,7 +58,8 @@
             var response = await http.PostAsJsonAsync("google-ai", new { message = UserInput });
             if (response.IsSuccessStatusCode)
             {
-                ResponseText = await response.Content.ReadAsStringAsync();
+                string rawResponse  = await response.Content.ReadAsStringAsync();
+                ResponseText = CleanResponseText(rawResponse);
             }
             else
             {
@@ -74,4 +75,12 @@
             IsLoading = false;
         }
     }
+
+    private string CleanResponseText(string response)
+    {
+   return System.Text.RegularExpressions.Regex.Unescape(response)
+        .Replace("\n", "<br>")
+        .Replace("\t", "&emsp;") // Tabulazione come spazi HTML
+        .Replace("\\", "");     // Rimuovi eventuali backslash residui
+    }    
 }
