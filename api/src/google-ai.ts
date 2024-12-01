@@ -13,22 +13,29 @@ const app = new Hono()
 	};
 
 	const genAI = new GoogleGenerativeAI(c.env.GOOGLE_AI_STUDIO_TOKEN);
-	const model = genAI.getGenerativeModel(
-		{
-			model: "gemini-1.5-flash",
-		},
-		{
-			baseUrl: 'https://gateway.ai.cloudflare.com/v1/fe04af051f86d0ff6f22622b45242473/guppy-ai-gateway/google-ai-studio',
-			headers: {
-				'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`,
-			  },
-		},
-		// {
-		// 	customHeaders : {
-		// 		 	'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`,
-		// 		   },
-		// }
-	);
+	// const model = genAI.getGenerativeModel(
+	// 	{
+	// 		model: "gemini-1.5-flash",
+	// 	},
+	// 	{
+	// 		baseUrl: 'https://gateway.ai.cloudflare.com/v1/fe04af051f86d0ff6f22622b45242473/guppy-ai-gateway/google-ai-studio',
+	// 		headers: {
+	// 			'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`,
+	// 		  },
+	// 	},
+	// 	// {
+	// 	// 	customHeaders : {
+	// 	// 		 	'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`,
+	// 	// 		   },
+	// 	// }
+	// );
+	const model = genAI.getGenerativeModel({
+		model: "gemini-1.5-flash",
+		baseUrl: 'https://gateway.ai.cloudflare.com/v1/fe04af051f86d0ff6f22622b45242473/guppy-ai-gateway/google-ai-studio',
+		requestOptions: {
+			customHeaders: customHeaders // Include custom headers here
+		}
+	});
 
 	const result = await model.generateContent([message]);
 
