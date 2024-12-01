@@ -18,6 +18,7 @@
 	},
 	"dependencies": {
 		"hono": "^3.12.11",
-		"jose": "^5.6.3"
+		"jose": "^5.6.3",
+		"@google/generative-ai": "0.21.0"
 	}
 }
