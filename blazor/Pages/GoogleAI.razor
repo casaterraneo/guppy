@@ -78,9 +78,9 @@
 
     private string CleanResponseText(string response)
     {
-   return System.Text.RegularExpressions.Regex.Unescape(response)
-        .Replace("\n", "<br>")
-        .Replace("\t", "&emsp;") // Tabulazione come spazi HTML
-        .Replace("\\", "");     // Rimuovi eventuali backslash residui
+        return System.Text.RegularExpressions.Regex.Unescape(response)
+            .Replace("\n", "<br>")
+            .Replace("\t", "&emsp;") // Tabulazione come spazi HTML
+            .Replace("\\", "");     // Rimuovi eventuali backslash residui
     }    
 }
