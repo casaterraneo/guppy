@@ -21,6 +21,6 @@ const app = new Hono()
 	const result = await model.generateContent([message]);
 
 	return c.json(result.response.text());
-})
+});
 
 export default app;
