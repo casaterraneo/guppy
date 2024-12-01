@@ -19,7 +19,17 @@ const app = new Hono()
 		}
 	});
 
-	const result = await model.generateContent([message]);
+	const chat = model.startChat({
+		history: [
+		  {
+			role: "user",
+			parts: [{ text: "May name is Pippo" }],
+		  }
+		],
+	  });
+
+	let result = await chat.sendMessage([message]);
+	//const result = await model.generateContent([message]);
 
 	return c.json(result.response.text());
 });
