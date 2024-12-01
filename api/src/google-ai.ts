@@ -7,7 +7,7 @@ const app = new Hono()
 	if (!message) return c.json({ error: 'Message is required' }, 400);
 
 	console.log(message);
-	console.log(c.env.CF_AIG_TOKEN);
+	//console.log(c.env.CF_AIG_TOKEN);
 	const customHeaders = {
 		'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`
 	};
@@ -19,15 +19,15 @@ const app = new Hono()
 		},
 		{
 			baseUrl: 'https://gateway.ai.cloudflare.com/v1/fe04af051f86d0ff6f22622b45242473/guppy-ai-gateway/google-ai-studio',
-			// headers: {
-			// 	'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`,
-			//   },
+			headers: {
+				'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`,
+			  },
 		},
-		{
-			customHeaders : {
-				 	'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`,
-				   },
-		}
+		// {
+		// 	customHeaders : {
+		// 		 	'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`,
+		// 		   },
+		// }
 	);
 
 	const result = await model.generateContent([message]);
