@@ -14,6 +14,9 @@ const app = new Hono()
 	const model = genAI.getGenerativeModel({
 		model: "gemini-1.5-flash",
 		baseUrl: 'https://gateway.ai.cloudflare.com/v1/fe04af051f86d0ff6f22622b45242473/guppy-ai-gateway/google-ai-studio',
+		generationConfig: {
+			maxOutputTokens: 200 // Set the maximum number of output tokens
+		},
 		requestOptions: {
 			customHeaders: customHeaders // Include custom headers here
 		}
