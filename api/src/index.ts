@@ -6,7 +6,7 @@ import { createRemoteJWKSet, jwtVerify } from 'jose'
 import employees from './employees';
 import kvs from './kvs';
 import users from './users';
-import googleAI from './google-ai';
+//import googleAI from './google-ai';
 
 const JWKS = createRemoteJWKSet(new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json'))
 async function verifyToken(token) {
@@ -59,7 +59,7 @@ app.use('/api/*', dbSetter);
 app.route('/api/employees', employees);
 app.route('/api/kvs', kvs);
 app.route('/api/users', users);
-app.route('/api/google-ai', googleAI);
+//app.route('/api/google-ai', googleAI);
 
 app.onError((err, c) => {
 	console.error(`${err}`);
@@ -67,39 +67,10 @@ app.onError((err, c) => {
 });
 app.notFound(c => c.text('Not found', 404));
 
-async function updateAPI() {
-	console.log("cron processed api");
-}
-async function updateAPI2() {
-	console.log("cron processe api 2");
-}
-async function updateAPI3() {
-	console.log("cron processed api 3");
-}
 
 export default {
 	fetch: app.fetch,
-	scheduled: async (
-		controller: ScheduledController,
-		env: Env,
-		ctx: ExecutionContext,
-	  ) => {
-		console.log(env.ENVIRONMENT);
-    // Write code for updating your API
-    switch (controller.cron) {
-		case "*/3 * * * *":
-		  // Every three minutes
-		  await ctx.waitUntil(updateAPI());
-		  break;
-		case "*/10 * * * *":
-		  // Every ten minutes
-		  await ctx.waitUntil(updateAPI2());
-		  break;
-		case "*/45 * * * *":
-		  // Every forty-five minutes
-		  await ctx.waitUntil(updateAPI3());
-		  break;
-	  }
-	  console.log("cron processed");
+	async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+	  //ctx.waitUntil(env.LEADERBOARD_WORKFLOW.create());
 	},
   }
