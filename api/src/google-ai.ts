@@ -51,7 +51,7 @@ const app = new Hono()
 		generationConfig: generationConfig,
 	  });
 
-	let result = await chat.sendMessage([messages]);
+	let result = await chat.sendMessage(messages);
 	//const result = await model.generateContent([message]);
 
 	return c.json(result.response.text());
