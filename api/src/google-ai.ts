@@ -7,6 +7,15 @@ enum Sentiment {
     NEGATIVE = "negative"
 }
 
+function getResponseSchema(responseSchema) {
+    switch (responseSchema) {
+        case 'Sentiment':
+            return Sentiment;
+        default:
+            null;
+    }
+}
+
 
 const app = new Hono()
 .post('/', async (c) => {
@@ -23,7 +32,7 @@ const app = new Hono()
 		topP,
 		maxOutputTokens,
 		responseMimeType,
-		responseSchema
+		responseSchema : getResponseSchema(responseSchema)
 	};
 
 	const genAI = new GoogleGenerativeAI(c.env.GOOGLE_AI_STUDIO_TOKEN);
