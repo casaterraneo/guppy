@@ -32,7 +32,8 @@ const app = new Hono()
 		topP,
 		maxOutputTokens,
 		responseMimeType,
-		responseSchema : JSON.stringify(Sentiment)
+		//responseSchema : JSON.stringify(Sentiment)
+		responseSchema : ['POSITIVE', 'NEUTRAL', 'NEGATIVE']
 	};
 
 	const genAI = new GoogleGenerativeAI(c.env.GOOGLE_AI_STUDIO_TOKEN);
