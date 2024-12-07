@@ -12,6 +12,15 @@
     <form @onsubmit="HandleSubmit">
         <label for="userInput">Inserisci il tuo messaggio:</label>
         <textarea id="userInput" @bind="UserInput" placeholder="Scrivi qualcosa..." rows="4"></textarea>
+        <label for="temperature">Temperature (optional):</label>
+        <input id="temperature" type="number" @bind="Temperature" placeholder="e.g., 0.7" step="0.1" min="0" max="1" />
+        
+        <label for="topK">Top K (optional):</label>
+        <input id="topK" type="number" @bind="TopK" placeholder="e.g., 40" />
+        
+        <label for="topP">Top P (optional):</label>
+        <input id="topP" type="number" @bind="TopP" placeholder="e.g., 0.9" step="0.1" min="0" max="1" />
+
         <button type="submit" class="btn-submit" disabled="@IsLoading">Invia</button>
     </form>
 </div>
@@ -39,6 +48,10 @@
     private string? ResponseText { get; set; }
     private bool IsLoading { get; set; } = false;
     private string? ErrorMessage { get; set; }
+    private double? Temperature { get; set; }
+    private double? TopK { get; set; }
+    private double? TopP { get; set; }  
+    private double? MaxOutputTokens   { get; set; }      
 
     private async Task HandleSubmit()
     {
@@ -55,7 +68,15 @@
         try
         {
 			using var http = HttpClientFactory.CreateClient("api");		
-            var response = await http.PostAsJsonAsync("google-ai", new { message = UserInput });
+            var requestData = new
+            {
+                message = UserInput,
+                Temperature,
+                TopK,
+                TopP,
+                MaxOutputTokens
+            };            
+            var response = await http.PostAsJsonAsync("google-ai", requestData);
             if (response.IsSuccessStatusCode)
             {
                 string rawResponse  = await response.Content.ReadAsStringAsync();

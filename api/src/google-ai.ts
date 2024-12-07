@@ -3,11 +3,18 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const app = new Hono()
 .post('/', async (c) => {
-	const { message } = await c.req.json();
+	const { message, temperature, topK, topP, maxOutputTokens } = await c.req.json();
 	if (!message) return c.json({ error: 'Message is required' }, 400);
 
 	const customHeaders = {
 		'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`
+	};
+
+	const generationConfig = {
+		temperature: temperature,
+		topK: topK,
+		topP: topP,
+		maxOutputTokens: maxOutputTokens,
 	};
 
 	const genAI = new GoogleGenerativeAI(c.env.GOOGLE_AI_STUDIO_TOKEN);
@@ -19,9 +26,6 @@ const app = new Hono()
 		}
 	});
 
-	const generationConfig = {
-		maxOutputTokens: 2 // Set the maximum number of output tokens
-	};
 	const chat = model.startChat({
 		history: [
 		  {
