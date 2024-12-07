@@ -26,6 +26,8 @@ const app = new Hono()
 		'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`
 	};
 
+	type SentimentStrings = `${Sentiment}`
+
 	const generationConfig = {
 		temperature,
 		topK,
@@ -33,7 +35,8 @@ const app = new Hono()
 		maxOutputTokens,
 		responseMimeType,
 		//responseSchema : JSON.stringify(Sentiment)
-		responseSchema : ['POSITIVE', 'NEUTRAL', 'NEGATIVE']
+		//responseSchema : ['POSITIVE', 'NEUTRAL', 'NEGATIVE']
+		responseSchema : { POSITIVE: "positive", NEUTRAL: "neutral", NEGATIVE: "negative"}
 	};
 
 	const genAI = new GoogleGenerativeAI(c.env.GOOGLE_AI_STUDIO_TOKEN);
