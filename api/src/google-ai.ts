@@ -19,6 +19,9 @@ const app = new Hono()
 		}
 	});
 
+	const generationConfig = {
+		maxOutputTokens: 2 // Set the maximum number of output tokens
+	};
 	const chat = model.startChat({
 		history: [
 		  {
@@ -26,9 +29,7 @@ const app = new Hono()
 			parts: [{ text: "May name is Pippo" }],
 		  }
 		],
-		generationConfig: {
-			maxOutputTokens: 200 // Set the maximum number of output tokens
-		},
+		generationConfig: generationConfig,
 	  });
 
 	let result = await chat.sendMessage([message]);
