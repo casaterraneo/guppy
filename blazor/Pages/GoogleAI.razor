@@ -10,10 +10,14 @@
 
 <div class="input-section">
     <form @onsubmit="HandleSubmit">
-        <div>
+        <div class="form-group">
             <label for="userInput">Inserisci il tuo messaggio:</label>
-            <textarea id="userInput" @bind="UserInput" placeholder="Scrivi qualcosa..." rows="4"></textarea>
+            <textarea class="form-control" id="userInput" @bind="UserInput" placeholder="Scrivi qualcosa..." rows="4"></textarea>
         </div>
+        <div class="form-group">
+            <label for="userInput2">Inserisci il tuo messaggio 2:</label>
+            <textarea class="form-control" id="userInput2" @bind="UserInput2" placeholder="Scrivi qualcosa..." rows="4"></textarea>
+        </div>        
         <div>
             <label for="temperature">Temperature:</label>
             <input id="temperature" type="number" @bind="Temperature" placeholder="e.g., 0.7" step="0.1" min="0" max="1" />
@@ -65,6 +69,7 @@
 
 @code {
     private string UserInput { get; set; } = string.Empty;
+    private string UserInput2 { get; set; } = string.Empty;
     private string? ResponseText { get; set; }
     private bool IsLoading { get; set; } = false;
     private string? ErrorMessage { get; set; }
@@ -93,7 +98,7 @@
 			using var http = HttpClientFactory.CreateClient("api");
             var requestData = new
             {
-                message = UserInput,
+                messages = new [] { UserInput, UserInput2 },
                 Temperature,
                 TopK,
                 TopP,

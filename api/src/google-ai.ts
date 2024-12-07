@@ -13,8 +13,8 @@ function getResponseSchema(responseSchema: string) {
 
 const app = new Hono()
 .post('/', async (c) => {
-	const { message, temperature, topK, topP, maxOutputTokens, responseMimeType, responseSchema } = await c.req.json();
-	if (!message) return c.json({ error: 'Message is required' }, 400);
+	const { messages, temperature, topK, topP, maxOutputTokens, responseMimeType, responseSchema } = await c.req.json();
+	if (!messages) return c.json({ error: 'Message is required' }, 400);
 
 	const customHeaders = {
 		'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`
@@ -51,7 +51,7 @@ const app = new Hono()
 		generationConfig: generationConfig,
 	  });
 
-	let result = await chat.sendMessage([message]);
+	let result = await chat.sendMessage([messages]);
 	//const result = await model.generateContent([message]);
 
 	return c.json(result.response.text());
