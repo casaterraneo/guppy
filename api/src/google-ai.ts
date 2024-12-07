@@ -7,12 +7,12 @@ enum Sentiment {
     NEGATIVE = "negative"
 }
 
-function getResponseSchema(responseSchema) {
+function getResponseSchema(responseSchema: string) {
     switch (responseSchema) {
         case 'Sentiment':
-            return Sentiment;
+            return Object.values(Sentiment);
         default:
-            null;
+            return null;
     }
 }
 
