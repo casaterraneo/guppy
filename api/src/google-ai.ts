@@ -1,16 +1,10 @@
 import { Hono } from 'hono';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-enum Sentiment {
-    POSITIVE = "positive",
-    NEUTRAL = "neutral",
-    NEGATIVE = "negative"
-}
-
 function getResponseSchema(responseSchema: string) {
     switch (responseSchema) {
         case 'Sentiment':
-            return Object.values(Sentiment);
+            return { type: "STRING", enum:["POSITIVE", "NEUTRAL", "NEGATIVE"] };
         default:
             return null;
     }
@@ -26,8 +20,6 @@ const app = new Hono()
 		'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`
 	};
 
-	type SentimentStrings = `${Sentiment}`
-
 	const generationConfig = {
 		temperature,
 		topK,
@@ -37,7 +29,7 @@ const app = new Hono()
 		//responseSchema : JSON.stringify(Sentiment)
 		//responseSchema : ['POSITIVE', 'NEUTRAL', 'NEGATIVE']
 		//responseSchema : { POSITIVE: "positive", NEUTRAL: "neutral", NEGATIVE: "negative"}
-		responseSchema : { type: "STRING", enum:["POSITIVE", "NEUTRAL", "NEGATIVE"] }
+		responseSchema : getResponseSchema(responseSchema),
 	};
 
 	const genAI = new GoogleGenerativeAI(c.env.GOOGLE_AI_STUDIO_TOKEN);
