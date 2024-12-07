@@ -37,7 +37,7 @@ const app = new Hono()
 		//responseSchema : JSON.stringify(Sentiment)
 		//responseSchema : ['POSITIVE', 'NEUTRAL', 'NEGATIVE']
 		//responseSchema : { POSITIVE: "positive", NEUTRAL: "neutral", NEGATIVE: "negative"}
-		responseSchema : { enum:["POSITIVE", "NEUTRAL", "NEGATIVE"] }
+		responseSchema : { type: "STRING", enum:["POSITIVE", "NEUTRAL", "NEGATIVE"] }
 	};
 
 	const genAI = new GoogleGenerativeAI(c.env.GOOGLE_AI_STUDIO_TOKEN);
