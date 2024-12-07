@@ -1,9 +1,16 @@
 import { Hono } from 'hono';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+enum Sentiment {
+    POSITIVE = "positive",
+    NEUTRAL = "neutral",
+    NEGATIVE = "negative"
+}
+
+
 const app = new Hono()
 .post('/', async (c) => {
-	const { message, temperature, topK, topP, maxOutputTokens } = await c.req.json();
+	const { message, temperature, topK, topP, maxOutputTokens, responseMimeType, responseSchema } = await c.req.json();
 	if (!message) return c.json({ error: 'Message is required' }, 400);
 
 	const customHeaders = {
@@ -11,10 +18,12 @@ const app = new Hono()
 	};
 
 	const generationConfig = {
-		temperature: temperature,
-		topK: topK,
-		topP: topP,
-		maxOutputTokens: maxOutputTokens,
+		temperature,
+		topK,
+		topP,
+		maxOutputTokens,
+		responseMimeType,
+		responseSchema
 	};
 
 	const genAI = new GoogleGenerativeAI(c.env.GOOGLE_AI_STUDIO_TOKEN);
