@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, ResponseSchema, GenerationConfig } from "@google/generative-ai";
 
-function getResponseSchema(responseSchema: string) {
+function getResponseSchema(responseSchema: string): ResponseSchema | null {
     switch (responseSchema) {
         case 'Sentiment':
-            return { type: "STRING", enum:["POSITIVE", "NEUTRAL", "NEGATIVE"] };
+            return new ResponseSchema ({ type: "STRING", enum:["POSITIVE", "NEUTRAL", "NEGATIVE"] });
         default:
             return null;
     }
@@ -20,7 +20,7 @@ const app = new Hono()
 		'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`
 	};
 
-	const generationConfig = {
+	const generationConfig = new GenerationConfig({
 		temperature,
 		topK,
 		topP,
@@ -30,7 +30,7 @@ const app = new Hono()
 		//responseSchema : ['POSITIVE', 'NEUTRAL', 'NEGATIVE']
 		//responseSchema : { POSITIVE: "positive", NEUTRAL: "neutral", NEGATIVE: "negative"}
 		responseSchema : getResponseSchema(responseSchema),
-	};
+	});
 
 	const genAI = new GoogleGenerativeAI(c.env.GOOGLE_AI_STUDIO_TOKEN);
 	const model = genAI.getGenerativeModel({
