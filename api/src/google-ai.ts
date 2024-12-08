@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { GoogleGenerativeAI, ResponseSchema, GenerationConfig } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 interface PizzaOrder {
     size: string;
@@ -7,18 +7,18 @@ interface PizzaOrder {
     type: string;
 }
 
-function getResponseSchema(responseSchema: string): ResponseSchema | null {
+function getResponseSchema(responseSchema: string) {
     switch (responseSchema) {
         case 'Sentiment':
-            return new ResponseSchema ({ type: "STRING", enum:["POSITIVE", "NEUTRAL", "NEGATIVE"] });
+            return { type: "STRING", enum:["POSITIVE", "NEUTRAL", "NEGATIVE"] };
 		case 'PizzaOrder':
-			return new ResponseSchema ({ type: "OBJECT", properties:
+			return { type: "OBJECT", properties:
 					{
 						size : "STRING",
 						type: "STRING",
 						ingredients: { type: "ARRAY", items: { type: "STRING" } },
 					}
-				});
+				};
         default:
             return null;
     }
@@ -34,7 +34,7 @@ const app = new Hono()
 		'cf-aig-authorization': `Bearer ${c.env.CF_AIG_TOKEN}`
 	};
 
-	const generationConfig = new GenerationConfig({
+	const generationConfig = {
 		temperature,
 		topK,
 		topP,
@@ -44,7 +44,7 @@ const app = new Hono()
 		//responseSchema : ['POSITIVE', 'NEUTRAL', 'NEGATIVE']
 		//responseSchema : { POSITIVE: "positive", NEUTRAL: "neutral", NEGATIVE: "negative"}
 		responseSchema : getResponseSchema(responseSchema),
-	});
+	};
 
 	const genAI = new GoogleGenerativeAI(c.env.GOOGLE_AI_STUDIO_TOKEN);
 	const model = genAI.getGenerativeModel({
