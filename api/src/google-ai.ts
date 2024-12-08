@@ -15,19 +15,9 @@ function getResponseSchema(responseSchema: string) {
 			return {
 				type: "OBJECT",
 				properties: {
-						size: {
-							type: "string",
-							description: "The size of the pizza (e.g., small, medium, large)."
-						},
-						ingredients: {
-							type: "array",
-							items: { type: "string" },
-							description: "A list of ingredients for the pizza."
-						},
-						type: {
-							type: "string",
-							description: "The type of pizza (e.g., vegetarian, meat lover's)."
-						}
+						size: { type: "STRING" },
+						ingredients: { type: "ARRAY", items: { type: "STRING" } },
+						type: { type: "STRING"}
 					},
 				};
         default:
