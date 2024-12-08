@@ -12,12 +12,23 @@ function getResponseSchema(responseSchema: string) {
         case 'Sentiment':
             return { type: "STRING", enum:["POSITIVE", "NEUTRAL", "NEGATIVE"] };
 		case 'PizzaOrder':
-			return { type: "OBJECT", properties:
-					{
-						size : "STRING",
-						type: "STRING",
-						ingredients: { type: "ARRAY", items: { type: "STRING" } },
-					}
+			return {
+				type: "OBJECT",
+				properties: {
+						size: {
+							type: "string",
+							description: "The size of the pizza (e.g., small, medium, large)."
+						},
+						ingredients: {
+							type: "array",
+							items: { type: "string" },
+							description: "A list of ingredients for the pizza."
+						},
+						type: {
+							type: "string",
+							description: "The type of pizza (e.g., vegetarian, meat lover's)."
+						}
+					},
 				};
         default:
             return null;
