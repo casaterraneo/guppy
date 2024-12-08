@@ -1,10 +1,24 @@
 import { Hono } from 'hono';
 import { GoogleGenerativeAI, ResponseSchema, GenerationConfig } from "@google/generative-ai";
 
+interface PizzaOrder {
+    size: string;
+    ingredients: string[];
+    type: string;
+}
+
 function getResponseSchema(responseSchema: string): ResponseSchema | null {
     switch (responseSchema) {
         case 'Sentiment':
             return new ResponseSchema ({ type: "STRING", enum:["POSITIVE", "NEUTRAL", "NEGATIVE"] });
+		case 'PizzaOrder':
+			return new ResponseSchema ({ type: "OBJECT", properties:
+					{
+						size : "STRING",
+						type: "STRING",
+						ingredients: { type: "ARRAY", items: { type: "STRING" } },
+					}
+				});
         default:
             return null;
     }
