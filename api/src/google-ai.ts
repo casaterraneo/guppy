@@ -21,6 +21,18 @@ function getResponseSchema(responseSchema: string) {
 					},
 					required: ["size", "type", "ingredients"]
 				};
+		case 'PizzaOrderList':
+			return {type: "ARRAY", items:
+				{
+				type: "OBJECT",
+				properties: {
+						size: { type: "STRING" },
+						ingredients: { type: "ARRAY", items: { type: "STRING" } },
+						type: { type: "STRING"}
+					},
+					required: ["size", "type", "ingredients"]
+				}
+			};
         default:
             return null;
     }
