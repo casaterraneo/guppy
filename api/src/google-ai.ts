@@ -19,6 +19,7 @@ function getResponseSchema(responseSchema: string) {
 						ingredients: { type: "ARRAY", items: { type: "STRING" } },
 						type: { type: "STRING"}
 					},
+					required: ["size", "type", "ingredients"]
 				};
         default:
             return null;
