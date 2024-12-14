@@ -7,7 +7,7 @@ const app = new Hono()
 	if (!messages) return c.json({ error: 'Message is required' }, 400);
 
 	const answer = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
-		prompt: messages[0]
+		 prompt: "What is the origin of the phrase 'Hello, World'"
 	});
 	return c.json(answer);
 });
