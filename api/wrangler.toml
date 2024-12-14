@@ -7,9 +7,6 @@ vars = { ENVIRONMENT = "development" }
 [observability]
 enabled = true
 
-[ai]
-binding = "AI"
-
 [[d1_databases]]
 binding = "DB"
 database_name = "guppy-db-development"
@@ -18,6 +15,13 @@ database_id = "4f9dada0-4da7-4794-a167-ef73eb666908"
 [[kv_namespaces]]
 binding = "KV"
 id = "732f400c57184569b1923135b41b1450"
+
+[ai]
+binding = "AI"
+
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "guppy-vector-development"
 
 [env.staging]
 workers_dev = true
@@ -35,12 +39,13 @@ database_id = "7ea075db-e0cc-4a7a-bd35-33f13827e3d0"
 binding = "KV"
 id = "87a1f59c5a194e2789d9ffac22e9bd38"
 
+[[env.staging.vectorize]]
+binding = "VECTORIZE"
+index_name = "guppy-vector-staging"
+
 [env.production]
 workers_dev = true
 vars = { ENVIRONMENT = "production" }
-
-[env.production.ai]
-binding = "AI"
 
 [[env.production.d1_databases]]
 binding = "DB"
@@ -55,3 +60,11 @@ id = "024cb8ce59f8466daef9e7c5d6058a4e"
 binding = "DB_CLI"
 database_name = "guppy-db-cli"
 database_id = "bce13a19-6d4b-4a11-9aaa-87606a1343a0"
+
+[[env.production.kv_namespaces]]
+binding = "KV"
+id = "87a1f59c5a194e2789d9ffac22e9bd38"
+
+[[env.production.vectorize]]
+binding = "VECTORIZE"
+index_name = "guppy-vector-production"
