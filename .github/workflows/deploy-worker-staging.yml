@@ -21,8 +21,11 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: "api"
           environment: "staging"
+          preCommands: |
+            echo "*** pre commands ***"
+            wrangler vectorize create guppy-vector-staging
+            echo "******"          
           postCommands: |
             echo "*** post commands ***"
             wrangler d1 execute guppy-db-staging --file ./data/scripts.sql --remote 
-            wrangler vectorize create guppy-vector-staging
             echo "******"          
