@@ -24,4 +24,5 @@ jobs:
           postCommands: |
             echo "*** post commands ***"
             wrangler d1 execute guppy-db-staging --file ./data/scripts.sql --remote 
+            wrangler vectorize create guppy-vector-staging
             echo "******"          
