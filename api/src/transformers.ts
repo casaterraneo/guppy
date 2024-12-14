@@ -19,7 +19,7 @@ class MyClassificationPipeline {
 	}
   }
 
-  MyClassificationPipeline.getInstance();
+//MyClassificationPipeline.getInstance();
 
 const app = new Hono()
 .post('/', async (c) => {
