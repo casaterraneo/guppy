@@ -1,6 +1,8 @@
 import { Hono } from 'hono';
 import { pipeline, env } from '@xenova/transformers';
 
+env.allowRemoteModels = false;
+
 const app = new Hono()
 .post('/', async (c) => {
 	const pipe = await pipeline('sentiment-analysis','Xenova/ms-marco-MiniLM-L-6-v2');
