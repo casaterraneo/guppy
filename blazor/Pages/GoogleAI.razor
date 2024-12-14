@@ -109,7 +109,8 @@
                 ResponseMimeType,
                 ResponseSchema
             };
-            var response = await http.PostAsJsonAsync("google-ai", requestData);
+            //var response = await http.PostAsJsonAsync("google-ai", requestData);
+            var response = await http.PostAsJsonAsync("transformers", requestData);
             if (response.IsSuccessStatusCode)
             {
                 string rawResponse  = await response.Content.ReadAsStringAsync();

@@ -7,6 +7,7 @@ import employees from './employees';
 import kvs from './kvs';
 import users from './users';
 import googleAI from './google-ai';
+import transformers from './transformers';
 
 const JWKS = createRemoteJWKSet(new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json'))
 async function verifyToken(token) {
@@ -60,6 +61,7 @@ app.route('/api/employees', employees);
 app.route('/api/kvs', kvs);
 app.route('/api/users', users);
 app.route('/api/google-ai', googleAI);
+app.route('/api/transformers', transformers);
 
 app.onError((err, c) => {
 	console.error(`${err}`);
