@@ -7,6 +7,9 @@ vars = { ENVIRONMENT = "development" }
 [observability]
 enabled = true
 
+[ai]
+binding = "AI"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "guppy-db-development"
