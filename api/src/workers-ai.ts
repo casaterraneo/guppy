@@ -7,7 +7,7 @@ const app = new Hono()
 	if (!messages) return c.json({ error: 'Message is required' }, 400);
 
 	const answer = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
-		text: messages,
+		text: messages[0],
 	});
 
 	return c.json(answer);
@@ -17,7 +17,7 @@ const app = new Hono()
 	const { messages, temperature, topK, topP, maxOutputTokens, responseMimeType, responseSchema } = await c.req.json();
 	if (!messages) return c.json({ error: 'Message is required' }, 400);
 
-	const modelResp = await c.env.AI.run('@cf/baai/bge-small-en-v1.5', {
+	const modelResp = await c.env.AI.run('@cf/baai/bge-base-en-v1.5', {
 		text: messages,
 	});
 
