@@ -23,7 +23,7 @@ jobs:
           environment: "staging"
           preCommands: |
             echo "*** pre commands ***"
-            wrangler vectorize create guppy-vector-staging
+            wrangler vectorize create guppy-vector-staging --dimensions=32 --metric=euclidean
             echo "******"          
           postCommands: |
             echo "*** post commands ***"
