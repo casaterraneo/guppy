@@ -24,7 +24,7 @@ jobs:
           preCommands: |
             echo "*** pre commands ***"
             wrangler vectorize delete guppy-vector-staging
-            wrangler vectorize create guppy-vector-staging --dimensions=768 --metric=cosine
+            
             echo "******"          
           postCommands: |
             echo "*** post commands ***"
