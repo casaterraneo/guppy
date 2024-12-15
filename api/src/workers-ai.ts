@@ -12,7 +12,7 @@ const app = new Hono()
 
 	return c.json(answer);
 })
-.post('/vector', async (c) => {
+.post('/vector-upsert', async (c) => {
 
 	const { messages, temperature, topK, topP, maxOutputTokens, responseMimeType, responseSchema } = await c.req.json();
 	if (!messages) return c.json({ error: 'Message is required' }, 400);
@@ -31,6 +31,24 @@ const app = new Hono()
 	let inserted = await c.env.VECTORIZE.upsert(vectors);
 
 	return c.json(inserted);
+})
+.post('/vector-query', async (c) => {
+
+	const { messages, temperature, topK, topP, maxOutputTokens, responseMimeType, responseSchema } = await c.req.json();
+	if (!messages) return c.json({ error: 'Message is required' }, 400);
+
+	const modelResp = await c.env.AI.run('@cf/baai/bge-base-en-v1.5', {
+		text: messages,
+	});
+
+	let results = [];
+	modelResp.data.forEach((vector) => {
+		const result = await c.env.VECTORIZE.query(vector,  { topK: 1 });
+		results.push(result.matches);
+	  });
+
+
+	return c.json(results);
 });
 
 export default app;

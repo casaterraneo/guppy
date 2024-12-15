@@ -18,6 +18,10 @@
             <label for="userInput2">Inserisci il tuo messaggio 2:</label>
             <textarea class="form-control" id="userInput2" @bind="UserInput2" placeholder="Scrivi qualcosa..." rows="4"></textarea>
         </div>
+        <div class="form-group">
+            <label for="userInput2">Inserisci il tuo messaggio 3:</label>
+            <textarea class="form-control" id="userInput3" @bind="UserInput2" placeholder="Scrivi qualcosa..." rows="4"></textarea>
+        </div>        
         <div class="row">
             <div class="col-sm-6">            
                 <div class="form-group">
@@ -48,8 +52,9 @@
                 </div>
             </div>
         </div>
-        <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick="@(()=>HandleAction("llm"))">Invia LLM</button>
-        <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick="@(()=>HandleAction("vector"))">Invia Vector</button>
+        <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("llm")'>Invia LLM</button>
+        <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("vector-upsert")'>Invia Vector</button>
+        <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("vector-query")'>Query Vector</button>
     </form>
 </div>
 
@@ -74,6 +79,7 @@
 @code {
     private string UserInput { get; set; } = string.Empty;
     private string UserInput2 { get; set; } = string.Empty;
+    private string UserInput3 { get; set; } = string.Empty;
     private string? ResponseText { get; set; }
     private bool IsLoading { get; set; } = false;
     private string? ErrorMessage { get; set; }
@@ -102,7 +108,7 @@
 			using var http = HttpClientFactory.CreateClient("api");
             var requestData = new
             {
-                messages = new [] { UserInput, UserInput2 },
+                messages = new [] { UserInput, UserInput2, UserInput3 },
                 Temperature,
                 TopK,
                 TopP,
