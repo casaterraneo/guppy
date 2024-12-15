@@ -52,6 +52,7 @@ const processItemsInParallel = async (c, vectors) => {
 		const result = await c.env.VECTORIZE.query(vector,  { topK: 1 });
 		results.push(result.matches)
     }));
+	return results;
 };
 
 export default app;
