@@ -41,14 +41,17 @@ const app = new Hono()
 		text: messages,
 	});
 
-	let results = [];
-	modelResp.data.forEach((vector) => {
-		const result = await c.env.VECTORIZE.query(vector,  { topK: 1 });
-		results.push(result.matches);
-	  });
-
+	let results = processItemsInParallel(c, modelResp.data);
 
 	return c.json(results);
 });
+
+const processItemsInParallel = async (c, vectors) => {
+	let results = [];
+    await Promise.all(vectors.map(async (vector) => {
+		const result = await c.env.VECTORIZE.query(vector,  { topK: 1 });
+		results.push(result.matches)
+    }));
+};
 
 export default app;
