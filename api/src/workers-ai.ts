@@ -38,7 +38,7 @@ const app = new Hono()
 	if (!messages) return c.json({ error: 'Message is required' }, 400);
 
 	const modelResp = await c.env.AI.run('@cf/baai/bge-base-en-v1.5', {
-		text: messages,
+		text: messages[0],
 	});
 
 	let results = processItemsInParallel(c, modelResp.data);
