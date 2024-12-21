@@ -25,8 +25,11 @@ const app = new Hono()
 	let id = 1;
 	modelResp.data.forEach((vector) => {
 	  vectors.push({ id: `${id}`, values: vector });
+	  console.log(`id: ${id}`);
 	  id++;
 	});
+
+	console.log(`length: ${vectors.length}`);
 
 	let inserted = await c.env.VECTORIZE.upsert(vectors);
 
