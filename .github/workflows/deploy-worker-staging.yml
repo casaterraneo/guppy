@@ -21,9 +21,9 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: "api"
           environment: "staging"
-          #preCommands: |
-          #  echo "*** pre commands ***"
-          #  wrangler vectorize delete guppy-vector-staging
+          preCommands: |
+            echo "*** pre commands ***"
+            wrangler vectorize delete guppy-vector-staging
           #  wrangler vectorize create guppy-vector-staging --dimensions=768 --metric=cosine
           #  echo "******"          
           postCommands: |
