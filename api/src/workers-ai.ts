@@ -37,13 +37,14 @@ const app = new Hono()
 	const { messages, temperature, topK, topP, maxOutputTokens, responseMimeType, responseSchema } = await c.req.json();
 	if (!messages) return c.json({ error: 'Message is required' }, 400);
 
-	const vector = await c.env.AI.run('@cf/baai/bge-base-en-v1.5', {
+	const modelResp = await c.env.AI.run('@cf/baai/bge-base-en-v1.5', {
 		text: messages[0],
 	});
 
 	//let results = processItemsInParallel(c, modelResp.data);
 
 	//const vector = await c.env.VECTORIZE.getByIds(['1']);
+	const vector = modelResp.data;
 	console.log(vector.values);
 	const result = await c.env.VECTORIZE.query(vector[0].values,  { topK: 1 , returnValues: true });
 	console.log(result.matches);
