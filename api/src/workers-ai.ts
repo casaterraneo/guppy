@@ -41,10 +41,6 @@ const app = new Hono()
 		text: messages[0],
 	});
 
-	console.log(messages[0]);
-
-	console.log(modelResp.data);
-
 	let results = processItemsInParallel(c, modelResp.data);
 
 	return c.json(results);
@@ -55,6 +51,7 @@ const processItemsInParallel = async (c, vectors) => {
     await Promise.all(vectors.map(async (vector) => {
 		const result = await c.env.VECTORIZE.query(vector,  { topK: 1 , returnValues: true });
 		results.push(result.matches)
+		console.log(result.matches);
     }));
 	return results;
 };
