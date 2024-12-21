@@ -43,6 +43,8 @@ const app = new Hono()
 
 	let results = processItemsInParallel(c, modelResp.data);
 
+	console.log(results);
+
 	return c.json(results);
 });
 
