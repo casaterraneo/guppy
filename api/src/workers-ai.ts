@@ -44,9 +44,10 @@ const app = new Hono()
 	//let results = processItemsInParallel(c, modelResp.data);
 
 	//const vector = await c.env.VECTORIZE.getByIds(['1']);
-	const vector = modelResp.data;
-	console.log(vector.values);
-	const result = await c.env.VECTORIZE.query(vector[0].values,  { topK: 1 , returnValues: true });
+	const vector = modelResp.data[0];
+	console.log(vector);
+	//const result = await c.env.VECTORIZE.query(vector[0].values,  { topK: 1 , returnValues: true });
+	const result = await c.env.VECTORIZE.query(vector,  { topK: 1 , returnValues: true });
 	console.log(result.matches);
 
 	return c.json(result.matches);
