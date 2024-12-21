@@ -42,7 +42,7 @@ const app = new Hono()
 	});
 
 	const vector = modelResp.data[0];
-	const result = await c.env.VECTORIZE.query(vector,  { topK: 1 , returnValues: true });
+	const result = await c.env.VECTORIZE.query(vector,  { topK: 1 });
 
 	return c.json(result.matches);
 });
