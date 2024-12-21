@@ -45,7 +45,7 @@ const app = new Hono()
 
 	const vector = await c.env.VECTORIZE.getByIds(['1']);
 	console.log(vector.values);
-	const result = await c.env.VECTORIZE.query(vector[0].values,  { topK: 3 , returnValues: true });
+	const result = await c.env.VECTORIZE.query(vector[0].values,  { topK: 1 , returnValues: true });
 	console.log(result.matches);
 
 	return c.json(result.matches);
