@@ -61,9 +61,9 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 	const searchResults = await db
 		.prepare(`SELECT * FROM [Employee] where Id=?`)
 		.bind(queryResult.matches[0].id)
-		.first();
+		.all();
 
-	return c.json(searchResults);
+	return c.json(searchResults.results);
 });
 
 export default app;
