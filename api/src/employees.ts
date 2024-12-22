@@ -55,10 +55,12 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 	const modelSearch = await c.env.AI.run('@cf/baai/bge-base-en-v1.5', {
 		text: searchText,
 	});
+	const vector = modelSearch.data[0];
+	const queryResult = await c.env.VECTORIZE.query(vector, { topK: 1 });
 
 	const searchResults = await db
 		.prepare(`SELECT * FROM [Employee] where Id=?`)
-		.bind(modelSearch.data[0].id)
+		.bind(queryResult.matches[0].id)
 		.first();
 
 	return c.json(searchResults.results);
