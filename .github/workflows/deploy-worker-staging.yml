@@ -24,6 +24,7 @@ jobs:
           preCommands: |
             echo "*** pre commands ***"
           #  wrangler vectorize create guppy-vector-staging --dimensions=768 --metric=cosine
+          #  wrangler vectorize create-metadata-index guppy-vector-staging --property-name=url --type=string
           #  wrangler vectorize delete guppy-vector-staging          
           #  echo "******"          
           postCommands: |
