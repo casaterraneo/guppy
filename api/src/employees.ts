@@ -15,8 +15,13 @@ function checkPermission(permission) {
 const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 	const searchConfigId = c.req.query('searchConfigId');
 	const searchText = c.req.query('searchText');
-
 	const db = c.get('db');
+
+	if (!searchConfigId || !searchText) {
+		const all = await db.prepare(`SELECT * FROM [Employee]`).all();
+		return c.json(all.results);
+	}
+
 	const searchConfiguration = await db
 		.prepare(`SELECT * FROM [SearchConfigurations] where Id=?`)
 		.bind(searchConfigId)
@@ -43,16 +48,16 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 		vectors.push({ id: `${ids[i]}`, values: vector });
 	}
 
-	let inserted = await c.env.VECTORIZE. (vectors);
+	let inserted = await c.env.VECTORIZE.upsert(vectors);
 
 	console.log(inserted);
 
-	const modelSearch  = await c.env.AI.run('@cf/baai/bge-base-en-v1.5', {
+	const modelSearch = await c.env.AI.run('@cf/baai/bge-base-en-v1.5', {
 		text: searchText,
 	});
 
 	const searchResults = await db
-	.prepare(`SELECT * FROM [Employee] where Id=?`)
+		.prepare(`SELECT * FROM [Employee] where Id=?`)
 		.bind(modelSearch.data[0].id)
 		.first();
 
