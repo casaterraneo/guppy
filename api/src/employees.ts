@@ -63,7 +63,7 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 		.bind(queryResult.matches[0].id)
 		.first();
 
-	return c.json(searchResults.results);
+	return c.json(searchResults);
 });
 
 export default app;
