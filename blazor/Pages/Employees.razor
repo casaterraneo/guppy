@@ -10,8 +10,13 @@
 <p>This component demonstrates fetching data from the server.</p>
 
 <div>
-	<input type="text" @bind="cli" placeholder="Inserisci la chiave" />
-	<i class="bi bi-plus-lg pointer" @onclick ="() => GetEmployees()"></i>
+	<input type="text" @bind="searchText" placeholder="Inserisci la chiave" />
+	<i class="bi bi-search-lg pointer" @onclick ="() => GetEmployees()"></i>
+	<InputSelect @bind-Value="searchText">
+		<option value="">Seleziona...</option>
+		<option value="1">1</option>
+		<option value="2">2</option>
+	</InputSelect>	
 </div>
 
 
@@ -78,7 +83,9 @@ else
 
 @code {
     private Employee[]? employees;
-	private string? cli;
+	private string? searchText;
+	private string? searchConfigId;
+	
 
     protected override async Task OnInitializedAsync()
     {
@@ -87,9 +94,15 @@ else
 
 	async Task GetEmployees()
     {
-		var queryString = string.IsNullOrWhiteSpace(cli) ? Env.Environment : cli;
+				// Costruisce la query string in base ai parametri forniti
+		var query = new List<string>();		
+		if (!string.IsNullOrEmpty(searchConfigId)) query.Add($"searchConfigId={Uri.EscapeDataString(searchConfigId)}");
+		if (!string.IsNullOrEmpty(searchText)) query.Add($"searchText={Uri.EscapeDataString(searchText)}");
+
+		var queryString = query.Count > 0 ? "?" + string.Join("&", query) : string.Empty;
+
 		using var http = HttpClientFactory.CreateClient("api");
-		employees = await http.GetFromJsonAsync<Employee[]>($"employees?cli={queryString}");			
+		employees = await http.GetFromJsonAsync<Employee[]>($"employees{queryString}");			
     }
 }
 
