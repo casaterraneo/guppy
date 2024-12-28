@@ -36,10 +36,10 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 		.all();
 
 	const ids = searchFieldResults.results.map(r => r?.Id) as Array<string>;
-	const names = searchFieldResults.results.map(r => r?.LastName) as Array<string>;
+	const text = searchFieldResults.results.map(r => r?.text) as Array<string>;
 
 	const modelResp = await c.env.AI.run('@cf/baai/bge-base-en-v1.5', {
-		text: names,
+		text: text,
 	});
 
 	let vectors: VectorizeVector[] = [];
