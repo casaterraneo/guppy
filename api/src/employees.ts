@@ -32,7 +32,7 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 	}
 
 	const searchFieldResults = await db
-		.prepare(`SELECT Id, ${searchConfiguration.SearchFields} FROM [Employee] order by id`)
+		.prepare(`SELECT Id, ${searchConfiguration.SearchFields} FROM [Employee] order by id;`)
 		.all();
 
 	const ids = searchFieldResults.results.map(r => r?.Id) as Array<string>;
