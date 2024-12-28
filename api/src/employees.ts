@@ -25,11 +25,6 @@ function formatFieldsToSql(fields) {
 	return `${formattedFields} AS text`;
   }
 
-  // Esempio di utilizzo
-  const fields = 'Address, City, Region, PostalCode';
-  const sqlString = formatFieldsToSql(fields);
-  console.log(sqlString);
-
 
 const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 	const searchConfigId = c.req.query('searchConfigId');
