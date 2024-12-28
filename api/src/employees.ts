@@ -84,32 +84,41 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 	// 	Score: scoreMap.get(item.Id) || 0
 	//   }));
 
-	const itemsWithScores = searchResults.results.map(item => {
-		const match = queryResult.matches.find(match => match.id.replace(`${searchConfigId}_`, "") === item.Id.toString());
+	const itemsWithScores = async (searchResults) => {
 
-		const prompt = `You are a helpful and informative bot that answers questions using text from the reference passage included below in json format.
-		Be sure to respond in a complete sentence, being comprehensive, including all relevant background information.
-		However, you are talking to a non-technical audience, so be sure to break down complicated concepts and
-		strike a friendly and converstional tone. If the passage is irrelevant to the answer, you may ignore it.
+		const items = [];
 
-		QUESTION: ${searchText}
-		PASSAGE: ${JSON.stringify(item)}`;
+		for (const item of searchResults.results) {
 
-		console.log(prompt);
+			const match = queryResult.matches.find(match => match.id.replace(`${searchConfigId}_`, "") === item.Id.toString());
 
-		const answer = c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
-			text: prompt,
-		});
+			const prompt = `You are a helpful and informative bot that answers questions using text from the reference passage included below in json format.
+			Be sure to respond in a complete sentence, being comprehensive, including all relevant background information.
+			However, you are talking to a non-technical audience, so be sure to break down complicated concepts and
+			strike a friendly and converstional tone. If the passage is irrelevant to the answer, you may ignore it.
 
-		return {
-		  ...item,
-		  Score: match ? match.score : 0,
-		  Answer: answer
-		};
-	  });
+			QUESTION: ${searchText}
+			PASSAGE: ${JSON.stringify(item)}`;
+
+			//console.log(prompt);
+
+			const answer = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+				text: prompt,
+			});
+
+			items.push({
+				...item,
+				Score: match ? match.score : 0,
+				Answer: answer
+			  });
+		}
+		return items;
+	  };
 
 
-	const sortedItems = itemsWithScores.sort((a, b) => b.Score - a.Score);
+	const sortedItems = itemsWithScores(searchResults).then(items => {
+		return items.sort((a, b) => b.Score - a.Score);
+	});
 
 	return c.json(sortedItems);
 });
