@@ -73,7 +73,7 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 		Score: scoreMap.get(item.Id) || 0
 	  }));
 
-	const sortedItems = itemsWithScores.sort((a, b) => b.score - a.score);
+	const sortedItems = itemsWithScores.sort((a, b) => b.Score - a.Score);
 
 	return c.json(sortedItems);
 });
