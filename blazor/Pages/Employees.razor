@@ -47,15 +47,13 @@ else
 				<th>Reports To</th>
 				@* <th>Photo Path</th> *@
 			</tr>
-			<tr>
-				<th colspan="16">Notes</th>
-			</tr>
 		</thead>
 		<tbody>
 			@foreach (var employee in employees)
 			{
 				<tr>
 					<td>@employee.Id</td>
+					<td>@employee.Score</td>
 					<td>@employee.LastName</td>
 					<td>@employee.FirstName</td>
 					<td>@employee.Title</td>
@@ -74,7 +72,7 @@ else
 					@* <td>@employee.PhotoPath</td> *@
 				</tr>
 				<tr>
-					<td colspan="16">@employee.Notes</td>
+					Notes: <td colspan="17">@employee.Notes</td>
 				</tr>
 			}
 		</tbody>

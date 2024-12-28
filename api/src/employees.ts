@@ -66,7 +66,16 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 		.bind(...vectoreIds)
 		.all();
 
-	return c.json(searchResults.results);
+	const scoreMap = new Map(queryResult.matches.map(match => [match.id, match.score]));
+
+	const itemsWithScores = searchResults.map(item => ({
+		...item,
+		Score: scoreMap.get(item.Id) || 0
+	  }));
+
+	const sortedItems = itemsWithScores.sort((a, b) => b.score - a.score);
+
+	return c.json(sortedItems);
 });
 
 export default app;
