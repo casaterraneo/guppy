@@ -12,16 +12,11 @@ function checkPermission(permission) {
 	};
 }
 
-function formatFieldsToSql(fields) {
-	// Splitta l'elenco in un array
+function formatFieldsToSql(fields, separator = ' ') {
 	const fieldArray = fields.split(',');
-
-	// Crea la parte della query con COALESCE per ciascun campo
 	const formattedFields = fieldArray
 	  .map(field => `COALESCE(${field.trim()}, '')`)
-	  .join(' || ');
-
-	// Restituisce la stringa finale formattata con alias "text"
+	  .join(` || '${separator}' || `);
 	return `${formattedFields} AS text`;
   }
 
@@ -66,9 +61,7 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 		});
 	}
 
-	let inserted = await c.env.VECTORIZE.upsert(vectors);
-
-	console.log(inserted);
+	await c.env.VECTORIZE.upsert(vectors);
 
 	const modelSearch = await c.env.AI.run('@cf/baai/bge-base-en-v1.5', {
 		text: searchText,
@@ -93,7 +86,6 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 
 	const itemsWithScores = searchResults.results.map(item => {
 		const match = queryResult.matches.find(match => match.id.replace(`${searchConfigId}_`, "") === item.Id.toString());
-		console.log(match);
 		return {
 		  ...item,
 		  Score: match ? match.score : 0
