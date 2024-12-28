@@ -12,6 +12,25 @@ function checkPermission(permission) {
 	};
 }
 
+function formatFieldsToSql(fields) {
+	// Splitta l'elenco in un array
+	const fieldArray = fields.split(',');
+
+	// Crea la parte della query con COALESCE per ciascun campo
+	const formattedFields = fieldArray
+	  .map(field => `COALESCE(${field.trim()}, '')`)
+	  .join(' || ');
+
+	// Restituisce la stringa finale formattata con alias "text"
+	return `${formattedFields} AS text`;
+  }
+
+  // Esempio di utilizzo
+  const fields = 'Address, City, Region, PostalCode';
+  const sqlString = formatFieldsToSql(fields);
+  console.log(sqlString);
+
+
 const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 	const searchConfigId = c.req.query('searchConfigId');
 	const searchText = c.req.query('searchText');
@@ -32,7 +51,7 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 	}
 
 	const searchFieldResults = await db
-		.prepare(`SELECT Id, ${searchConfiguration.SearchFields} FROM [Employee] order by id;`)
+		.prepare(`SELECT Id, ${formatFieldsToSql(searchConfiguration.SearchFields)} FROM [Employee] order by id`)
 		.all();
 
 	const ids = searchFieldResults.results.map(r => r?.Id) as Array<string>;
