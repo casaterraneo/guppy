@@ -92,7 +92,7 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 		However, you are talking to a non-technical audience, so be sure to break down complicated concepts and
 		strike a friendly and converstional tone. If the passage is irrelevant to the answer, you may ignore it.
 
-		QUESTION: ${searhText}
+		QUESTION: ${searchText}
 		PASSAGE: ${JSON.stringify(item)}`;
 
 		const answer = c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
