@@ -74,7 +74,7 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 	//   }));
 
 	const itemsWithScores = searchResults.results.map(item => {
-		const match = queryResult.matches.find(match => match.id === item.Id);
+		const match = queryResult.matches.find(match => match.id === item.Id.toString());
 		console.log(match);
 		return {
 		  ...item,
