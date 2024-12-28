@@ -19,4 +19,5 @@
 		public string Notes { get; set; }
 		public int? ReportsTo { get; set; }
 		public string PhotoPath { get; set; }
+		public string Answer { get; set; }		
 	}

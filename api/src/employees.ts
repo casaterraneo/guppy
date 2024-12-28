@@ -86,9 +86,23 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 
 	const itemsWithScores = searchResults.results.map(item => {
 		const match = queryResult.matches.find(match => match.id.replace(`${searchConfigId}_`, "") === item.Id.toString());
+
+		const prompt = `You are a helpful and informative bot that answers questions using text from the reference passage included below in json format.
+		Be sure to respond in a complete sentence, being comprehensive, including all relevant background information.
+		However, you are talking to a non-technical audience, so be sure to break down complicated concepts and
+		strike a friendly and converstional tone. If the passage is irrelevant to the answer, you may ignore it.
+
+		QUESTION: ${searhText}
+		PASSAGE: ${JSON.stringify(item)}`;
+
+		const answer = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+			text: prompt ,
+		});
+
 		return {
 		  ...item,
-		  Score: match ? match.score : 0
+		  Score: match ? match.score : 0,
+		  Answer: answer
 		};
 	  });
 
