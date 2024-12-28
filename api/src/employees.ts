@@ -105,7 +105,8 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 				prompt: prompt,
 			});
 
-			console.log(answer);
+			//console.log(answer);
+			console.log(answer.response);
 
 			items.push({
 				...item,
