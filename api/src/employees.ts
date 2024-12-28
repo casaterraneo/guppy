@@ -68,7 +68,7 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 
 	const scoreMap = new Map(queryResult.matches.map(match => [match.id, match.score]));
 
-	const itemsWithScores = searchResults.map(item => ({
+	const itemsWithScores = searchResults.results.map(item => ({
 		...item,
 		Score: scoreMap.get(item.Id) || 0
 	  }));
