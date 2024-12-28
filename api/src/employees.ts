@@ -56,11 +56,14 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 		text: searchText,
 	});
 	const vector = modelSearch.data[0];
-	const queryResult = await c.env.VECTORIZE.query(vector, { topK: 1 });
+	const queryResult = await c.env.VECTORIZE.query(vector, { topK: 3 });
+
+	const commas = "?".repeat(queryResult.matches.length).split("").join(", ");
+	const vectoreIds = queryResult.matches.map(match => match.id);
 
 	const searchResults = await db
-		.prepare(`SELECT * FROM [Employee] where Id=?`)
-		.bind(queryResult.matches[0].id)
+		.prepare(`SELECT * FROM [Employee] where Id IN (${commas})`)
+		.bind(...vectoreIds)
 		.all();
 
 	return c.json(searchResults.results);
