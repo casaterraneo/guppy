@@ -54,7 +54,7 @@ else
 			{
 				<tr>
 					<td>@employee.Id</td>
-					<td>@employee.Score</td>
+					<td>@(employee.Score?.ToString("F4") ?? "")</td>
 					<td>@employee.LastName</td>
 					<td>@employee.FirstName</td>
 					<td>@employee.Title</td>
