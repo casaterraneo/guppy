@@ -50,7 +50,7 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 
 	let inserted = await c.env.VECTORIZE.upsert(vectors);
 
-	console.log(inserted);
+	//console.log(inserted);
 
 	const modelSearch = await c.env.AI.run('@cf/baai/bge-base-en-v1.5', {
 		text: searchText,
@@ -66,12 +66,22 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 		.bind(...vectoreIds)
 		.all();
 
-	const scoreMap = new Map(queryResult.matches.map(match => [match.id, match.score]));
+	// const scoreMap = new Map(queryResult.matches.map(match => [match.id, match.score]));
 
-	const itemsWithScores = searchResults.results.map(item => ({
-		...item,
-		Score: scoreMap.get(item.Id) || 0
-	  }));
+	// const itemsWithScores = searchResults.results.map(item => ({
+	// 	...item,
+	// 	Score: scoreMap.get(item.Id) || 0
+	//   }));
+
+	const itemsWithScores = searchResults.results.map(item => {
+		const match = queryResult.matches.find(match => match.id === item.Id);
+		console.log(match);
+		return {
+		  ...item,
+		  Score: match ? match.score : 0
+		};
+	  });
+
 
 	const sortedItems = itemsWithScores.sort((a, b) => b.Score - a.Score);
 
