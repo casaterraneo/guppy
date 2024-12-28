@@ -110,7 +110,7 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 			items.push({
 				...item,
 				Score: match ? match.score : 0,
-				Answer: answer
+				Answer: answer.response
 				});
 		}
 
