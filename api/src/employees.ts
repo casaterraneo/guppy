@@ -85,7 +85,6 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 	//   }));
 
 	const itemsWithScores = async (searchResults) => {
-
 		const items = [];
 
 		for (const item of searchResults.results) {
@@ -100,8 +99,6 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 			QUESTION: ${searchText}
 			PASSAGE: ${JSON.stringify(item)}`;
 
-			//console.log(prompt);
-
 			const answer = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
 				text: prompt,
 			});
@@ -110,15 +107,14 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 				...item,
 				Score: match ? match.score : 0,
 				Answer: answer
-			  });
+				});
 		}
+
 		return items;
-	  };
+	};
 
-
-	const sortedItems = itemsWithScores(searchResults).then(items => {
-		return items.sort((a, b) => b.Score - a.Score);
-	});
+	const sortedItems = await itemsWithScores(searchResults);
+	sortedItems.sort((a, b) => b.Score - a.Score);
 
 	return c.json(sortedItems);
 });
