@@ -102,7 +102,7 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 			console.log(prompt);
 
 			const answer = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
-				text: prompt,
+				prompt: prompt,
 			});
 
 			console.log(answer);
