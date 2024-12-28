@@ -95,7 +95,7 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 		QUESTION: ${searhText}
 		PASSAGE: ${JSON.stringify(item)}`;
 
-		const answer = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+		const answer = c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
 			text: prompt ,
 		});
 
