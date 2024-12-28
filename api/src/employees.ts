@@ -46,9 +46,9 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 	for (let i = 0; i < modelResp.data.length; i++) {
 		let vector = modelResp.data[i];
 		vectors.push({
-			id: `${searchConfiguration.Id}_${ids[i]}`,
+			id: `${searchConfigId}_${ids[i]}`,
 			values: vector,
-			namespace: `${searchConfiguration.Id}`
+			namespace: searchConfigId
 		});
 	}
 
@@ -60,10 +60,10 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 		text: searchText,
 	});
 	const vector = modelSearch.data[0];
-	const queryResult = await c.env.VECTORIZE.query(vector, { topK: 3, namespace: `${searchConfiguration.Id}` });
+	const queryResult = await c.env.VECTORIZE.query(vector, { topK: 3, namespace: searchConfigId });
 
 	const commas = "?".repeat(queryResult.matches.length).split("").join(", ");
-	const vectoreIds = queryResult.matches.map(match => match.id.replace(`${searchConfiguration.Id}_`, ""));
+	const vectoreIds = queryResult.matches.map(match => match.id.replace(`${searchConfigId}_`, ""));
 
 	const searchResults = await db
 		.prepare(`SELECT * FROM [Employee] where Id IN (${commas})`)
@@ -78,7 +78,7 @@ const app = new Hono().get('/', checkPermission('read:employees'), async c => {
 	//   }));
 
 	const itemsWithScores = searchResults.results.map(item => {
-		const match = queryResult.matches.find(match => match.id.replace(`${searchConfiguration.Id}_`, "") === item.Id.toString());
+		const match = queryResult.matches.find(match => match.id.replace(`${searchConfigId}_`, "") === item.Id.toString());
 		console.log(match);
 		return {
 		  ...item,
