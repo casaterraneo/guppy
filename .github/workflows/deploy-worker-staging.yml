@@ -29,5 +29,5 @@ jobs:
           #  echo "******"          
           postCommands: |
             echo "*** post commands ***"
-            wrangler d1 execute guppy-db-staging --file ./data/scripts.sql --remote 
+            wrangler d1 migrations apply guppy-db-staging --remote 
             echo "******"          
