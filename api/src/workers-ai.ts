@@ -71,19 +71,18 @@ const app = new Hono()
 		};
 
 		// Run AI inference with function calling
-		const response = await runWithTools(
-			c.env.AI,
+		// const response = await runWithTools(
+		// 	c.env.AI,
+		const response = await c.env.AI.run(
 			"@hf/nousresearch/hermes-2-pro-mistral-7b",
 			{
 			messages: [
 				{ role: "system", content: `
-You are a function calling AI model.
-You are provided with function signatures within <tools></tools> tags.
-You may call one or more functions to assist with the user query.
-Don't make assumptions about what values to plug into functions.
-Here are the available tools: ['listTables', 'describeTable', 'executeQuery']
-Use the following pydantic model json schema for each tool call you will make: {'title': 'FunctionCall', 'type': 'object', 'properties': {'arguments': {'title': 'Arguments', 'type': 'object'}, 'name': {'title': 'Name', 'type': 'string'}}, 'required': ['arguments', 'name']} For each function call return a json object with function name and arguments within tags as follows:
-{'arguments': <args-dict>, 'name': <function-name>}
+You are a helpful chatbot that can interact with an SQL database for a computer
+store. You will take the users questions and turn them into SQL queries using the tools
+available. Once you have the information you need, you will answer the user's question using
+the data returned. Use listTables to see what tables are present, describeTable to understand
+the schema, and executeQuery to issue an SQL SELECT query.
 ` },
 				{ role: "user", content: "Who are employees live in London?" },
 			],
@@ -135,9 +134,9 @@ Use the following pydantic model json schema for each tool call you will make: {
 				},
 			],
 			},
-			{
-				verbose: true,
-			}
+			// {
+			// 	verbose: true,
+			// }
 		);
 
 		return c.json(response);
