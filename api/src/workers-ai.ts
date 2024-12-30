@@ -81,7 +81,7 @@ store. You will take the users questions and turn them into SQL queries using th
 available. Once you have the information you need, you will answer the user's question using
 the data returned. Use listTables to see what tables are present, describeTable to understand
 the schema, and executeQuery to issue an SQL SELECT query.` },
-				{ role: "user", content: "What is the cheapest product?" },
+				{ role: "user", content: "Give to me all names of all tables in the database" },
 			],
 			tools: [
 				{
@@ -94,38 +94,38 @@ the schema, and executeQuery to issue an SQL SELECT query.` },
 					  },
 					function: listTables,
 				},
-				{
-					name: "describeTable",
-					description: `Look up the table schema.
-								Returns:
-								List of columns, where each entry is a tuple of (column name, column type).`,
-					parameters : {
-						type: "object",
-						properties: {
-							tableName: {
-							  type: "string",
-							  description: "The name of the table to describe."
-							}
-						  },
-						  required: ["tableName"]
-					  },
-					function: describeTable,
-				},
-				{
-					name: "executeQuery",
-					description: `Execute a SELECT statement, returning the results.`,
-					parameters : {
-						type: "object",
-						properties: {
-							sqlQuery: {
-							  type: "string",
-							  description: "The sql to execute."
-							}
-						  },
-						  required: ["sqlQuery"]
-					  },
-					function: executeQuery,
-				},
+				// {
+				// 	name: "describeTable",
+				// 	description: `Look up the table schema.
+				// 				Returns:
+				// 				List of columns, where each entry is a tuple of (column name, column type).`,
+				// 	parameters : {
+				// 		type: "object",
+				// 		properties: {
+				// 			tableName: {
+				// 			  type: "string",
+				// 			  description: "The name of the table to describe."
+				// 			}
+				// 		  },
+				// 		  required: ["tableName"]
+				// 	  },
+				// 	function: describeTable,
+				// },
+				// {
+				// 	name: "executeQuery",
+				// 	description: `Execute a SELECT statement, returning the results.`,
+				// 	parameters : {
+				// 		type: "object",
+				// 		properties: {
+				// 			sqlQuery: {
+				// 			  type: "string",
+				// 			  description: "The sql to execute."
+				// 			}
+				// 		  },
+				// 		  required: ["sqlQuery"]
+				// 	  },
+				// 	function: executeQuery,
+				// },
 			],
 			},
 			{
