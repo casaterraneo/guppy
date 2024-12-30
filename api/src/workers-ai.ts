@@ -72,9 +72,10 @@ the schema, and executeQuery to issue an SQL SELECT query.` },
 			],
 			tools: [
 				{
-				name: "list tables",
-				description: "Retrieve the names of all tables in the database.",
-				function: listTables,
+					name: "list tables",
+					description: "Retrieve the names of all tables in the database.",
+					parameters : {},
+					function: listTables,
 				},
 			],
 			},
