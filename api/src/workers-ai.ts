@@ -54,7 +54,7 @@ const app = new Hono()
 
 			const db = c.get('db');
 			const all = await db.prepare(`SELECT name FROM sqlite_master WHERE type='table';`).all();
-			return all.results;
+			return all.results.map(row => row.name);;
 		};
 
 		// Run AI inference with function calling
