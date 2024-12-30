@@ -63,10 +63,10 @@ const app = new Hono()
 			return all.results.map(col => [col.name, col.type]);
 		};
 
-		const executeQuery = async (sql) => {
+		const executeQuery = async (sqlQuery) => {
 			console.log(' - DB CALL: execute_query');
 			const db = c.get('db');
-			const all = await db.prepare(sql).all();
+			const all = await db.prepare(sqlQuery).all();
 			return all.results;
 		};
 
@@ -117,12 +117,12 @@ the schema, and executeQuery to issue an SQL SELECT query.` },
 					parameters : {
 						type: "object",
 						properties: {
-							sql: {
+							sqlQuery: {
 							  type: "string",
 							  description: "The sql to execute."
 							}
 						  },
-						  required: ["sql"]
+						  required: ["sqlQuery"]
 					  },
 					function: executeQuery,
 				},
