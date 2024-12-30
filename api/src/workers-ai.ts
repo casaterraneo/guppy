@@ -74,7 +74,11 @@ the schema, and executeQuery to issue an SQL SELECT query.` },
 				{
 					name: "list tables",
 					description: "Retrieve the names of all tables in the database.",
-					parameters : {},
+					parameters : {
+						type: "object",
+						properties: {},
+						required: []
+					  },
 					function: listTables,
 				},
 			],
