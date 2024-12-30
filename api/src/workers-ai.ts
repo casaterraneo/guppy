@@ -75,12 +75,12 @@ store. You will take the users questions and turn them into SQL queries using th
 available. Once you have the information you need, you will answer the user's question using
 the data returned. Use listTables to see what tables are present, describeTable to understand
 the schema, and executeQuery to issue an SQL SELECT query.` },
-				{ role: "user", content: "Give to me list of all tables." },
+				{ role: "user", content: "Give to me the schema of employees table." },
 			],
 			tools: [
 				{
 					name: "list tables",
-					description: "Retrieve the schema of employees tables in the database.",
+					description: "Retrieve the names of all tables in the database.",
 					parameters : {
 						type: "object",
 						properties: {},
