@@ -56,8 +56,11 @@ const app = new Hono()
 			key: string;
 			value: string;
 		}) => {
-			const response = await c.env.KV.put(key, value);
-			return `Successfully updated key-value pair in database: ${response}`;
+			//const response = await c.env.KV.put(key, value);
+			//return `Successfully updated key-value pair in database: ${response}`;
+			const db = c.get('db');
+			const all = await db.prepare(`SELECT name FROM sqlite_master WHERE type='table';`).all();
+			return all.results;
 		};
 
 		// Run AI inference with function calling
