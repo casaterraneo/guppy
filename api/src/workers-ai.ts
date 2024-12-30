@@ -54,8 +54,15 @@ const app = new Hono()
 
 			const db = c.get('db');
 			const all = await db.prepare(`SELECT name FROM sqlite_master WHERE type='table';`).all();
-			return all.results.map(row => row.name);;
+			return all.results.map(row => row.name);
 		};
+
+		const describeTable = async (tableName) => {
+			console.log(' - DB CALL: describe_table');
+			const db = c.get('db');
+			const all = await db.prepare(`PRAGMA table_info(${tableName});`).all();
+			return all.results.map(col => [col.name, col.type]);
+		  };
 
 		// Run AI inference with function calling
 		const response = await runWithTools(
@@ -73,13 +80,30 @@ the schema, and executeQuery to issue an SQL SELECT query.` },
 			tools: [
 				{
 					name: "list tables",
-					description: "Retrieve the names of all tables in the database.",
+					description: "Retrieve the schema of employees tables in the database.",
 					parameters : {
 						type: "object",
 						properties: {},
 						required: []
 					  },
 					function: listTables,
+				},
+				{
+					name: "describe table",
+					description: `Look up the table schema.
+								Returns:
+								List of columns, where each entry is a tuple of (column name, column type).`,
+					parameters : {
+						type: "object",
+						properties: {
+							tableName: {
+							  type: "string",
+							  description: "The name of the table to describe."
+							}
+						  },
+						  required: ["tableName"]
+					  },
+					function: describeTable,
 				},
 			],
 			},
