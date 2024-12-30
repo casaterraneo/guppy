@@ -81,7 +81,7 @@ store. You will take the users questions and turn them into SQL queries using th
 available. Once you have the information you need, you will answer the user's question using
 the data returned. Use listTables to see what tables are present, describeTable to understand
 the schema, and executeQuery to issue an SQL SELECT query.` },
-				{ role: "user", content: "Give to me the schema of table Product in the database." },
+				{ role: "user", content: "What is the cheapest product from Product table in the database?" },
 			],
 			tools: [
 				{
@@ -113,21 +113,22 @@ the schema, and executeQuery to issue an SQL SELECT query.` },
 					  },
 					function: describeTable,
 				},
-				// {
-				// 	name: "executeQuery",
-				// 	description: `Execute a SELECT statement, returning the results.`,
-				// 	parameters : {
-				// 		type: "object",
-				// 		properties: {
-				// 			sqlQuery: {
-				// 			  type: "string",
-				// 			  description: "The sql to execute."
-				// 			}
-				// 		  },
-				// 		  required: ["sqlQuery"]
-				// 	  },
-				// 	function: executeQuery,
-				// },
+				{
+					name: "executeQuery",
+					//description: `Execute a SELECT statement, returning the results.`,
+					description: "",
+					parameters : {
+						type: "object",
+						properties: {
+							sqlQuery: {
+							  type: "string",
+							  description: "The sql to execute."
+							}
+						  },
+						  required: ["sqlQuery"]
+					  },
+					function: executeQuery,
+				},
 			],
 			},
 			{
