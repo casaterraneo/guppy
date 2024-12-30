@@ -85,7 +85,7 @@ Here are the available tools: ['listTables', 'describeTable', 'executeQuery']
 Use the following pydantic model json schema for each tool call you will make: {'title': 'FunctionCall', 'type': 'object', 'properties': {'arguments': {'title': 'Arguments', 'type': 'object'}, 'name': {'title': 'Name', 'type': 'string'}}, 'required': ['arguments', 'name']} For each function call return a json object with function name and arguments within tags as follows:
 {'arguments': <args-dict>, 'name': <function-name>}
 ` },
-				{ role: "user", content: "Who is the youngest employee?" },
+				{ role: "user", content: "Who are employees live in London?" },
 			],
 			tools: [
 				{
