@@ -49,38 +49,45 @@ const app = new Hono()
 	})
 	.post('/func-cal', async c => {
 		// Define function
-		const sum = (args: { a: number; b: number }): Promise<string> => {
-			const { a, b } = args;
-			return Promise.resolve((a + b).toString());
+		const updateKvValue = async ({
+			key,
+			value,
+		}: {
+			key: string;
+			value: string;
+		}) => {
+			const response = await c.env.KV.put(key, value);
+			return `Successfully updated key-value pair in database: ${response}`;
 		};
+
 		// Run AI inference with function calling
 		const response = await runWithTools(
 			c.env.AI,
-			// Model with function calling support
 			"@hf/nousresearch/hermes-2-pro-mistral-7b",
 			{
-			// Messages
 			messages: [
-				{
-				role: "user",
-				content: "What the result of 123123123 + 10343030?",
-				},
+				{ role: "system", content: "Put user given values in KV" },
+				{ role: "user", content: "Set the value of banana to yellow." },
 			],
-			// Definition of available tools the AI model can leverage
 			tools: [
 				{
-				name: "sum",
-				description: "Sum up two numbers and returns the result",
+				name: "KV update",
+				description: "Update a key-value pair in the database",
 				parameters: {
 					type: "object",
 					properties: {
-					a: { type: "number", description: "the first number" },
-					b: { type: "number", description: "the second number" },
+					key: {
+						type: "string",
+						description: "The key to update",
 					},
-					required: ["a", "b"],
+					value: {
+						type: "string",
+						description: "The value to update",
+					},
+					},
+					required: ["key", "value"],
 				},
-				// reference to previously defined function
-				function: sum,
+				function: updateKvValue,
 				},
 			],
 			},
