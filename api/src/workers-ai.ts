@@ -128,6 +128,11 @@ the schema, and executeQuery to issue an SQL SELECT query.` },
 				},
 			],
 			},
+			{
+				strictValidation: true,
+				maxRecursiveToolRuns: 3,
+				verbose: true,
+			}
 		);
 
 		return c.json(response);
