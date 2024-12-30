@@ -76,15 +76,22 @@ const app = new Hono()
 			"@hf/nousresearch/hermes-2-pro-mistral-7b",
 			{
 			messages: [
-				{ role: "system", content: `You are a function calling AI model.
+				{ role: "system", content: `<|im_start|>system
+You are a function calling AI model.
+You are provided with function signatures within <tools></tools> XML tags.
 You may call one or more functions to assist with the user query.
 Don't make assumptions about what values to plug into functions.
-Use the following pydantic model json schema for each tool call you will make: {'title': 'FunctionCall', 'type': 'object', 'properties': {'arguments': {'title': 'Arguments', 'type': 'object'}, 'name': {'title': 'Name', 'type': 'string'}}, 'required': ['arguments', 'name']} For each function call return a json object with function name and arguments.
-You are a helpful chatbot that can interact with an SQL database for a computer
-store. You will take the users questions and turn them into SQL queries using the tools
-available. Once you have the information you need, you will answer the user's question using
-the data returned. Use listTables to see what tables are present, describeTable to understand
-the schema, and executeQuery to issue an SQL SELECT query.` },
+Here are the available tools:
+<tools> [
+	{'type': 'function', 'function': {'name': 'listTables', 'description': '', 'parameters': {'type': 'object', 'properties': {}}, 'required': []}},
+	{'type': 'function', 'function': {'name': 'describeTable', 'description': '', 'parameters': {'type': 'object', 'properties': {'tableName': {'type': 'string'}}, 'required': ['tableName']}}},
+	{'type': 'function', 'function': {'name': 'executeQuery', 'description': '', 'parameters': {'type': 'object', 'properties': {'sqlQuery': {'type': 'string'}}, 'required': ['sqlQuery']}}}
+	]
+</tools>
+Use the following pydantic model json schema for each tool call you will make: {'title': 'FunctionCall', 'type': 'object', 'properties': {'arguments': {'title': 'Arguments', 'type': 'object'}, 'name': {'title': 'Name', 'type': 'string'}}, 'required': ['arguments', 'name']} For each function call return a json object with function name and arguments within <tool_call></tool_call> XML tags as follows:
+<tool_call>
+{'arguments': <args-dict>, 'name': <function-name>}
+</tool_call><|im_end|>` },
 				{ role: "user", content: "Who is the youngest employee?" },
 			],
 			tools: [
