@@ -51,7 +51,6 @@ const app = new Hono()
 		// Define function
 		const listTables = async () => {
 			console.log(' - DB CALL: list_tables');
-
 			const db = c.get('db');
 			const all = await db.prepare(`SELECT name FROM sqlite_master WHERE type='table';`).all();
 			return all.results.map(row => row.name);
@@ -62,7 +61,14 @@ const app = new Hono()
 			const db = c.get('db');
 			const all = await db.prepare(`PRAGMA table_info(${tableName});`).all();
 			return all.results.map(col => [col.name, col.type]);
-		  };
+		};
+
+		const executeQuery = async (sql) => {
+			console.log(' - DB CALL: execute_query');
+			const db = c.get('db');
+			const all = await db.prepare(sql).all();
+			return all.results;
+		};
 
 		// Run AI inference with function calling
 		const response = await runWithTools(
@@ -75,7 +81,7 @@ store. You will take the users questions and turn them into SQL queries using th
 available. Once you have the information you need, you will answer the user's question using
 the data returned. Use listTables to see what tables are present, describeTable to understand
 the schema, and executeQuery to issue an SQL SELECT query.` },
-				{ role: "user", content: "Give to me the schema of employees table." },
+				{ role: "user", content: "What is the cheapest product?" },
 			],
 			tools: [
 				{
@@ -104,6 +110,21 @@ the schema, and executeQuery to issue an SQL SELECT query.` },
 						  required: ["tableName"]
 					  },
 					function: describeTable,
+				},
+				{
+					name: "execute query",
+					description: `Execute a SELECT statement, returning the results.`,
+					parameters : {
+						type: "object",
+						properties: {
+							sql: {
+							  type: "string",
+							  description: "The name of the sql to execute."
+							}
+						  },
+						  required: ["sql"]
+					  },
+					function: executeQuery,
 				},
 			],
 			},
