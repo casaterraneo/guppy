@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { runWithTools } from "@cloudflare/ai-utils";
 
 const app = new Hono()
 	.post('/llm', async c => {
@@ -45,6 +46,47 @@ const app = new Hono()
 		const result = await c.env.VECTORIZE.query(vector, { topK: 1 });
 
 		return c.json(result.matches);
+	})
+	.post('/func-cal', async c => {
+		// Define function
+		const sum = (args: { a: number; b: number }): Promise<string> => {
+			const { a, b } = args;
+			return Promise.resolve((a + b).toString());
+		};
+		// Run AI inference with function calling
+		const response = await runWithTools(
+			c.env.AI,
+			// Model with function calling support
+			"@hf/nousresearch/hermes-2-pro-mistral-7b",
+			{
+			// Messages
+			messages: [
+				{
+				role: "user",
+				content: "What the result of 123123123 + 10343030?",
+				},
+			],
+			// Definition of available tools the AI model can leverage
+			tools: [
+				{
+				name: "sum",
+				description: "Sum up two numbers and returns the result",
+				parameters: {
+					type: "object",
+					properties: {
+					a: { type: "number", description: "the first number" },
+					b: { type: "number", description: "the second number" },
+					},
+					required: ["a", "b"],
+				},
+				// reference to previously defined function
+				function: sum,
+				},
+			],
+			},
+		);
+
+		return c.json(response);
 	});
 
 export default app;

@@ -19,6 +19,7 @@
 	"dependencies": {
 		"hono": "^3.12.11",
 		"jose": "^5.6.3",
-		"@google/generative-ai": "0.21.0"
+		"@google/generative-ai": "0.21.0",
+		"@cloudflare/ai-utils": "^1.0.1"
 	}
 }
