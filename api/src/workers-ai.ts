@@ -119,7 +119,7 @@ the schema, and executeQuery to issue an SQL SELECT query.` },
 						properties: {
 							sql: {
 							  type: "string",
-							  description: "The name of the sql to execute."
+							  description: "The sql to execute."
 							}
 						  },
 						  required: ["sql"]
