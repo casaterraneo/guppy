@@ -76,12 +76,16 @@ const app = new Hono()
 			"@hf/nousresearch/hermes-2-pro-mistral-7b",
 			{
 			messages: [
-				{ role: "system", content: `You are a helpful chatbot that can interact with an SQL database for a computer
+				{ role: "system", content: `You are a function calling AI model.
+You may call one or more functions to assist with the user query.
+Don't make assumptions about what values to plug into functions.
+Use the following pydantic model json schema for each tool call you will make: {'title': 'FunctionCall', 'type': 'object', 'properties': {'arguments': {'title': 'Arguments', 'type': 'object'}, 'name': {'title': 'Name', 'type': 'string'}}, 'required': ['arguments', 'name']} For each function call return a json object with function name and arguments.
+You are a helpful chatbot that can interact with an SQL database for a computer
 store. You will take the users questions and turn them into SQL queries using the tools
 available. Once you have the information you need, you will answer the user's question using
 the data returned. Use listTables to see what tables are present, describeTable to understand
 the schema, and executeQuery to issue an SQL SELECT query.` },
-				{ role: "user", content: "Who is the youngest employee from Employee table in the database?" },
+				{ role: "user", content: "Who is the youngest employee?" },
 			],
 			tools: [
 				{
