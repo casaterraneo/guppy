@@ -87,6 +87,7 @@ the schema, and executeQuery to issue an SQL SELECT query.` },
 				{
 					name: "listTables",
 					//description: "Retrieve the names of all tables in the database.",
+					description: "",
 					parameters : {
 						type: "object",
 						properties: {},
@@ -99,6 +100,7 @@ the schema, and executeQuery to issue an SQL SELECT query.` },
 					// description: `Look up the table schema.
 					// 			Returns:
 					// 			List of columns, where each entry is a tuple of (column name, column type).`,
+					description: "",
 					parameters : {
 						type: "object",
 						properties: {
