@@ -9,7 +9,7 @@
 <p>This component demonstrates fetching data from and to the AI server.</p>
 
 <div class="input-section">
-    <form @onsubmit="HandleSubmit">
+    <form>
         <div class="form-group">
             <label for="userInput">Inserisci il tuo messaggio:</label>
             <textarea class="form-control" id="userInput" @bind="UserInput" placeholder="Scrivi qualcosa..." rows="4"></textarea>
@@ -48,7 +48,8 @@
                 </div>
             </div>
         </div>
-        <button type="submit" class="btn btn-secondary" disabled="@IsLoading">Invia</button>
+        <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("llm")'>Invia</button>
+        <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("func-cal")'>Function Calling</button>
     </form>
 </div>
 
@@ -84,7 +85,7 @@
     private string? ResponseSchema { get; set; }    
     
 
-    private async Task HandleSubmit()
+    private async Task HandleAction(string action)
     {
         if (string.IsNullOrWhiteSpace(UserInput))
         {
@@ -109,7 +110,7 @@
                 ResponseMimeType,
                 ResponseSchema
             };
-            var response = await http.PostAsJsonAsync("google-ai", requestData);            
+            var response = await http.PostAsJsonAsync($"google-ai/{action}", requestData);            
             if (response.IsSuccessStatusCode)
             {
                 string rawResponse  = await response.Content.ReadAsStringAsync();
