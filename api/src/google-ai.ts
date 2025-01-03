@@ -131,12 +131,6 @@ const app = new Hono()
 						{
 							name: 'listTables',
 							description: 'Retrieve the names of all tables in the database.',
-							parameters: {
-								type: 'object',
-								nullable: false,
-								properties: {},
-								required: [],
-							},
 						},
 						{
 							name: 'describeTable',
