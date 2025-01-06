@@ -105,7 +105,8 @@ const app = new Hono()
 			//return all.results.map(col => [col.name, col.type]);
 			return all.results.map(col => ({
 				columnName: col.name,
-				columnType: col.type
+				columnType: col.type,
+				pk: col.pk
 			}));
 		};
 
@@ -141,7 +142,7 @@ const app = new Hono()
 							description: `Look up the table schema.
 							 			Returns:
 							 			List of columns, using this JSON schema:
-										Column = {'columnName': string, 'columnType': string}
+										Column = {'columnName': string, 'columnType': string, 'pk': int}
 										Return: Array<Column>.`,
 							parameters: {
 								type: 'object',
