@@ -249,7 +249,7 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		const result = await llm.invoke(input);
 		console.log(result);
 
-		return c.json(result.AIMessage);
+		return c.json(result.kwargs.content);
 	});
 
 export default app;
