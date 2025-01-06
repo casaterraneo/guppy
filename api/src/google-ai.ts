@@ -241,7 +241,7 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		const { messages } = await c.req.json();
 		if (!messages) return c.json({ error: 'Message is required' }, 400);
 
-		const llm = ChatGoogleGenerativeAI({model: "gemini-1.5-flash-latest"});
+		const llm = new ChatGoogleGenerativeAI({model: "gemini-1.5-flash-latest"});
 
 		const input = `Translate "I love programming" into French.`;
 
