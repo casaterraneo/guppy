@@ -179,11 +179,7 @@ const app = new Hono()
 store. You will take the users questions and turn them into SQL queries using the tools
 available. Once you have the information you need, you will answer the user's question using
 the data returned. Use listTables to see what tables are present, describeTable to understand
-the schema, and executeQuery to issue an SQL SELECT query.
-When writing SQL queries, always enclose string values in single quotes ('), not double quotes ("). For example, use:
-SELECT * FROM Products WHERE ProductName = 'Geitost',
-not:
-SELECT * FROM Products WHERE ProductName = "Geitost"`,
+the schema, and executeQuery to issue an SQL SELECT query.`,
 					},
 				],
 			},
@@ -227,7 +223,12 @@ SELECT * FROM Products WHERE ProductName = "Geitost"`,
 		}
 		console.log(call);
 		if (call.name === 'executeQuery') {
-			const executeQueryResponse = await executeQuery(call.args.sqlQuery);
+			console.log('Original Query:', call.args.sqlQuery);
+			const unescapedQuery = call.args.sqlQuery.replace(/\\"/g, '"');
+			console.log('After removing \\:', unescapedQuery);
+			const finalQuery = unescapedQuery.replace(/"/g, "'");
+			console.log('Final Query:', finalQuery);
+			const executeQueryResponse = await executeQuery(finalQuery);
 			return c.json(executeQueryResponse);
 		}
 
