@@ -179,6 +179,7 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 			},
 		});
 
+		//https://ai.google.dev/gemini-api/docs/function-calling
 		const toolConfig = {
 			functionCallingConfig: {
 				mode: 'ANY',
@@ -190,22 +191,36 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 			toolConfig: toolConfig,
 		});
 		let result = await chat.sendMessage(messages);
-
-		const functionCalls = result.response.functionCalls();
+		let functionCalls = result.response.functionCalls();
 
 		console.log(functionCalls);
+		let call = functionCalls[0];
 
-		for (const call of functionCalls) {
-			if (call.name === 'listTables') {
-				const listTablesResponse = await listTables();
-			}
-			if (call.name === 'describeTable') {
-				const describeTableResponse = await describeTable(call.parameters);
-			}
-			if (call.name === 'executeQuery') {
-				const executeQueryResponse = await executeQuery(call.parameters);
-			}
+		console.log(call);
+		if (call.name === 'listTables') {
+			const listTablesResponse = await listTables();
+			result = await chat.sendMessage(listTablesResponse);
+			functionCalls = result.response.functionCalls();
+			console.log(functionCalls);
+			call = functionCalls[0];
 		}
+		console.log(call);
+		if (call.name === 'describeTable') {
+			const describeTableResponse = await describeTable(call.parameters);
+			result = await chat.sendMessage(describeTableResponse);
+			functionCalls = result.response.functionCalls();
+			console.log(functionCalls);
+			call = functionCalls[0];
+		}
+		console.log(call);
+		if (call.name === 'executeQuery') {
+			const executeQueryResponse = await executeQuery(call.parameters);
+			result = await chat.sendMessage(executeQueryResponse);
+			functionCalls = result.response.functionCalls();
+			console.log(functionCalls);
+			call = functionCalls[0];
+		}
+
 		return c.json(result.response.text());
 	});
 
