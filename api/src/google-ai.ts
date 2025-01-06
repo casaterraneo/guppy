@@ -1,5 +1,7 @@
 import { Hono } from 'hono';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { StateGraph, START, END } from "@langchain/langgraph";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 
 interface PizzaOrder {
 	size: string;
@@ -234,6 +236,20 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		}
 
 		return c.json(result.response.text());
+	})
+	.post('/lang-graph', async c => {
+		const { messages } = await c.req.json();
+		if (!messages) return c.json({ error: 'Message is required' }, 400);
+
+		const llm = ChatGoogleGenerativeAI({model: "gemini-1.5-flash-latest"});
+
+		const input = `Translate "I love programming" into French.`;
+
+		// Models also accept a list of chat messages or a formatted prompt
+		const result = await llm.invoke(input);
+		console.log(result);
+
+		return c.json(result.AIMessage);
 	});
 
 export default app;
