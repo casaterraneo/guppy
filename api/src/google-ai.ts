@@ -211,7 +211,8 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		console.log(call);
 		if (call.name === 'describeTable') {
 			const describeTableResponse = await describeTable(call.args.tableName);
-			result = await chat.sendMessage(describeTableResponse);
+			//result = await chat.sendMessage(describeTableResponse);
+			const result = await chat.sendMessage(JSON.stringify(describeTableResponse));
 			functionCalls = result.response.functionCalls();
 			console.log(functionCalls);
 			call = functionCalls[0];
