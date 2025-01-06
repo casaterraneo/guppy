@@ -206,7 +206,7 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		}
 		console.log(call);
 		if (call.name === 'describeTable') {
-			const describeTableResponse = await describeTable(call.parameters);
+			const describeTableResponse = await describeTable(call.tableName);
 			result = await chat.sendMessage(describeTableResponse);
 			functionCalls = result.response.functionCalls();
 			console.log(functionCalls);
@@ -214,7 +214,7 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		}
 		console.log(call);
 		if (call.name === 'executeQuery') {
-			const executeQueryResponse = await executeQuery(call.parameters);
+			const executeQueryResponse = await executeQuery(call.sqlQuery);
 			result = await chat.sendMessage(executeQueryResponse);
 			functionCalls = result.response.functionCalls();
 			console.log(functionCalls);
