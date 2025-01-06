@@ -223,10 +223,7 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		console.log(call);
 		if (call.name === 'executeQuery') {
 			const executeQueryResponse = await executeQuery(call.args.sqlQuery);
-			result = await chat.sendMessage(executeQueryResponse);
-			functionCalls = result.response.functionCalls();
-			console.log(functionCalls);
-			call = functionCalls[0];
+			return c.json(executeQueryResponse);
 		}
 
 		return c.json(result.response.text());
