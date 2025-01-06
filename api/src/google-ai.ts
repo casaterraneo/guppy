@@ -205,6 +205,7 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		console.log(call);
 		if (call.name === 'listTables') {
 			const listTablesResponse = await listTables();
+			console.log('Describe List Tables Response:', listTablesResponse);
 			result = await chat.sendMessage(listTablesResponse);
 			functionCalls = result.response.functionCalls();
 			console.log(functionCalls);
