@@ -102,7 +102,11 @@ const app = new Hono()
 			console.log(' - DB CALL: describe_table');
 			const db = c.get('db');
 			const all = await db.prepare(`PRAGMA table_info(${tableName});`).all();
-			return all.results.map(col => [col.name, col.type]);
+			//return all.results.map(col => [col.name, col.type]);
+			return all.results.map(col => ({
+				columnName: col.name,
+				columnType: col.type
+			}));
 		};
 
 		const executeQuery = async sqlQuery => {
