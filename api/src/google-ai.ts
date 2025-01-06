@@ -140,7 +140,9 @@ const app = new Hono()
 							name: 'describeTable',
 							description: `Look up the table schema.
 							 			Returns:
-							 			List of columns, where each entry is a tuple of (column name, column type).`,
+							 			List of columns, using this JSON schema:
+										Column = {'columnName': string, 'columnType': string}
+										Return: Array<Column>.`,
 							parameters: {
 								type: 'object',
 								properties: {
@@ -212,6 +214,7 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		if (call.name === 'describeTable') {
 			const describeTableResponse = await describeTable(call.args.tableName);
 			//result = await chat.sendMessage(describeTableResponse);
+			console.log('Describe Table Response:', describeTableResponse);
 			const result = await chat.sendMessage(JSON.stringify(describeTableResponse));
 			functionCalls = result.response.functionCalls();
 			console.log(functionCalls);
