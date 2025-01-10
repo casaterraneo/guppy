@@ -251,7 +251,7 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		});
 
 		const promptTemplate = ChatPromptTemplate.fromMessages([
-			['system', 'You talk like a pirate. Answer all questions to the best of your ability.'],
+			['system', 'You are a helpful assistant. Answer all questions to the best of your ability in {language}.'],
 			['placeholder', '{messages}'],
 		]);
 
@@ -323,7 +323,7 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		const output6 = await app.invoke({ messages: input5 }, config3);
 		console.log(output6.messages[output6.messages.length - 1]);
 
-		return c.json(output6.messages[output4.messages.length - 1].content);
+		return c.json(output6.messages[output6.messages.length - 1].content);
 	});
 
 export default app;
