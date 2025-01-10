@@ -320,7 +320,19 @@ Answer all questions to the best of your ability in {language}.`,
 		const output = await app.invoke(input, config);
 		console.log(output.messages[output.messages.length - 1]);
 
-		return c.json(output.messages[output.messages.length - 1].content);
+		const input2 = {
+			messages: [
+				{
+					role: 'user',
+					content: 'Oh great, what kinds of latte can you make?',
+				},
+			],
+			language: 'English',
+		};
+		const output2 = await app.invoke(input2, config);
+		console.log(output2.messages[output2.messages.length - 1]);
+
+		return c.json(output2.messages[output2.messages.length - 1].content);
 	});
 
 export default app;
