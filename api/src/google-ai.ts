@@ -352,7 +352,18 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		const output7 = await app.invoke(input6, config4);
 		console.log(output7.messages[output7.messages.length - 1]);
 
-		return c.json(output7.messages[output7.messages.length - 1].content);
+		const input7 = {
+			messages: [
+			  {
+				role: "user",
+				content: "What is my name?",
+			  },
+			],
+		  };
+		  const output8 = await app.invoke(input7, config4);
+		  console.log(output8.messages[output8.messages.length - 1]);
+
+		return c.json(output8.messages[output8.messages.length - 1].content);
 	});
 
 export default app;
