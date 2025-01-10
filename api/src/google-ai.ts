@@ -349,7 +349,7 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		  ],
 		  language: "Spanish",
 		};
-		const output7 = await app3.invoke(input6, config4);
+		const output7 = await app.invoke(input6, config4);
 		console.log(output7.messages[output7.messages.length - 1]);
 
 		return c.json(output7.messages[output7.messages.length - 1].content);
