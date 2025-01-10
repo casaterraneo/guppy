@@ -1,14 +1,9 @@
 import { Hono } from 'hono';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
-import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import {
-	START,
-	END,
-	MessagesAnnotation,
-	StateGraph,
-	MemorySaver,
-  } from "@langchain/langgraph";
+import { HumanMessage, SystemMessage } from '@langchain/core/messages';
+import { START, END, MessagesAnnotation, StateGraph, MemorySaver } from '@langchain/langgraph';
+import { v4 as uuidv4 } from 'uuid';
 
 interface PizzaOrder {
 	size: string;
@@ -251,24 +246,58 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		const llm = new ChatGoogleGenerativeAI({
 			model: 'gemini-1.5-flash-latest',
 			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
-			temperature: 0
+			temperature: 0,
 		});
 
-		const input = `Translate "I love programming" into French.`;
+		// Define the function that calls the model
+		const callModel = async (state: typeof MessagesAnnotation.State) => {
+			const response = await llm.invoke(state.messages);
+			return { messages: response };
+		};
 
-		// Models also accept a list of chat messages or a formatted prompt
-		//https://js.langchain.com/docs/how_to/message_history/
-		//https://github.com/emarco177
+		// Define a new graph
+		const workflow = new StateGraph(MessagesAnnotation)
+			// Define the node and edge
+			.addNode('model', callModel)
+			.addEdge(START, 'model')
+			.addEdge('model', END);
 
-		const llmMessages = [
-			new SystemMessage("Translate the following from English into Italian"),
-			new HumanMessage("hi!"),
-		  ];
+		const memory = new MemorySaver();
+		const app = workflow.compile({ checkpointer: memory });
 
-		const result = await llm.invoke(llmMessages);
-		console.log(result);
+		const config = { configurable: { thread_id: uuidv4() } };
+		const input = [
+			{
+				role: 'user',
+				content: "Hi! I'm Bob.",
+			},
+		];
+		const output = await app.invoke({ messages: input }, config);
+		console.log(output.messages[output.messages.length - 1]);
 
-		return c.json(result.content);
+		const input2 = [
+			{
+				role: 'user',
+				content: "What's my name?",
+			},
+		];
+		const output2 = await app.invoke({ messages: input2 }, config);
+		console.log(output2.messages[output2.messages.length - 1]);
+
+		const config2 = { configurable: { thread_id: uuidv4() } };
+		const input3 = [
+			{
+				role: 'user',
+				content: "What's my name?",
+			},
+		];
+		const output3 = await app.invoke({ messages: input3 }, config2);
+		console.log(output3.messages[output3.messages.length - 1]);
+
+		const output4 = await app.invoke({ messages: input2 }, config);
+		console.log(output4.messages[output4.messages.length - 1]);
+
+		return c.json(output4.messages[output4.messages.length - 1]);
 	});
 
 export default app;
