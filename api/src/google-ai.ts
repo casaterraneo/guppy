@@ -69,7 +69,7 @@ const app = new Hono()
 			responseMimeType,
 			//responseSchema : JSON.stringify(Sentiment)
 			//responseSchema : ['POSITIVE', 'NEUTRAL', 'NEGATIVE']
-			//responseSchema : { POSITIVE: "positive", NEUTRAL: "neutral", NEGATIVE: "negative"}
+			//responseSchema : { POSITIVE: positive, NEUTRAL: neutral, NEGATIVE: negative}
 			responseSchema: getResponseSchema(responseSchema),
 		};
 
@@ -237,9 +237,9 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		console.log(call);
 		if (call.name === 'executeQuery') {
 			console.log('Original Query:', call.args.sqlQuery);
-			const unescapedQuery = call.args.sqlQuery.replace(/\\"/g, '"');
+			const unescapedQuery = call.args.sqlQuery.replace(/\\/g, '');
 			console.log('After removing \\:', unescapedQuery);
-			const finalQuery = unescapedQuery.replace(/"/g, "'");
+			const finalQuery = unescapedQuery.replace(//g, ');
 			console.log('Final Query:', finalQuery);
 			const executeQueryResponse = await executeQuery(finalQuery);
 			return c.json(executeQueryResponse);
@@ -260,7 +260,26 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		const promptTemplate = ChatPromptTemplate.fromMessages([
 			[
 				'system',
-				'You are a helpful assistant. Answer all questions to the best of your ability in {language}.',
+				`You are a BaristaBot, an interactive cafe ordering system. A human will talk to you about the
+    available products you have and you will answer any questions about menu items (and only about
+    menu items - no off-topic discussion, but you can chat about the products and their history).
+    The customer will place an order for 1 or more items from the menu, which you will structure
+    and send to the ordering system after confirming the order with the human.
+
+
+    Add items to the customer's order with add_to_order, and reset the order with clear_order.
+    To see the contents of the order so far, call get_order (this is shown to you, not the user)
+    Always confirm_order with the user (double-check) before calling place_order. Calling confirm_order will
+    display the order items to the user and returns their response to seeing the list. Their response may contain modifications.
+    Always verify and respond with drink and modifier names from the MENU before adding them to the order.
+    If you are unsure a drink or modifier matches those on the MENU, ask a question to clarify or redirect.
+    You only have the modifiers listed on the menu.
+    Once the customer has finished ordering items, Call confirm_order to ensure it is correct then make
+    any necessary updates and then call place_order. Once place_order has returned, thank the user and
+    say goodbye!
+
+
+	Answer all questions to the best of your ability in {language}.`,
 			],
 			['placeholder', '{messages}'],
 		]);
@@ -283,87 +302,26 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		const workflow = new StateGraph(GraphAnnotation)
 			// Define the node and edge
 			.addNode('model', callModel)
-			.addEdge(START, 'model')
-			.addEdge('model', END);
+			.addEdge(START, 'model');
+			//.addEdge('model', END);
 
 		const app = workflow.compile({ checkpointer: new MemorySaver() });
 
 		const config = { configurable: { thread_id: uuidv4() } };
-		const input = [
-			{
-				role: 'user',
-				content: "Hi! I'm Bob.",
-			},
-		];
-		const output = await app.invoke({ messages: input }, config);
-		console.log(output.messages[output.messages.length - 1]);
-
-		const input2 = [
-			{
-				role: 'user',
-				content: "What's my name?",
-			},
-		];
-		const output2 = await app.invoke({ messages: input2 }, config);
-		console.log(output2.messages[output2.messages.length - 1]);
-
-		const config2 = { configurable: { thread_id: uuidv4() } };
-		const input3 = [
-			{
-				role: 'user',
-				content: "What's my name?",
-			},
-		];
-		const output3 = await app.invoke({ messages: input3 }, config2);
-		console.log(output3.messages[output3.messages.length - 1]);
-
-		const output4 = await app.invoke({ messages: input2 }, config);
-		console.log(output4.messages[output4.messages.length - 1]);
-
-		const config3 = { configurable: { thread_id: uuidv4() } };
-		const input4 = [
-			{
-				role: 'user',
-				content: "Hi! I'm Jim.",
-			},
-		];
-		const output5 = await app.invoke({ messages: input4 }, config3);
-		console.log(output5.messages[output5.messages.length - 1]);
-
-		const input5 = [
-			{
-				role: 'user',
-				content: 'What is my name?',
-			},
-		];
-		const output6 = await app.invoke({ messages: input5 }, config3);
-		console.log(output6.messages[output6.messages.length - 1]);
-
-		const config4 = { configurable: { thread_id: uuidv4() } };
-		const input6 = {
-		  messages: [
-			{
-			  role: "user",
-			  content: "Hi im bob",
-			},
-		  ],
-		  language: "Spanish",
-		};
-		const output7 = await app.invoke(input6, config4);
-		console.log(output7.messages[output7.messages.length - 1]);
-
-		const input7 = {
+		const input = {
 			messages: [
 			  {
 				role: "user",
-				content: "What is my name?",
+				content: "Hello, what can you do?",
 			  },
 			],
+			language: "English",
 		  };
-		  const output8 = await app.invoke(input7, config4);
-		  console.log(output8.messages[output8.messages.length - 1]);
 
-		return c.json(output8.messages[output8.messages.length - 1].content);
+		const output = await app.invoke(input, config);
+		console.log(output.messages[output.messages.length - 1]);
+
+		return c.json(output.messages[output.messages.length - 1].content);
 	});
 
 export default app;
