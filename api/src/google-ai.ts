@@ -260,12 +260,12 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		//https://js.langchain.com/docs/how_to/message_history/
 		//https://github.com/emarco177
 
-		const messages = [
+		const llmMessages = [
 			new SystemMessage("Translate the following from English into Italian"),
 			new HumanMessage("hi!"),
 		  ];
 
-		const result = await llm.invoke(messages);
+		const result = await llm.invoke(llmMessages);
 		console.log(result);
 
 		return c.json(result.content);
