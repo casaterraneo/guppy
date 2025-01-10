@@ -260,7 +260,8 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		const promptTemplate = ChatPromptTemplate.fromMessages([
 			[
 				'system',
-				'You are a helpful assistant. Answer all questions to the best of your ability in {language}.',
+				`You are a helpful assistant.
+Answer all questions to the best of your ability in {language}.`,
 			],
 			['placeholder', '{messages}'],
 		]);
@@ -283,19 +284,22 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		const workflow = new StateGraph(GraphAnnotation)
 			// Define the node and edge
 			.addNode('model', callModel)
-			.addEdge(START, 'model')
-			.addEdge('model', END);
+			.addEdge(START, 'model');
+		//.addEdge('model', END);
 
 		const app = workflow.compile({ checkpointer: new MemorySaver() });
 
 		const config = { configurable: { thread_id: uuidv4() } };
-		const input = [
-			{
-				role: 'user',
-				content: "Hi! I'm Bob.",
-			},
-		];
-		const output = await app.invoke({ messages: input }, config);
+		const input = {
+			messages: [
+				{
+					role: 'user',
+					content: 'Hi im bob',
+				},
+			],
+			language: 'English',
+		};
+		const output = await app.invoke(input, config);
 		console.log(output.messages[output.messages.length - 1]);
 
 		return c.json(output.messages[output.messages.length - 1].content);
