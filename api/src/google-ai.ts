@@ -1,7 +1,14 @@
 import { Hono } from 'hono';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { StateGraph, START, END } from "@langchain/langgraph";
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import {
+	START,
+	END,
+	MessagesAnnotation,
+	StateGraph,
+	MemorySaver,
+  } from "@langchain/langgraph";
 
 interface PizzaOrder {
 	size: string;
@@ -108,7 +115,7 @@ const app = new Hono()
 			return all.results.map(col => ({
 				columnName: col.name,
 				columnType: col.type,
-				pk: col.pk
+				pk: col.pk,
 			}));
 		};
 
@@ -241,12 +248,24 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		const { messages } = await c.req.json();
 		if (!messages) return c.json({ error: 'Message is required' }, 400);
 
-		const llm = new ChatGoogleGenerativeAI({model: "gemini-1.5-flash-latest", apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN});
+		const llm = new ChatGoogleGenerativeAI({
+			model: 'gemini-1.5-flash-latest',
+			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
+			temperature: 0
+		});
 
 		const input = `Translate "I love programming" into French.`;
 
 		// Models also accept a list of chat messages or a formatted prompt
-		const result = await llm.invoke(input);
+		//https://js.langchain.com/docs/how_to/message_history/
+		//https://github.com/emarco177
+
+		const messages = [
+			new SystemMessage("Translate the following from English into Italian"),
+			new HumanMessage("hi!"),
+		  ];
+
+		const result = await llm.invoke(messages);
 		console.log(result);
 
 		return c.json(result.content);
