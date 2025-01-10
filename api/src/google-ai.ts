@@ -4,6 +4,7 @@ import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { START, END, MessagesAnnotation, StateGraph, MemorySaver } from '@langchain/langgraph';
 import { v4 as uuidv4 } from 'uuid';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
 
 interface PizzaOrder {
 	size: string;
@@ -249,9 +250,16 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 			temperature: 0,
 		});
 
+		const promptTemplate = ChatPromptTemplate.fromMessages([
+			['system', 'You talk like a pirate. Answer all questions to the best of your ability.'],
+			['placeholder', '{messages}'],
+		]);
+
 		// Define the function that calls the model
 		const callModel = async (state: typeof MessagesAnnotation.State) => {
-			const response = await llm.invoke(state.messages);
+			//const response = await llm.invoke(state.messages);
+			const prompt = await promptTemplate.invoke(state);
+			const response = await llm.invoke(prompt);
 			return { messages: response };
 		};
 
@@ -262,8 +270,7 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 			.addEdge(START, 'model')
 			.addEdge('model', END);
 
-		const memory = new MemorySaver();
-		const app = workflow.compile({ checkpointer: memory });
+		const app = workflow.compile({ checkpointer: new MemorySaver() });
 
 		const config = { configurable: { thread_id: uuidv4() } };
 		const input = [
@@ -297,7 +304,26 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		const output4 = await app.invoke({ messages: input2 }, config);
 		console.log(output4.messages[output4.messages.length - 1]);
 
-		return c.json(output4.messages[output4.messages.length - 1]);
+		const config3 = { configurable: { thread_id: uuidv4() } };
+		const input4 = [
+			{
+				role: 'user',
+				content: "Hi! I'm Jim.",
+			},
+		];
+		const output5 = await app.invoke({ messages: input4 }, config3);
+		console.log(output5.messages[output5.messages.length - 1]);
+
+		const input5 = [
+			{
+				role: 'user',
+				content: 'What is my name?',
+			},
+		];
+		const output6 = await app.invoke({ messages: input5 }, config3);
+		console.log(output6.messages[output6.messages.length - 1]);
+
+		return c.json(output6.messages[output4.messages.length - 1].content);
 	});
 
 export default app;
