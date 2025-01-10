@@ -2,7 +2,14 @@ import { Hono } from 'hono';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
-import { START, END, MessagesAnnotation, StateGraph, MemorySaver } from '@langchain/langgraph';
+import {
+	START,
+	END,
+	MessagesAnnotation,
+	StateGraph,
+	MemorySaver,
+	Annotation,
+} from '@langchain/langgraph';
 import { v4 as uuidv4 } from 'uuid';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 
@@ -251,20 +258,29 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		});
 
 		const promptTemplate = ChatPromptTemplate.fromMessages([
-			['system', 'You are a helpful assistant. Answer all questions to the best of your ability in {language}.'],
+			[
+				'system',
+				'You are a helpful assistant. Answer all questions to the best of your ability in {language}.',
+			],
 			['placeholder', '{messages}'],
 		]);
 
+		// Define the State
+		const GraphAnnotation = Annotation.Root({
+			...MessagesAnnotation.spec,
+			language: Annotation<string>(),
+		});
+
 		// Define the function that calls the model
-		const callModel = async (state: typeof MessagesAnnotation.State) => {
+		const callModel = async (state: typeof GraphAnnotation.State) => {
 			//const response = await llm.invoke(state.messages);
 			const prompt = await promptTemplate.invoke(state);
 			const response = await llm.invoke(prompt);
-			return { messages: response };
+			return { messages: [response] };
 		};
 
 		// Define a new graph
-		const workflow = new StateGraph(MessagesAnnotation)
+		const workflow = new StateGraph(GraphAnnotation)
 			// Define the node and edge
 			.addNode('model', callModel)
 			.addEdge(START, 'model')
@@ -323,7 +339,20 @@ the schema, and executeQuery to issue an SQL SELECT query.`,
 		const output6 = await app.invoke({ messages: input5 }, config3);
 		console.log(output6.messages[output6.messages.length - 1]);
 
-		return c.json(output6.messages[output6.messages.length - 1].content);
+		const config4 = { configurable: { thread_id: uuidv4() } };
+		const input6 = {
+		  messages: [
+			{
+			  role: "user",
+			  content: "Hi im bob",
+			},
+		  ],
+		  language: "Spanish",
+		};
+		const output7 = await app3.invoke(input6, config4);
+		console.log(output7.messages[output7.messages.length - 1]);
+
+		return c.json(output7.messages[output7.messages.length - 1].content);
 	});
 
 export default app;
