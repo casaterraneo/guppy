@@ -8,6 +8,7 @@ import kvs from './kvs';
 import users from './users';
 import googleAI from './google-ai';
 import workersAI from './workers-ai';
+import baristaBot from './barista-bot';
 
 const JWKS = createRemoteJWKSet(
 	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
@@ -62,6 +63,7 @@ app.route('/api/kvs', kvs);
 app.route('/api/users', users);
 app.route('/api/google-ai', googleAI);
 app.route('/api/workers-ai', workersAI);
+app.route('/api/barista-bot', baristaBot);
 
 app.onError((err, c) => {
 	console.error(`${err}`);
