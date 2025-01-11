@@ -1,10 +1,13 @@
 import { Hono } from 'hono';
-import { BufferMemory } from 'langchain/memory';
+import { BufferMemory } from '@langchain/memory';
 import { CloudflareD1MessageHistory } from '@langchain/cloudflare';
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+
+//https://github.com/langchain-ai/langchainjs/blob/main/libs/langchain-cloudflare/src/message_histories.ts
+//https://js.langchain.com/docs/integrations/memory/cloudflare_d1/
 
 const app = new Hono().post('barista-bot', async c => {
 	const { messages } = await c.req.json();
