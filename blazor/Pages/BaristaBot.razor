@@ -1,0 +1,93 @@
+@page "/barista-bot"
+@inject IHttpClientFactory HttpClientFactory
+@attribute [Authorize]
+
+<PageTitle>Barista BOT</PageTitle>
+
+<h1>Barista BOT</h1>
+
+<p>This component demonstrates how to create a Barista chat bot.</p>
+
+<div class="input-section">
+    <form>
+        <div class="form-group">
+            <label for="userInput">Inserisci il tuo messaggio:</label>
+            <textarea class="form-control" id="userInput" @bind="UserInput" placeholder="Scrivi qualcosa..." rows="4"></textarea>
+        </div>
+        <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("barista-bot")'>Invia</button>
+    </form>
+</div>
+
+<div class="response-section">
+    @if (IsLoading)
+    {
+        <p>Caricamento...</p>
+    }
+    else if (!string.IsNullOrEmpty(ResponseText))
+    {
+        <p><strong>Risposta:</strong> @((MarkupString)ResponseText)</p>
+    }
+</div>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="error">
+        <p>@ErrorMessage</p>
+    </div>
+}
+
+@code {
+    private string UserInput { get; set; } = string.Empty;
+    private string? ResponseText { get; set; }
+    private bool IsLoading { get; set; } = false;
+    private string? ErrorMessage { get; set; }
+    
+
+    private async Task HandleAction(string action)
+    {
+        if (string.IsNullOrWhiteSpace(UserInput))
+        {
+            ErrorMessage = "Inserire un messaggio valido.";
+            return;
+        }
+
+        IsLoading = true;
+        ErrorMessage = null;
+        ResponseText = null;
+
+        try
+        {
+			using var http = HttpClientFactory.CreateClient("api");
+            var requestData = new
+            {
+                messages = new [] { UserInput },
+            };
+            var response = await http.PostAsJsonAsync($"barista-bot/{action}", requestData);            
+            if (response.IsSuccessStatusCode)
+            {
+                string rawResponse  = await response.Content.ReadAsStringAsync();
+                ResponseText = CleanResponseText(rawResponse);
+            }
+            else
+            {
+                ErrorMessage = $"Errore API: {response.ReasonPhrase}";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Errore nella richiesta: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private string CleanResponseText(string response)
+    {
+        return System.Text.RegularExpressions.Regex.Unescape(response)
+            .Replace("\n", "<br>")
+            .Replace("\t", "&emsp;") // Tabulazione come spazi HTML
+            .Replace("\\", "");     // Rimuovi eventuali backslash residui
+    }
+}

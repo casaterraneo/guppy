@@ -23,6 +23,7 @@
 		"@cloudflare/ai-utils": "^1.0.1",
 		"@langchain/core": "0.3.27",
 		"@langchain/langgraph": "0.2.39",
-		"@langchain/google-genai": "0.1.6"
+		"@langchain/google-genai": "0.1.6",
+		"@langchain/cloudflare": "0.4.5"
 	}
 }
