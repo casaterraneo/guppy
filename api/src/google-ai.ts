@@ -291,7 +291,7 @@ Answer all questions to the best of your ability in {language}.`,
 		});
 
 		// Define the function that calls the model
-		const callModel = async (state: typeof GraphAnnotation.State) => {
+		const chatbot = async (state: typeof GraphAnnotation.State) => {
 			//const response = await llm.invoke(state.messages);
 			const prompt = await promptTemplate.invoke(state);
 			const response = await llm.invoke(prompt);
@@ -301,38 +301,27 @@ Answer all questions to the best of your ability in {language}.`,
 		// Define a new graph
 		const workflow = new StateGraph(GraphAnnotation)
 			// Define the node and edge
-			.addNode('model', callModel)
-			.addEdge(START, 'model');
+			.addNode('chatbot', chatbot)
+			.addEdge(START, 'chatbot');
 		//.addEdge('model', END);
 
 		const app = workflow.compile({ checkpointer: new MemorySaver() });
 
-		const config = { configurable: { thread_id: uuidv4() } };
+		//const config = { configurable: { thread_id: uuidv4() } };
+		const config = { configurable: { thread_id: '0001' } };
 		const input = {
 			messages: [
 				{
 					role: 'user',
-					content: 'Hello, what can you do?',
+					content: messages[0],
 				},
 			],
-			language: 'English',
+			language: messages[1],
 		};
 		const output = await app.invoke(input, config);
-		console.log(output.messages[output.messages.length - 1]);
+		console.log(output.messages);
 
-		const input2 = {
-			messages: [
-				{
-					role: 'user',
-					content: 'Oh great, what kinds of latte can you make?',
-				},
-			],
-			language: 'English',
-		};
-		const output2 = await app.invoke(input2, config);
-		console.log(output2.messages[output2.messages.length - 1]);
-
-		return c.json(output2.messages[output2.messages.length - 1].content);
+		return c.json(output.messages[output.messages.length - 1].content);
 	});
 
 export default app;
