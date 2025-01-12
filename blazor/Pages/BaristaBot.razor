@@ -25,7 +25,11 @@
     }
     else if (!string.IsNullOrEmpty(ResponseText))
     {
-        <p><strong>Risposta:</strong> @((MarkupString)ResponseText)</p>
+        <p><strong>Risposte:</strong></p>
+        @foreach (var response in ResponseMessages)
+         {
+             <p> @((MarkupString)@response)</p>
+         }
     }
 </div>
 
@@ -41,6 +45,7 @@
     private string? ResponseText { get; set; }
     private bool IsLoading { get; set; } = false;
     private string? ErrorMessage { get; set; }
+    private List<string> ResponseMessages { get; set; } = new List<string>(); 
     
 
     private async Task HandleAction(string action)
@@ -67,6 +72,8 @@
             {
                 string rawResponse  = await response.Content.ReadAsStringAsync();
                 ResponseText = CleanResponseText(rawResponse);
+                ResponseMessages.Add(ResponseText);
+                UserInput = string.Empty;
             }
             else
             {
