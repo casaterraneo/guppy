@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { BufferMemory } from '@langchain/memory';
+import { BufferMemory } from 'langchain/memory';
 import { CloudflareD1MessageHistory } from '@langchain/cloudflare';
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts';
 import { RunnableSequence } from '@langchain/core/runnables';
