@@ -5,6 +5,8 @@ import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts
 import { RunnableSequence } from '@langchain/core/runnables';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { tool } from '@langchain/core/tools';
+import { z } from 'zod';
 
 //https://github.com/langchain-ai/langchainjs/blob/main/libs/langchain-cloudflare/src/message_histories.ts
 //https://js.langchain.com/docs/integrations/memory/cloudflare_d1/
@@ -25,7 +27,9 @@ const app = new Hono().post('barista-bot', async c => {
 	});
 
 	const prompt = ChatPromptTemplate.fromMessages([
-		['system', `You are a BaristaBot, an interactive cafe ordering system. A human will talk to you about the
+		[
+			'system',
+			`You are a BaristaBot, an interactive cafe ordering system. A human will talk to you about the
 available products you have and you will answer any questions about menu items (and only about
 menu items - no off-topic discussion, but you can chat about the products and their history).
 The customer will place an order for 1 or more items from the menu, which you will structure
@@ -41,16 +45,52 @@ If you are unsure a drink or modifier matches those on the MENU, ask a question 
 You only have the modifiers listed on the menu.
 Once the customer has finished ordering items, Call confirm_order to ensure it is correct then make
 any necessary updates and then call place_order. Once place_order has returned, thank the user and
-say goodbye!`],
+say goodbye!`,
+		],
 		new MessagesPlaceholder('history'),
 		['user', '{input}'],
 	]);
+
+	// Define your tool
+	const addToOrderTool = tool(
+		({ drink, modifiers }) => {
+			const modifierStr =
+				Object.entries(modifiers)
+					.map(([key, value]) => `${key}: ${value}`)
+					.join(', ') || 'no modifiers';
+
+			return `Adds ${drink} with modifiers: ${modifierStr}`;
+		},
+		{
+			name: 'add_to_order',
+			description: "Adds the specified drink to the customer's order, including any modifiers.",
+			schema: z.object({
+				drink: z.string().describe('The name of the drink to add to the order.'),
+				modifiers: z
+					.record(z.string())
+					.describe(
+						'A JSON object representing modifiers for the drink, where keys are modifier names and values are their details.'
+					),
+			}),
+		}
+	);
+
+	const confirmOrderTool = tool(
+		() => {
+			return 'Asks the customer to confirm their order.';
+		},
+		{
+			name: 'confirm_order',
+			description: 'Asks the customer if the order is correct.',
+			schema: z.object({}),
+		}
+	);
 
 	const model = new ChatGoogleGenerativeAI({
 		model: 'gemini-1.5-flash-latest',
 		apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
 		temperature: 0,
-	});
+	}).bindTools([addToOrderTool, confirmOrderTool]);
 
 	const chain = RunnableSequence.from([
 		{
