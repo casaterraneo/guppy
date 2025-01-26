@@ -67,7 +67,7 @@ say goodbye!`,
 	);
 
 	const confirmOrderTool = tool(
-		() => {
+		(_) => {
 			return 'Asks the customer to confirm their order.';
 		},
 		{
