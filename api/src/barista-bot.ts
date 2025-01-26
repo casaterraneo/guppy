@@ -54,7 +54,8 @@ say goodbye!`,
 	// Define your tool
 	const addToOrderTool = tool(
 		({ drink, modifiers }) => {
-			return `Adds ${drink} with modifiers: ${modifiers || "no modifiers"}`;
+			//return `Adds ${drink} with modifiers: ${modifiers || "no modifiers"}`;
+			return `Adds ${drink}`;
 		},
 		{
 			name: 'add_to_order',
