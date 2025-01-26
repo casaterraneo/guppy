@@ -67,13 +67,15 @@ say goodbye!`,
 	);
 
 	const confirmOrderTool = tool(
-		(_) => {
+		(drink) => {
 			return 'Asks the customer to confirm their order.';
 		},
 		{
 			name: 'confirm_order',
 			description: 'Asks the customer if the order is correct.',
-			schema: z.object({}),
+			schema: z.object({
+				drink: z.string().optional().describe("The name of the drink to add to the order.")
+			}),
 		}
 	);
 
