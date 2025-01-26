@@ -54,23 +54,14 @@ say goodbye!`,
 	// Define your tool
 	const addToOrderTool = tool(
 		({ drink, modifiers }) => {
-			const modifierStr =
-				Object.entries(modifiers)
-					.map(([key, value]) => `${key}: ${value}`)
-					.join(', ') || 'no modifiers';
-
-			return `Adds ${drink} with modifiers: ${modifierStr}`;
+			return `Adds ${drink} with modifiers: ${modifiers || "no modifiers"}`;
 		},
 		{
 			name: 'add_to_order',
 			description: "Adds the specified drink to the customer's order, including any modifiers.",
 			schema: z.object({
 				drink: z.string().describe('The name of the drink to add to the order.'),
-				modifiers: z
-					.record(z.string())
-					.describe(
-						'A JSON object representing modifiers for the drink, where keys are modifier names and values are their details.'
-					),
+				modifiers: z.string().optional().describe("An optional description of the modifiers."),
 			}),
 		}
 	);
