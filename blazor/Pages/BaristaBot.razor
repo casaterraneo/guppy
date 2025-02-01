@@ -7,18 +7,17 @@
 <h1>Barista BOT</h1>
 
 <p>This component demonstrates how to create a Barista chat bot.</p>
+<form>
+    <div class="form-group">
+        <label for="userInput">Inserisci il tuo messaggio:</label>
+        <textarea class="form-control" id="userInput" @bind="UserInput" placeholder="Scrivi qualcosa..." rows="4"></textarea>
+    </div>
+    <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("barista-bot")'>Barista</button>
+    <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("fake-browser-tool")'>Browser</button>
+</form>
 
-<div class="input-section">
-    <form>
-        <div class="form-group">
-            <label for="userInput">Inserisci il tuo messaggio:</label>
-            <textarea class="form-control" id="userInput" @bind="UserInput" placeholder="Scrivi qualcosa..." rows="4"></textarea>
-        </div>
-        <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("barista-bot")'>Invia</button>
-    </form>
-</div>
 
-<div class="response-section">
+
     @if (IsLoading)
     {
         <p>Caricamento...</p>
@@ -31,7 +30,7 @@
              <p> @((MarkupString)@response)</p>
          }
     }
-</div>
+
 
 @if (!string.IsNullOrEmpty(ErrorMessage))
 {
