@@ -163,11 +163,14 @@ say goodbye!`,
 
 		const input = messages[0];
 
-		//model: "gemini-1.5-flash",
+
+		//model: "gemini-pro",
 		const modelWithTools = new ChatGoogleGenerativeAI({
-			model: "gemini-pro",
+			model: "gemini-1.5-flash",
 			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN
-		}).bindTools([fakeBrowserTool]);
+		}).bindTools([fakeBrowserTool], {
+			tool_choice: "fake_browser_tool",
+		  });
 
 		// const modelWithTools = model.bind({
 		// 	tools: [new FakeBrowserTool()],
