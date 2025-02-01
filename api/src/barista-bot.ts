@@ -149,6 +149,7 @@ say goodbye!`,
 		const input = messages[0];
 
 		const modelWithTools = new ChatGoogleGenerativeAI({
+			model: "gemini-1.5-flash",
 			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN
 		}).bindTools([fakeBrowserTool]);
 
