@@ -169,7 +169,7 @@ say goodbye!`,
 			model: "gemini-1.5-flash",
 			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN
 		}).bindTools([fakeBrowserTool], {
-			tool_choice: "fake_browser_tool",
+			tool_choice: "any",
 		  });
 
 		// const modelWithTools = model.bind({
