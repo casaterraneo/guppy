@@ -148,14 +148,13 @@ say goodbye!`,
 
 		const input = messages[0];
 
-		const model = new ChatGoogleGenerativeAI({
+		const modelWithTools = new ChatGoogleGenerativeAI({
 			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN
-		});
+		}).bindTools([fakeBrowserTool]);
 
-		const modelWithTools = model.bind({
-			tools: [new FakeBrowserTool()],
-		  });
-
+		// const modelWithTools = model.bind({
+		// 	tools: [new FakeBrowserTool()],
+		//   });
 		const res = await modelWithTools.invoke([
 			[
 				'human',
