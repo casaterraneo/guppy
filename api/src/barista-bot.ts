@@ -149,9 +149,7 @@ say goodbye!`,
 		const input = messages[0];
 
 		const model = new ChatGoogleGenerativeAI({
-			model: 'gemini-1.5-flash-latest',
-			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
-			temperature: 0,
+			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN
 		});
 
 		const modelWithTools = model.bind({
