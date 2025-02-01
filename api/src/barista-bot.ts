@@ -5,7 +5,7 @@ import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts
 import { RunnableSequence } from '@langchain/core/runnables';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
-import { tool } from '@langchain/core/tools';
+import { tool, StructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 
 //https://github.com/langchain-ai/langchainjs/blob/main/libs/langchain-cloudflare/src/message_histories.ts
@@ -25,6 +25,23 @@ const fakeBrowserTool = tool(
 		}),
 	}
 );
+
+//https://github.com/langchain-ai/langchainjs/blob/main/libs/langchain-google-genai/src/tests/chat_models.int.test.ts
+class FakeBrowserTool extends StructuredTool {
+	schema = z.object({
+	  url: z.string(),
+	  query: z.string().optional(),
+	});
+
+	name = "fake_browser_tool";
+
+	description =
+	  "useful for when you need to find something on the web or summarize a webpage.";
+
+	async _call(_: z.infer<this["schema"]>): Promise<string> {
+	  return "fake_browser_tool";
+	}
+  }
 
 const app = new Hono()
 	.post('barista-bot', async c => {
@@ -135,9 +152,13 @@ say goodbye!`,
 			model: 'gemini-1.5-flash-latest',
 			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
 			temperature: 0,
-		}).bindTools([fakeBrowserTool]);
+		});
 
-		const res = await model.invoke([
+		const modelWithTools = model.bind({
+			tools: [new FakeBrowserTool()],
+		  });
+
+		const res = await modelWithTools.invoke([
 			[
 				'human',
 				input,
