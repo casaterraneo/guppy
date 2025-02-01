@@ -43,6 +43,22 @@ class FakeBrowserTool extends StructuredTool {
 	}
   }
 
+  const GetWeather = {
+	name: "GetWeather",
+	description: "Get the current weather in a given location",
+	schema: z.object({
+	  location: z.string().describe("The city and state, e.g. San Francisco, CA")
+	}),
+  }
+
+  const GetPopulation = {
+	name: "GetPopulation",
+	description: "Get the current population in a given location",
+	schema: z.object({
+	  location: z.string().describe("The city and state, e.g. San Francisco, CA")
+	}),
+  }
+
 const app = new Hono()
 	.post('barista-bot', async c => {
 		const { messages } = await c.req.json();
@@ -151,7 +167,7 @@ say goodbye!`,
 		const modelWithTools = new ChatGoogleGenerativeAI({
 			model: "gemini-1.5-flash",
 			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN
-		}).bindTools([fakeBrowserTool]);
+		}).bindTools([GetWeather, GetPopulation]);
 
 		// const modelWithTools = model.bind({
 		// 	tools: [new FakeBrowserTool()],
