@@ -17,7 +17,7 @@ const fakeBrowserTool = tool(
 		return 'The search result is xyz...';
 	},
 	{
-		name: 'browser_tool',
+		name: 'fake_browser_tool',
 		description: 'Useful for when you need to find something on the web or summarize a webpage.',
 		schema: z.object({
 			url: z.string().describe('The URL of the webpage to search.'),
@@ -35,8 +35,7 @@ class FakeBrowserTool extends StructuredTool {
 
 	name = "fake_browser_tool";
 
-	description =
-	  "useful for when you need to find something on the web or summarize a webpage.";
+	description = "useful for when you need to find something on the web or summarize a webpage.";
 
 	async _call(_: z.infer<this["schema"]>): Promise<string> {
 	  return "fake_browser_tool";
@@ -167,7 +166,7 @@ say goodbye!`,
 		const modelWithTools = new ChatGoogleGenerativeAI({
 			model: "gemini-1.5-flash",
 			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN
-		}).bindTools([GetWeather, GetPopulation]);
+		}).bindTools([fakeBrowserTool]);
 
 		// const modelWithTools = model.bind({
 		// 	tools: [new FakeBrowserTool()],
