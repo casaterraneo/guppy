@@ -200,7 +200,8 @@ say goodbye!`,
 			new StringOutputParser(),
 		]);
 
-		const res = await modelWithTools.invoke(chain);
+		const chainInput = { input };
+		const res = await chain.invoke(chainInput);
 
 		// const res = await modelWithTools.invoke([
 		// 	['human',input,],
