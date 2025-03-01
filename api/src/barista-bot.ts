@@ -189,12 +189,22 @@ say goodbye!`,
 
 		const db = c.get('db');
 
-		const chatHistory = new CloudflareD1MessageHistory({
-			sessionId: 'barista-bot-session-id',
-			database: db,
-		});
+		//Il problema è che in SQLite (e nella maggior parte dei database SQL) non puoi usare un ? (placeholder)
+		// per sostituire un nome di tabella o di colonna nei prepared statements.
+		// I placeholder funzionano solo per i valori, non per i nomi delle tabelle o delle colonne.
+		//Error: D1_ERROR: near "?": syntax error at offset 12: SQLITE_ERROR
+		// const chatHistory = new CloudflareD1MessageHistory({
+		// 	sessionId: 'barista-bot-session-id',
+		// 	database: db,
+		// });
 
-		const res = await chatHistory.clear();
+		// const res = await chatHistory.clear();
+
+		const query = `DELETE FROM langchain_chat_histories WHERE session_id = ? `;
+		await db
+		  .prepare(query)
+		  .bind('barista-bot-session-id')
+		  .all();
 
 		return;
 	});
