@@ -139,15 +139,6 @@ say goodbye!`,
 			tool_choice: "any",
 		});
 
-		const db = c.get('db');
-		const memory = new BufferMemory({
-			returnMessages: true,
-			chatHistory: new CloudflareD1MessageHistory({
-				sessionId: 'barista-bot-session-id',
-				database: db,
-			}),
-		});
-
 		const chain = RunnableSequence.from([
 			{
 				input: initialInput => initialInput.input,
@@ -195,6 +186,14 @@ say goodbye!`,
 			new MessagesPlaceholder('history'),
 			['user', '{input}'],
 		]);
+		const db = c.get('db');
+		const memory = new BufferMemory({
+			returnMessages: true,
+			chatHistory: new CloudflareD1MessageHistory({
+				sessionId: 'barista-bot-session-id',
+				database: db,
+			}),
+		});
 		const chain = RunnableSequence.from([
 			{
 				input: initialInput => initialInput.input,
