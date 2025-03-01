@@ -96,8 +96,7 @@ any necessary updates and then call place_order. Once place_order has returned, 
 say goodbye!`,
 			],
 			new MessagesPlaceholder('history'),
-			//['user', '{input}'],
-			['human',input,]
+			['user', '{input}'],
 		]);
 
 		// Define your tool
@@ -182,12 +181,30 @@ say goodbye!`,
 		// const modelWithTools = model.bind({
 		// 	tools: [new FakeBrowserTool()],
 		//   });
-		const res = await modelWithTools.invoke([
-			[
-				'human',
-				input,
-			],
+
+		const prompt = ChatPromptTemplate.fromMessages([
+			new MessagesPlaceholder('history'),
+			['user', '{input}'],
 		]);
+		const chain = RunnableSequence.from([
+			{
+				input: initialInput => initialInput.input,
+				memory: () => memory.loadMemoryVariables({}),
+			},
+			{
+				input: previousOutput => previousOutput.input,
+				history: previousOutput => previousOutput.memory.history,
+			},
+			prompt,
+			modelWithTools,
+			new StringOutputParser(),
+		]);
+
+		const res = await modelWithTools.invoke(chain);
+
+		// const res = await modelWithTools.invoke([
+		// 	['human',input,],
+		// ]);
 
 		return c.json(res);
 	})
