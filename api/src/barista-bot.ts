@@ -96,7 +96,8 @@ any necessary updates and then call place_order. Once place_order has returned, 
 say goodbye!`,
 			],
 			new MessagesPlaceholder('history'),
-			['user', '{input}'],
+			//['user', '{input}'],
+			['human',input,]
 		]);
 
 		// Define your tool
