@@ -132,7 +132,9 @@ say goodbye!`,
 			model: 'gemini-1.5-flash-latest',
 			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
 			temperature: 0,
-		}).bindTools([addToOrderTool]);
+		}).bindTools([fakeBrowserTool], {
+			tool_choice: "any",
+		});
 
 		const chain = RunnableSequence.from([
 			{
