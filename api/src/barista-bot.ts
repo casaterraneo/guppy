@@ -194,7 +194,7 @@ say goodbye!`,
 			database: db,
 		});
 
-		chatHistory.clear();
+		const res = await chatHistory.clear();
 
 		return;
 	});
