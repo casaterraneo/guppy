@@ -132,7 +132,7 @@ say goodbye!`,
 			model: 'gemini-1.5-flash-latest',
 			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
 			temperature: 0,
-		}).bindTools([fakeBrowserTool], {
+		}).bindTools([addToOrderTool], {
 			tool_choice: "any",
 		});
 
@@ -173,7 +173,7 @@ say goodbye!`,
 			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN
 		}).bindTools([fakeBrowserTool], {
 			tool_choice: "any",
-		  });
+		});
 
 		// const modelWithTools = model.bind({
 		// 	tools: [new FakeBrowserTool()],
