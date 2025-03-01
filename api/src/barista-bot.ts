@@ -164,6 +164,7 @@ say goodbye!`,
 		const input = messages[0];
 
 
+		//https://js.langchain.com/docs/how_to/tool_choice/
 		//model: "gemini-pro",
 		const modelWithTools = new ChatGoogleGenerativeAI({
 			model: "gemini-1.5-flash",
@@ -183,6 +184,19 @@ say goodbye!`,
 		]);
 
 		return c.json(res);
+	})
+	.post('clear-barista-bot', async c => {
+
+		const db = c.get('db');
+
+		const chatHistory = new CloudflareD1MessageHistory({
+			sessionId: 'barista-bot-session-id',
+			database: db,
+		});
+
+		chatHistory.clear();
+
+		return;
 	});
 
 export default app;
