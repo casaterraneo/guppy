@@ -184,7 +184,7 @@ say goodbye!`,
 
 		const prompt = ChatPromptTemplate.fromMessages([
 			new MessagesPlaceholder('history'),
-			['user', '{input}'],
+			['human',input,],
 		]);
 		const db = c.get('db');
 		const memory = new BufferMemory({
