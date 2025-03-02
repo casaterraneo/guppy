@@ -9,7 +9,7 @@ import users from './users';
 import googleAI from './google-ai';
 import workersAI from './workers-ai';
 import baristaBot from './barista-bot';
-import agent from './agent';
+import agent from './lang-agent';
 
 const JWKS = createRemoteJWKSet(
 	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
