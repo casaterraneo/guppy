@@ -33,10 +33,11 @@ const app = new Hono()
 
 		const input = messages[0];
 
+		//https://ai.google.dev/gemini-api/docs/models/gemini
 		//gemini-pro
 		//model: 'gemini-1.5-flash-latest',
 		const llm = new ChatGoogleGenerativeAI({
-			model: 'gemini-1.5-pro',
+			model: 'gemini-2.0-flash',
 			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
 			temperature: 0,
 		});
