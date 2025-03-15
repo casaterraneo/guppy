@@ -41,7 +41,7 @@ const app = new Hono()
 			tools: [search],
 		  });
 
-		  const result = await agent.invoke(
+		  const output = await agent.invoke(
 			{
 			  messages: [{
 				role: "user",
@@ -50,9 +50,10 @@ const app = new Hono()
 			}
 		  );
 
-		  console.log(result);
+		  console.log(output.messages);
 
-		  return c.json(result.content);
+		  //return c.json(result.content);
+		  return c.json(output.messages[output.messages.length - 1].content);
 	});
 
 export default app;
