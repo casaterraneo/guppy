@@ -53,7 +53,7 @@ const app = new Hono()
 		  console.log(output.messages);
 
 		  //return c.json(result.content);
-		  return c.json(output.messages[output.messages.length - 1].content);
+		  return c.json(output.messages.map(msg => msg.content));
 	});
 
 export default app;
