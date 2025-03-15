@@ -45,14 +45,14 @@ const app = new Hono()
 			{
 			  messages: [{
 				role: "user",
-				content: "what is the weather in sf"
+				content: input
 			  }]
 			}
 		  );
 
 		  console.log(result);
 
-		  return c.json(result);
+		  return c.json(result.content);
 	});
 
 export default app;
