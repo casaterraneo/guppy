@@ -54,7 +54,7 @@ const app = new Hono().post('run', async c => {
 	console.log(output1.messages);
 
 	const output2 = await agent.invoke(
-		{ messages: [{ role: 'user', content: "what about ny" }] },
+		{ messages: [{ role: 'user', content: "what is the current weather in my country" }] },
 		{ configurable: { thread_id: '42' } }
 	);
 
