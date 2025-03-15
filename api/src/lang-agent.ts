@@ -1,29 +1,23 @@
 import { Hono } from 'hono';
 
-import { tool } from "@langchain/core/tools";
-import { z } from "zod";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { tool } from "@langchain/core/tools";
 
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { AgentExecutor, createToolCallingAgent } from "langchain/agents";
+import { z } from "zod";
 
-import { ChatMessageHistory } from "@langchain/community/stores/message/in_memory";
-import { RunnableWithMessageHistory } from "@langchain/core/runnables";
-import { CloudflareD1MessageHistory } from '@langchain/cloudflare';
-import { BufferMemory } from 'langchain/memory';
-
-const magicTool = tool(
-	async ({ input }: { input: number }) => {
-	  return `${input + 2}`;
-	},
-	{
-	  name: "magic_function",
-	  description: "Applies a magic function to an input.",
-	  schema: z.object({
-		input: z.number(),
-	  }),
+const search = tool(async ({ query }) => {
+	if (query.toLowerCase().includes("sf") || query.toLowerCase().includes("san francisco")) {
+	  return "It's 60 degrees and foggy."
 	}
-  );
+	return "It's 90 degrees and sunny."
+  }, {
+	name: "search",
+	description: "Call to surf the web.",
+	schema: z.object({
+	  query: z.string().describe("The query to use in your search."),
+	}),
+  });
 
 const app = new Hono()
 	.post('run', async c => {
@@ -36,80 +30,29 @@ const app = new Hono()
 		//https://ai.google.dev/gemini-api/docs/models/gemini
 		//gemini-pro
 		//model: 'gemini-1.5-flash-latest',
-		const llm = new ChatGoogleGenerativeAI({
+		const model = new ChatGoogleGenerativeAI({
 			model: 'gemini-2.0-flash',
 			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
 			temperature: 0,
 		});
 
-		const tools = [magicTool];
-
-		const prompt = ChatPromptTemplate.fromMessages([
-			["system", "You are a helpful assistant"],
-			["placeholder", "{chat_history}"],
-			["human", "{input}"],
-			["placeholder", "{agent_scratchpad}"],
-		  ]);
-
-		  const agent = createToolCallingAgent({
-			llm,
-			tools,
-			prompt,
+		const agent = createReactAgent({
+			llm: model,
+			tools: [search],
 		  });
 
-		  const agentExecutor = new AgentExecutor({
-			agent,
-			tools,
-		  });
-
-		  const output = await agentExecutor.invoke({ input: input });
-
-		  console.log(output);
-
-		  return c.json(output);
-
-		// const db = c.get('db');
-		// const memory = new CloudflareD1MessageHistory({
-		// 	sessionId: 'agent-session-id',
-		// 	database: db,
-		// });
-		const memory = new ChatMessageHistory();
-
-		const agentExecutorWithMemory = new RunnableWithMessageHistory({
-			runnable: agentExecutor,
-			getMessageHistory: () => memory,
-			inputMessagesKey: "input",
-			historyMessagesKey: "chat_history",
-		  });
-
-		  const config = { configurable: { sessionId: "test-session" } };
-
-		 let agentOutput = await agentExecutorWithMemory.invoke(
-			{ input: "Hi, I'm polly! What's the output of magic_function of 3?" },
-			config
+		  const result = await agent.invoke(
+			{
+			  messages: [{
+				role: "user",
+				content: "what is the weather in sf"
+			  }]
+			}
 		  );
 
-		  console.log(agentOutput.output);
+		  console.log(result);
 
-		  agentOutput = await agentExecutorWithMemory.invoke(
-			{ input: "Remember my name?" },
-			config
-		  );
-
-		  console.log(agentOutput.output);
-
-		  agentOutput = await agentExecutorWithMemory.invoke(
-			{ input: "what was that output again?" },
-			config
-		  );
-
-		  console.log(agentOutput.output);
-
-		// await memory.saveContext(chainInput, {
-		// 	output: agentOutput.output,
-		// });
-
-		return c.json(agentOutput.output);
+		  return c.json(result);
 	});
 
 export default app;
