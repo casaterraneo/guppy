@@ -134,11 +134,13 @@ const app = new Hono()
 			streamMode: 'values',
 		});
 
+		let content = ''
 		for await (const chunk of newStream) {
 			console.log('='.repeat(30), `${chunk.getType()} message`, '='.repeat(30));
 			console.log(chunk.content);
+			content = chunk.content;
 		}
 
-		return c.json(chunk.content);
+		return c.json(content);
 	});
 export default app;
