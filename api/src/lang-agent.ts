@@ -10,6 +10,8 @@ import { z } from 'zod';
 import type { BaseMessage, BaseMessageLike } from '@langchain/core/messages';
 import { addMessages, entrypoint, task, getPreviousState } from '@langchain/langgraph';
 
+import { D1Checkpointer } from './D1Checkpointer';
+
 const search = tool(
 	async ({ query }) => {
 		if (query.toLowerCase().includes('sf') || query.toLowerCase().includes('san francisco')) {
@@ -43,6 +45,7 @@ const app = new Hono()
 		});
 
 		const agentCheckpointer = new MemorySaver();
+		const d1Checkpointer = new D1Checkpointer();
 
 		const agent = createReactAgent({
 			llm: model,
