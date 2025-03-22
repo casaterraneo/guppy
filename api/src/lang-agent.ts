@@ -44,8 +44,7 @@ const app = new Hono()
 			temperature: 0,
 		});
 
-		//const agentCheckpointer = new MemorySaver();
-		const agentCheckpointer = new D1Checkpointer();
+		const agentCheckpointer = new MemorySaver();
 
 		const agent = createReactAgent({
 			llm: model,
@@ -89,7 +88,8 @@ const app = new Hono()
 			return response;
 		});
 
-		const checkpointer = new MemorySaver();
+		//const checkpointer = new MemorySaver();
+		const checkpointer = new D1Checkpointer();
 
 		const workflow = entrypoint(
 			{
@@ -125,9 +125,11 @@ const app = new Hono()
 			config
 		);
 
+		let content = ''
 		for await (const chunk of followupStream) {
 			console.log('='.repeat(30), `${chunk.getType()} message`, '='.repeat(30));
 			console.log(chunk.content);
+			content = chunk.content;
 		}
 
 		const newStream = await workflow.stream([{ role: 'user', content: "what's my name?" }], {
@@ -137,11 +139,9 @@ const app = new Hono()
 			streamMode: 'values',
 		});
 
-		let content = ''
 		for await (const chunk of newStream) {
 			console.log('='.repeat(30), `${chunk.getType()} message`, '='.repeat(30));
 			console.log(chunk.content);
-			content = chunk.content;
 		}
 
 		return c.json(content);
