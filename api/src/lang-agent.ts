@@ -44,8 +44,8 @@ const app = new Hono()
 			temperature: 0,
 		});
 
-		const agentCheckpointer = new MemorySaver();
-		const d1Checkpointer = new D1Checkpointer();
+		//const agentCheckpointer = new MemorySaver();
+		const agentCheckpointer = new D1Checkpointer();
 
 		const agent = createReactAgent({
 			llm: model,
