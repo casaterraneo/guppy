@@ -28,6 +28,20 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		metadata: CheckpointMetadata
 	): Promise<RunnableConfig> {
 		console.log(`D1Checkpointer put`);
+
+		await this.db.exec(`
+			CREATE TABLE IF NOT EXISTS checkpoints (
+			  thread_id TEXT NOT NULL,
+			  checkpoint_ns TEXT NOT NULL DEFAULT '',
+			  checkpoint_id TEXT NOT NULL,
+			  parent_checkpoint_id TEXT,
+			  type TEXT,
+			  checkpoint BLOB,
+			  metadata BLOB,
+			  PRIMARY KEY (thread_id, checkpoint_ns, checkpoint_id)
+			);
+		  `);
+
 		return this.memorySaver.put(config, checkpoint, metadata);
 	}
 
