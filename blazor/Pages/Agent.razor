@@ -12,7 +12,8 @@
         <label for="userInput">Inserisci il tuo messaggio:</label>
         <textarea class="form-control" id="userInput" @bind="UserInput" placeholder="Scrivi qualcosa..." rows="4"></textarea>
     </div>
-    <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("run")'>Agent</button>
+    <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("run-agent")'>Agent</button>
+    <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("run-functional")'>Agent</button>
 </form>
 
 
