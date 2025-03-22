@@ -89,7 +89,8 @@ const app = new Hono()
 		});
 
 		//const checkpointer = new MemorySaver();
-		const checkpointer = new D1Checkpointer();
+		const db = c.get('db');
+		const checkpointer = new D1Checkpointer(db);
 
 		const workflow = entrypoint(
 			{

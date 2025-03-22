@@ -1,13 +1,15 @@
 import { BaseCheckpointSaver } from '@langchain/langgraph-checkpoint';
 import { MemorySaver } from '@langchain/langgraph';
+import type { D1Database } from "@cloudflare/workers-types";
 
 export class D1Checkpointer extends BaseCheckpointSaver  {
 	private memorySaver: MemorySaver;
+	private db: D1Database;
 
-	constructor() {
-	  super();
-	  this.memorySaver = new MemorySaver();
-	}
+	constructor(db: D1Database) {
+		super();
+		this.db = db;
+	  }
 
 	async put(threadId: string, threadTs: number, data: any): Promise<void> {
 	  return this.memorySaver.put(threadId, threadTs, data);
