@@ -41,7 +41,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 
 		const thread_id = config.configurable?.thread_id;
 		const checkpoint_ns = config.configurable?.checkpoint_ns ?? '';
-		const parent_checkpoint_id = config.configurable?.checkpoint_id;
+		const parent_checkpoint_id = config.configurable?.checkpoint_id ?? '';
 
 		if (!thread_id) {
 			throw new Error(`Missing "thread_id" field in passed "config.configurable".`);
@@ -57,6 +57,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 			thread_id,
 			checkpoint_ns,
 			checkpoint.id,
+			parent_checkpoint_id,
 			type1,
 			serializedCheckpoint,
 			serializedMetadata,
@@ -72,17 +73,9 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 
 		await this.db
 			.prepare(
-				`INSERT OR REPLACE INTO checkpoints (thread_id, checkpoint_ns, checkpoint_id, type, checkpoint, metadata) VALUES (?, ?, ?, ?, ?, ?)`
+				`INSERT OR REPLACE INTO checkpoints (thread_id, checkpoint_ns, checkpoint_id, parent_checkpoint_id, type, checkpoint, metadata) VALUES (?, ?, ?, ?, ?, ?, ?)`
 			)
 			.bind(...row)
-			// .bind(
-			// 	config.configurable?.thread_id,
-			// 	config.configurable?.checkpoint_ns || '',
-			// 	checkpoint.id,
-			// 	type1,
-			// 	serializedCheckpoint,
-			// 	serializedMetadata
-			// )
 			.run();
 
 		return this.memorySaver.put(config, checkpoint, metadata);
