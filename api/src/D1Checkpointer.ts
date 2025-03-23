@@ -73,13 +73,14 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 
 		await this.db
 			.prepare(
-				`INSERT OR REPLACE INTO checkpoints (thread_id, checkpoint_ns, checkpoint_id, checkpoint, metadata) VALUES (?, ?, ?, ?, ?)`
+				`INSERT OR REPLACE INTO checkpoints (thread_id, checkpoint_ns, checkpoint_id, parent_checkpoint_id, checkpoint, metadata) VALUES (?, ?, ?, ?, ?, ?)`
 			)
 			//.bind(...row)
 			.bind(
 				config.configurable?.thread_id,
 				config.configurable?.checkpoint_ns || '',
 				checkpoint.id,
+				config.configurable?.checkpoint_id,
 				serializedCheckpoint,
 				serializedMetadata
 			)
