@@ -7,6 +7,7 @@ import {
 	type CheckpointTuple,
 	type SerializerProtocol,
 	type CheckpointMetadata,
+	copyCheckpoint,
 } from '@langchain/langgraph-checkpoint';
 
 export class D1Checkpointer extends BaseCheckpointSaver {
