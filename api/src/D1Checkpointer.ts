@@ -7,6 +7,7 @@ import {
 	type CheckpointTuple,
 	type SerializerProtocol,
 	type CheckpointMetadata,
+	TASKS,
 	copyCheckpoint,
 } from '@langchain/langgraph-checkpoint';
 
@@ -105,24 +106,54 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		await this.setup();
 		const { thread_id, checkpoint_ns = '', checkpoint_id } = config.configurable ?? {};
 
+		const sql = `
+		SELECT
+		  thread_id,
+		  checkpoint_ns,
+		  checkpoint_id,
+		  parent_checkpoint_id,
+		  type,
+		  checkpoint,
+		  metadata,
+		  (
+			SELECT
+			  json_group_array(
+				json_object(
+				  'task_id', pw.task_id,
+				  'channel', pw.channel,
+				  'type', pw.type,
+				  'value', CAST(pw.value AS TEXT)
+				)
+			  )
+			FROM writes as pw
+			WHERE pw.thread_id = checkpoints.thread_id
+			  AND pw.checkpoint_ns = checkpoints.checkpoint_ns
+			  AND pw.checkpoint_id = checkpoints.checkpoint_id
+		  ) as pending_writes,
+		  (
+			SELECT
+			  json_group_array(
+				json_object(
+				  'type', ps.type,
+				  'value', CAST(ps.value AS TEXT)
+				)
+			  )
+			FROM writes as ps
+			WHERE ps.thread_id = checkpoints.thread_id
+			  AND ps.checkpoint_ns = checkpoints.checkpoint_ns
+			  AND ps.checkpoint_id = checkpoints.parent_checkpoint_id
+			  AND ps.channel = '${TASKS}'
+			ORDER BY ps.idx
+		  ) as pending_sends
+		FROM checkpoints
+		WHERE thread_id = ? AND checkpoint_ns = ? ${
+			checkpoint_id ? 'AND checkpoint_id = ?' : 'ORDER BY checkpoint_id DESC LIMIT 1'
+		}`;
+
 		const args = [thread_id, checkpoint_ns];
 		if (checkpoint_id) {
 			args.push(checkpoint_id);
 		}
-
-		const sql = `
-			SELECT
-				thread_id,
-				checkpoint_ns,
-				checkpoint_id,
-				parent_checkpoint_id,
-				type,
-				checkpoint,
-				metadata
-			FROM checkpoints
-			WHERE thread_id = ? AND checkpoint_ns = ? ${
-				checkpoint_id ? 'AND checkpoint_id = ?' : 'ORDER BY checkpoint_id DESC LIMIT 1'
-			}`;
 
 		const checkpointResult = await this.db
 			.prepare(sql)
