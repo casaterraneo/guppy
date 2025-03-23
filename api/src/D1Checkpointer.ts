@@ -13,17 +13,28 @@ import {
 export class D1Checkpointer extends BaseCheckpointSaver {
 	private memorySaver: MemorySaver;
 	private db: D1Database;
+	protected isSetup: boolean;
 
 	constructor(db: D1Database, serde?: SerializerProtocol) {
 		super(serde);
 		this.db = db;
+		this.isSetup = false;
 		this.memorySaver = new MemorySaver();
 	}
 
-	// async put(threadId: string, threadTs: number, data: any): Promise<void> {
-	// 	console.log(`D1Checkpointer put ${threadId}`);
-	// 	return this.memorySaver.put(threadId, threadTs, data);
-	// }
+	protected async setup(): Promise<void> {
+		if (this.isSetup) {
+			return;
+		}
+
+		await this.db.exec(
+			`CREATE TABLE IF NOT EXISTS checkpoints (thread_id TEXT NOT NULL, checkpoint_ns TEXT NOT NULL DEFAULT '', checkpoint_id TEXT NOT NULL, parent_checkpoint_id TEXT, type TEXT, checkpoint BLOB, metadata BLOB, PRIMARY KEY (thread_id, checkpoint_ns, checkpoint_id));`
+		);
+		await this.db.exec(
+			`CREATE TABLE IF NOT EXISTS writes (thread_id TEXT NOT NULL,	checkpoint_ns TEXT NOT NULL DEFAULT '',	checkpoint_id TEXT NOT NULL, task_id TEXT NOT NULL,	idx INTEGER NOT NULL, channel TEXT NOT NULL, type TEXT,	value BLOB, PRIMARY KEY (thread_id, checkpoint_ns, checkpoint_id, task_id, idx));`
+		);
+		this.isSetup = true;
+	}
 
 	async put(
 		config: RunnableConfig,
@@ -32,9 +43,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 	): Promise<RunnableConfig> {
 		console.log(`D1Checkpointer put`);
 
-		await this.db.exec(
-			`CREATE TABLE IF NOT EXISTS checkpoints (thread_id TEXT NOT NULL, checkpoint_ns TEXT NOT NULL DEFAULT '', checkpoint_id TEXT NOT NULL, parent_checkpoint_id TEXT, type TEXT, checkpoint BLOB, metadata BLOB, PRIMARY KEY (thread_id, checkpoint_ns, checkpoint_id));`
-		);
+		await this.setup();
 
 		if (!config.configurable) {
 			throw new Error('Empty configuration supplied.');
@@ -92,6 +101,15 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 
 	async getTuple(config: RunnableConfig): Promise<CheckpointTuple | undefined> {
 		console.log(`D1Checkpointer getTuple`);
+
+		await this.setup();
+		const {
+		  thread_id,
+		  checkpoint_ns = "",
+		  checkpoint_id,
+		} = config.configurable ?? {};
+
+
 		return this.memorySaver.getTuple(config);
 	}
 
