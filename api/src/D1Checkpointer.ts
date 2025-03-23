@@ -47,8 +47,11 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 			throw new Error(`Missing "thread_id" field in passed "config.configurable".`);
 		}
 
-		const [type1, serializedCheckpoint] = this.serde.dumpsTyped(checkpoint);
+		const preparedCheckpoint: Partial<Checkpoint> = copyCheckpoint(checkpoint);
+		delete preparedCheckpoint.pending_sends;
+		const [type1, serializedCheckpoint] = this.serde.dumpsTyped(preparedCheckpoint);
 		const [type2, serializedMetadata] = this.serde.dumpsTyped(metadata);
+
 		if (type1 !== type2) {
 			throw new Error('Failed to serialized checkpoint and metadata to the same type.');
 		}
@@ -70,7 +73,15 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 			.bind(...row)
 			.run();
 
-		return this.memorySaver.put(config, checkpoint, metadata);
+		this.memorySaver.put(config, checkpoint, metadata);
+
+		return {
+			configurable: {
+				thread_id,
+				checkpoint_ns,
+				checkpoint_id: checkpoint.id,
+			},
+		};
 	}
 
 	async putWrites(threadId: string, threadTs: number, writes: any[]): Promise<void> {
