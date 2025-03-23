@@ -109,6 +109,25 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		  checkpoint_id,
 		} = config.configurable ?? {};
 
+		const checkpointResult = await this.db
+		.prepare(
+		  `
+			SELECT
+			  thread_id,
+			  checkpoint_ns,
+			  checkpoint_id,
+			  parent_checkpoint_id,
+			  type,
+			  checkpoint,
+			  metadata
+			FROM checkpoints
+			WHERE thread_id = ?
+			  AND checkpoint_ns = ?
+			  ${checkpoint_id ? "AND checkpoint_id = ?" : "ORDER BY checkpoint_id DESC LIMIT 1"}
+		  `
+		)
+		.bind(thread_id, checkpoint_ns, checkpoint_id)
+		.first();
 
 		return this.memorySaver.getTuple(config);
 	}
