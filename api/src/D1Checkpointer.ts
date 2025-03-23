@@ -5,6 +5,7 @@ import {
 	BaseCheckpointSaver,
 	type Checkpoint,
 	type CheckpointTuple,
+	type SerializerProtocol,
 	type CheckpointMetadata,
 } from '@langchain/langgraph-checkpoint';
 
@@ -12,8 +13,8 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 	private memorySaver: MemorySaver;
 	private db: D1Database;
 
-	constructor(db: D1Database) {
-		super();
+	constructor(db: D1Database, serde?: SerializerProtocol) {
+		super(serde);
 		this.db = db;
 		this.memorySaver = new MemorySaver();
 	}
@@ -46,9 +47,11 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 			throw new Error(`Missing "thread_id" field in passed "config.configurable".`);
 		}
 
-		var type1 = '';
-		var serializedCheckpoint = '';
-		var serializedMetadata = '';
+		const [type1, serializedCheckpoint] = this.serde.dumpsTyped(checkpoint);
+		const [type2, serializedMetadata] = this.serde.dumpsTyped(metadata);
+		if (type1 !== type2) {
+			throw new Error('Failed to serialized checkpoint and metadata to the same type.');
+		}
 
 		const row = [
 			thread_id,
