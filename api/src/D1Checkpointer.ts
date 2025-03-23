@@ -63,14 +63,6 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 			serializedMetadata,
 		];
 
-		console.log("thread_id:", thread_id);
-		console.log("checkpoint_ns:", checkpoint_ns);
-		console.log("checkpoint.id:", checkpoint.id);
-		console.log("parent_checkpoint_id:", parent_checkpoint_id);
-		console.log("type1:", type1);
-		console.log("serializedCheckpoint:", serializedCheckpoint);
-		console.log("serializedMetadata:", serializedMetadata);
-
 		await this.db
 			.prepare(
 				`INSERT OR REPLACE INTO checkpoints (thread_id, checkpoint_ns, checkpoint_id, parent_checkpoint_id, type, checkpoint, metadata) VALUES (?, ?, ?, ?, ?, ?, ?)`
