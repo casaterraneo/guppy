@@ -57,7 +57,6 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 			thread_id,
 			checkpoint_ns,
 			checkpoint.id,
-			parent_checkpoint_id,
 			type1,
 			serializedCheckpoint,
 			serializedMetadata,
@@ -75,15 +74,15 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 			.prepare(
 				`INSERT OR REPLACE INTO checkpoints (thread_id, checkpoint_ns, checkpoint_id, type, checkpoint, metadata) VALUES (?, ?, ?, ?, ?, ?)`
 			)
-			//.bind(...row)
-			.bind(
-				config.configurable?.thread_id,
-				config.configurable?.checkpoint_ns || '',
-				checkpoint.id,
-				type1,
-				serializedCheckpoint,
-				serializedMetadata
-			)
+			.bind(...row)
+			// .bind(
+			// 	config.configurable?.thread_id,
+			// 	config.configurable?.checkpoint_ns || '',
+			// 	checkpoint.id,
+			// 	type1,
+			// 	serializedCheckpoint,
+			// 	serializedMetadata
+			// )
 			.run();
 
 		return this.memorySaver.put(config, checkpoint, metadata);
