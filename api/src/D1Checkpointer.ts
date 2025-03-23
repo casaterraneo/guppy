@@ -41,7 +41,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		// 	  PRIMARY KEY (thread_id, checkpoint_ns, checkpoint_id)
 		// 	);
 		//   `);
-		await this.db.exec(`CREATE TABLE IF NOT EXISTS checkpoints (thread_id TEXT NOT NULL);`);
+		await this.db.exec(`CREATE TABLE IF NOT EXISTS checkpoints (thread_id TEXT NOT NULL, checkpoint_ns TEXT NOT NULL DEFAULT '');`);
 
 		return this.memorySaver.put(config, checkpoint, metadata);
 	}
