@@ -103,31 +103,31 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		console.log(`D1Checkpointer getTuple`);
 
 		await this.setup();
-		const {
-		  thread_id,
-		  checkpoint_ns = "",
-		  checkpoint_id,
-		} = config.configurable ?? {};
+		const { thread_id, checkpoint_ns = '', checkpoint_id } = config.configurable ?? {};
+
+		const args = [thread_id, checkpoint_ns];
+		if (checkpoint_id) {
+			args.push(checkpoint_id);
+		}
+
+		const sql = `
+			SELECT
+				thread_id,
+				checkpoint_ns,
+				checkpoint_id,
+				parent_checkpoint_id,
+				type,
+				checkpoint,
+				metadata
+			FROM checkpoints
+			WHERE thread_id = ? AND checkpoint_ns = ? ${
+				checkpoint_id ? 'AND checkpoint_id = ?' : 'ORDER BY checkpoint_id DESC LIMIT 1'
+			}`;
 
 		const checkpointResult = await this.db
-		.prepare(
-		  `
-			SELECT
-			  thread_id,
-			  checkpoint_ns,
-			  checkpoint_id,
-			  parent_checkpoint_id,
-			  type,
-			  checkpoint,
-			  metadata
-			FROM checkpoints
-			WHERE thread_id = ?
-			  AND checkpoint_ns = ?
-			  ${checkpoint_id ? "AND checkpoint_id = ?" : "ORDER BY checkpoint_id DESC LIMIT 1"}
-		  `
-		)
-		.bind(thread_id, checkpoint_ns, checkpoint_id)
-		.first();
+			.prepare(sql)
+			.bind(...args)
+			.first();
 
 		return this.memorySaver.getTuple(config);
 	}
