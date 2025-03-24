@@ -223,6 +223,8 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 
 		if (!row) return undefined;
 
+		console.log(`D1Checkpointer row`);
+
 		let finalConfig = config;
 		if (!checkpoint_id) {
 			finalConfig = {
@@ -239,6 +241,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		) {
 			throw new Error('Missing thread_id or checkpoint_id');
 		}
+		console.log(`D1Checkpointer finalConfig`);
 
 		const pendingWrites = await Promise.all(
 			(JSON.parse(row.pending_writes) as PendingWriteColumn[]).map(async write => {
@@ -249,17 +252,20 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 				] as [string, string, unknown];
 			})
 		);
+		console.log(`D1Checkpointer pendingWrites`);
 
 		const pending_sends = await Promise.all(
 			(JSON.parse(row.pending_sends) as PendingSendColumn[]).map(send =>
 				this.serde.loadsTyped(send.type ?? 'json', send.value ?? '')
 			)
 		);
+		console.log(`D1Checkpointer pending_sends`);
 
 		const checkpoint = {
 			...(await this.serde.loadsTyped(row.type ?? 'json', row.checkpoint)),
 			pending_sends,
 		} as Checkpoint;
+		console.log(`D1Checkpointer checkpoint`);
 
 		//this.memorySaver.getTuple(config);
 
