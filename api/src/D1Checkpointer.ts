@@ -110,7 +110,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 			.bind(...row)
 			.run();
 
-		this.memorySaver.put(config, checkpoint, metadata);
+		//this.memorySaver.put(config, checkpoint, metadata);
 
 		return {
 			configurable: {
@@ -261,7 +261,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 			pending_sends,
 		} as Checkpoint;
 
-		this.memorySaver.getTuple(config);
+		//this.memorySaver.getTuple(config);
 
 		return {
 			checkpoint,
