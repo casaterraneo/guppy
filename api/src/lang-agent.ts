@@ -123,17 +123,17 @@ const app = new Hono()
 			content = chunk.content;
 		}
 
-		// const followupStream = await workflow.stream(
-		// 	[{ role: 'user', content: "what's my name?" }],
-		// 	config
-		// );
+		const followupStream = await workflow.stream(
+			[{ role: 'user', content: "what's my name?" }],
+			config
+		);
 
 
-		// for await (const chunk of followupStream) {
-		// 	console.log('='.repeat(30), `${chunk.getType()} message`, '='.repeat(30));
-		// 	console.log(chunk.content);
-		// 	content = chunk.content;
-		// }
+		for await (const chunk of followupStream) {
+			console.log('='.repeat(30), `${chunk.getType()} message`, '='.repeat(30));
+			console.log(chunk.content);
+			content = chunk.content;
+		}
 
 		// const config2 = {
 		// 	configurable: { thread_id: '2' },

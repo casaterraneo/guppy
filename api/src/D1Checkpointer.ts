@@ -11,7 +11,7 @@ import {
 	type CheckpointMetadata,
 	TASKS,
 	copyCheckpoint,
-  } from "@langchain/langgraph-checkpoint";
+} from '@langchain/langgraph-checkpoint';
 
 interface CheckpointRow {
 	checkpoint: string;
@@ -58,7 +58,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 			`CREATE TABLE IF NOT EXISTS checkpoints (thread_id TEXT NOT NULL, checkpoint_ns TEXT NOT NULL DEFAULT '', checkpoint_id TEXT NOT NULL, parent_checkpoint_id TEXT, type TEXT, checkpoint BLOB, metadata BLOB, PRIMARY KEY (thread_id, checkpoint_ns, checkpoint_id));`
 		);
 		await this.db.exec(
-			`CREATE TABLE IF NOT EXISTS writes (thread_id TEXT NOT NULL,	checkpoint_ns TEXT NOT NULL DEFAULT '',	checkpoint_id TEXT NOT NULL, task_id TEXT NOT NULL,	idx INTEGER NOT NULL, channel TEXT NOT NULL, type TEXT,	value BLOB, PRIMARY KEY (thread_id, checkpoint_ns, checkpoint_id, task_id, idx));`
+			`CREATE TABLE IF NOT EXISTS writes (thread_id TEXT NOT NULL, checkpoint_ns TEXT NOT NULL DEFAULT '', checkpoint_id TEXT NOT NULL, task_id TEXT NOT NULL, idx INTEGER NOT NULL, channel TEXT NOT NULL, type TEXT, value BLOB, PRIMARY KEY (thread_id, checkpoint_ns, checkpoint_id, task_id, idx));`
 		);
 		this.isSetup = true;
 	}
@@ -121,44 +121,43 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		};
 	}
 
-	async putWrites(
-		config: RunnableConfig,
-		writes: PendingWrite[],
-		taskId: string
-	  ): Promise<void> {
+	async putWrites(config: RunnableConfig, writes: PendingWrite[], taskId: string): Promise<void> {
 		this.setup();
 		console.log(`D1Checkpointer putWrites`);
 
+		return this.memorySaver.putWrites(config, writes, taskId);
+
 		if (!config.configurable) {
-			throw new Error("Empty configuration supplied.");
-		  }
+			throw new Error('Empty configuration supplied.');
+		}
 
-		  if (!config.configurable?.thread_id) {
-			throw new Error("Missing thread_id field in config.configurable.");
-		  }
+		if (!config.configurable?.thread_id) {
+			throw new Error('Missing thread_id field in config.configurable.');
+		}
 
-		  if (!config.configurable?.checkpoint_id) {
-			throw new Error("Missing checkpoint_id field in config.configurable.");
-		  }
-
-		//this.memorySaver.putWrites(config, writes, taskId);
+		if (!config.configurable?.checkpoint_id) {
+			throw new Error('Missing checkpoint_id field in config.configurable.');
+		}
 
 		const statements = writes.map((write, idx) => {
-			const [type, serialized] = this.serde.dumpsTyped(write[1]);
-			return this.db.prepare(`INSERT OR REPLACE INTO writes (thread_id, checkpoint_ns, checkpoint_id, task_id, idx, channel, type, value) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
-			.bind(
-			  config.configurable?.thread_id,
-			  config.configurable?.checkpoint_ns || "",
-			  config.configurable?.checkpoint_id || "",
-			  taskId,
-			  idx,
-			  write[0],
-			  type,
-			  serialized
-			);
-		  });
+			const [type, serializedWrite] = this.serde.dumpsTyped(write[1]);
+			return this.db
+				.prepare(
+					`INSERT OR REPLACE INTO writes (thread_id, checkpoint_ns, checkpoint_id, task_id, idx, channel, type, value) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+				)
+				.bind(
+					config.configurable?.thread_id,
+					config.configurable?.checkpoint_ns || '',
+					config.configurable?.checkpoint_id || '',
+					taskId,
+					idx,
+					write[0],
+					type,
+					serializedWrite
+				);
+		});
 
-		  await this.db.batch(statements);
+		await this.db.batch(statements);
 	}
 
 	async getTuple(config: RunnableConfig): Promise<CheckpointTuple | undefined> {
