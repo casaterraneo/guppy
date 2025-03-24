@@ -260,6 +260,9 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		);
 		console.log(`D1Checkpointer pending_sends`);
 
+		console.log('Tipo di row.checkpoint:', typeof row.checkpoint);
+		console.log('Valore di row.checkpoint:', row.checkpoint);
+
 		const checkpoint = {
 			...(await this.serde.loadsTyped(row.type ?? 'json', row.checkpoint)),
 			pending_sends,
