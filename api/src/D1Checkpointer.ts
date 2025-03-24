@@ -4,12 +4,14 @@ import type { RunnableConfig } from '@langchain/core/runnables';
 import {
 	BaseCheckpointSaver,
 	type Checkpoint,
+	type CheckpointListOptions,
 	type CheckpointTuple,
 	type SerializerProtocol,
+	type PendingWrite,
 	type CheckpointMetadata,
 	TASKS,
 	copyCheckpoint,
-} from '@langchain/langgraph-checkpoint';
+  } from "@langchain/langgraph-checkpoint";
 
 interface CheckpointRow {
 	checkpoint: string;
@@ -119,9 +121,15 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		};
 	}
 
-	async putWrites(threadId: string, threadTs: number, writes: any[]): Promise<void> {
-		console.log(`D1Checkpointer putWrites ${threadId}`);
-		return this.memorySaver.putWrites(threadId, threadTs, writes);
+	async putWrites(
+		config: RunnableConfig,
+		writes: PendingWrite[],
+		taskId: string
+	  ): Promise<void> {
+		this.setup();
+
+		console.log(`D1Checkpointer putWrites`);
+		return this.memorySaver.putWrites(config, writes, taskId);
 	}
 
 	async getTuple(config: RunnableConfig): Promise<CheckpointTuple | undefined> {

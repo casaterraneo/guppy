@@ -126,19 +126,22 @@ const app = new Hono()
 			config
 		);
 
-		let content = ''
+		let content = '';
 		for await (const chunk of followupStream) {
 			console.log('='.repeat(30), `${chunk.getType()} message`, '='.repeat(30));
 			console.log(chunk.content);
 			content = chunk.content;
 		}
 
-		const newStream = await workflow.stream([{ role: 'user', content: "what's my name?" }], {
-			configurable: {
-				thread_id: '2',
-			},
-			streamMode: 'values',
-		});
+		const config2 = {
+			configurable: { thread_id: '2' },
+			streamMode: 'values' as const,
+		};
+
+		const newStream = await workflow.stream(
+			[{ role: 'user', content: "what's my name?" }],
+			config2
+		);
 
 		for await (const chunk of newStream) {
 			console.log('='.repeat(30), `${chunk.getType()} message`, '='.repeat(30));
