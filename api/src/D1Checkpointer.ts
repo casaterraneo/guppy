@@ -127,9 +127,38 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		taskId: string
 	  ): Promise<void> {
 		this.setup();
-
 		console.log(`D1Checkpointer putWrites`);
-		return this.memorySaver.putWrites(config, writes, taskId);
+
+		if (!config.configurable) {
+			throw new Error("Empty configuration supplied.");
+		  }
+
+		  if (!config.configurable?.thread_id) {
+			throw new Error("Missing thread_id field in config.configurable.");
+		  }
+
+		  if (!config.configurable?.checkpoint_id) {
+			throw new Error("Missing checkpoint_id field in config.configurable.");
+		  }
+
+		//this.memorySaver.putWrites(config, writes, taskId);
+
+		const statements = writes.map((write, idx) => {
+			const [type, serialized] = this.serde.dumpsTyped(write[1]);
+			return this.db.prepare(`INSERT OR REPLACE INTO writes (thread_id, checkpoint_ns, checkpoint_id, task_id, idx, channel, type, value) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+			.bind(
+			  config.configurable?.thread_id,
+			  config.configurable?.checkpoint_ns || "",
+			  config.configurable?.checkpoint_id || "",
+			  taskId,
+			  idx,
+			  write[0],
+			  type,
+			  serialized
+			);
+		  });
+
+		  await this.db.batch(statements);
 	}
 
 	async getTuple(config: RunnableConfig): Promise<CheckpointTuple | undefined> {
