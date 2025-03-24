@@ -116,17 +116,19 @@ const app = new Hono()
 
 		const stream = await workflow.stream([inputMessage], config);
 
+		let content = '';
 		for await (const chunk of stream) {
 			console.log('='.repeat(30), `${chunk.getType()} message`, '='.repeat(30));
 			console.log(chunk.content);
+			content = chunk.content;
 		}
 
-		const followupStream = await workflow.stream(
-			[{ role: 'user', content: "what's my name?" }],
-			config
-		);
+		// const followupStream = await workflow.stream(
+		// 	[{ role: 'user', content: "what's my name?" }],
+		// 	config
+		// );
 
-		let content = '';
+
 		// for await (const chunk of followupStream) {
 		// 	console.log('='.repeat(30), `${chunk.getType()} message`, '='.repeat(30));
 		// 	console.log(chunk.content);
