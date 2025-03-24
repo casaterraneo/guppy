@@ -277,6 +277,10 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 
 		//this.memorySaver.getTuple(config);
 
+		if (Array.isArray(row.metadata)) {
+			row.metadata = new Uint8Array(row.metadata);
+		}
+
 		return {
 			checkpoint,
 			config: finalConfig,
