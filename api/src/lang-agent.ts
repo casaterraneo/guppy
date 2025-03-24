@@ -133,20 +133,20 @@ const app = new Hono()
 			content = chunk.content;
 		}
 
-		const config2 = {
-			configurable: { thread_id: '2' },
-			streamMode: 'values' as const,
-		};
+		// const config2 = {
+		// 	configurable: { thread_id: '2' },
+		// 	streamMode: 'values' as const,
+		// };
 
-		const newStream = await workflow.stream(
-			[{ role: 'user', content: "what's my name?" }],
-			config2
-		);
+		// const newStream = await workflow.stream(
+		// 	[{ role: 'user', content: "what's my name?" }],
+		// 	config2
+		// );
 
-		for await (const chunk of newStream) {
-			console.log('='.repeat(30), `${chunk.getType()} message`, '='.repeat(30));
-			console.log(chunk.content);
-		}
+		// for await (const chunk of newStream) {
+		// 	console.log('='.repeat(30), `${chunk.getType()} message`, '='.repeat(30));
+		// 	console.log(chunk.content);
+		// }
 
 		return c.json(content);
 	});
