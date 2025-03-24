@@ -125,8 +125,6 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		this.setup();
 		console.log(`D1Checkpointer putWrites`);
 
-		return this.memorySaver.putWrites(config, writes, taskId);
-
 		if (!config.configurable) {
 			throw new Error('Empty configuration supplied.');
 		}
