@@ -11,6 +11,30 @@ import {
 	copyCheckpoint,
 } from '@langchain/langgraph-checkpoint';
 
+interface CheckpointRow {
+	checkpoint: string;
+	metadata: string;
+	parent_checkpoint_id?: string;
+	thread_id: string;
+	checkpoint_id: string;
+	checkpoint_ns?: string;
+	type?: string;
+	pending_writes: string;
+	pending_sends: string;
+}
+
+interface PendingWriteColumn {
+	task_id: string;
+	channel: string;
+	type: string;
+	value: string;
+}
+
+interface PendingSendColumn {
+	type: string;
+	value: string;
+}
+
 export class D1Checkpointer extends BaseCheckpointSaver {
 	private memorySaver: MemorySaver;
 	private db: D1Database;
@@ -179,6 +203,22 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		) {
 			throw new Error('Missing thread_id or checkpoint_id');
 		}
+
+		const pendingWrites = await Promise.all(
+			(JSON.parse(row.pending_writes) as PendingWriteColumn[]).map(async write => {
+				return [
+					write.task_id,
+					write.channel,
+					await this.serde.loadsTyped(write.type ?? 'json', write.value ?? ''),
+				] as [string, string, unknown];
+			})
+		);
+
+		const pending_sends = await Promise.all(
+			(JSON.parse(row.pending_sends) as PendingSendColumn[]).map(send =>
+				this.serde.loadsTyped(send.type ?? 'json', send.value ?? '')
+			)
+		);
 
 		return this.memorySaver.getTuple(config);
 	}
