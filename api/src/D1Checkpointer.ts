@@ -155,10 +155,14 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 			args.push(checkpoint_id);
 		}
 
-		const checkpointResult = await this.db
+		const row = await this.db
 			.prepare(sql)
 			.bind(...args)
 			.first();
+
+		if (row === undefined) {
+			return undefined;
+		}
 
 		return this.memorySaver.getTuple(config);
 	}
