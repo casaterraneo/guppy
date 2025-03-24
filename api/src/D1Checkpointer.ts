@@ -182,11 +182,10 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		const row = await this.db
 			.prepare(sql)
 			.bind(...args)
-			.first();
+			.first<CheckpointRow>();
 
-		if (row === undefined) {
-			return undefined;
-		}
+		if (!row) return undefined;
+
 		let finalConfig = config;
 		if (!checkpoint_id) {
 			finalConfig = {
