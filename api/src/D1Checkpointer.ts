@@ -187,38 +187,38 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		if (row === undefined) {
 			return undefined;
 		}
-		let finalConfig = config;
-		if (!checkpoint_id) {
-			finalConfig = {
-				configurable: {
-					thread_id: row.thread_id,
-					checkpoint_ns,
-					checkpoint_id: row.checkpoint_id,
-				},
-			};
-		}
-		if (
-			finalConfig.configurable?.thread_id === undefined ||
-			finalConfig.configurable?.checkpoint_id === undefined
-		) {
-			throw new Error('Missing thread_id or checkpoint_id');
-		}
+		//let finalConfig = config;
+		// if (!checkpoint_id) {
+		// 	finalConfig = {
+		// 		configurable: {
+		// 			thread_id: row.thread_id,
+		// 			checkpoint_ns,
+		// 			checkpoint_id: row.checkpoint_id,
+		// 		},
+		// 	};
+		// }
+		// if (
+		// 	finalConfig.configurable?.thread_id === undefined ||
+		// 	finalConfig.configurable?.checkpoint_id === undefined
+		// ) {
+		// 	throw new Error('Missing thread_id or checkpoint_id');
+		// }
 
-		const pendingWrites = await Promise.all(
-			(JSON.parse(row.pending_writes) as PendingWriteColumn[]).map(async write => {
-				return [
-					write.task_id,
-					write.channel,
-					await this.serde.loadsTyped(write.type ?? 'json', write.value ?? ''),
-				] as [string, string, unknown];
-			})
-		);
+		// const pendingWrites = await Promise.all(
+		// 	(JSON.parse(row.pending_writes) as PendingWriteColumn[]).map(async write => {
+		// 		return [
+		// 			write.task_id,
+		// 			write.channel,
+		// 			await this.serde.loadsTyped(write.type ?? 'json', write.value ?? ''),
+		// 		] as [string, string, unknown];
+		// 	})
+		// );
 
-		const pending_sends = await Promise.all(
-			(JSON.parse(row.pending_sends) as PendingSendColumn[]).map(send =>
-				this.serde.loadsTyped(send.type ?? 'json', send.value ?? '')
-			)
-		);
+		// const pending_sends = await Promise.all(
+		// 	(JSON.parse(row.pending_sends) as PendingSendColumn[]).map(send =>
+		// 		this.serde.loadsTyped(send.type ?? 'json', send.value ?? '')
+		// 	)
+		// );
 
 		return this.memorySaver.getTuple(config);
 	}
