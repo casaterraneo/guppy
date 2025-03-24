@@ -4,38 +4,12 @@ import type { RunnableConfig } from '@langchain/core/runnables';
 import {
 	BaseCheckpointSaver,
 	type Checkpoint,
-	type CheckpointListOptions,
 	type CheckpointTuple,
 	type SerializerProtocol,
-	type PendingWrite,
 	type CheckpointMetadata,
 	TASKS,
 	copyCheckpoint,
 } from '@langchain/langgraph-checkpoint';
-
-interface CheckpointRow {
-	checkpoint: string;
-	metadata: string;
-	parent_checkpoint_id?: string;
-	thread_id: string;
-	checkpoint_id: string;
-	checkpoint_ns?: string;
-	type?: string;
-	pending_writes: string;
-	pending_sends: string;
-}
-
-interface PendingWriteColumn {
-	task_id: string;
-	channel: string;
-	type: string;
-	value: string;
-}
-
-interface PendingSendColumn {
-	type: string;
-	value: string;
-}
 
 export class D1Checkpointer extends BaseCheckpointSaver {
 	private memorySaver: MemorySaver;
@@ -181,73 +155,12 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 			args.push(checkpoint_id);
 		}
 
-		const row = await this.db
+		const checkpointResult = await this.db
 			.prepare(sql)
 			.bind(...args)
-			.first<CheckpointRow>();
+			.first();
 
-		if (row === undefined) {
-			return undefined;
-		}
-
-		let finalConfig = config;
-		if (!checkpoint_id) {
-			finalConfig = {
-				configurable: {
-					thread_id: row.thread_id,
-					checkpoint_ns,
-					checkpoint_id: row.checkpoint_id,
-				},
-			};
-		}
-		if (
-			finalConfig.configurable?.thread_id === undefined ||
-			finalConfig.configurable?.checkpoint_id === undefined
-		) {
-			throw new Error('Missing thread_id or checkpoint_id');
-		}
-
-		const pendingWrites = await Promise.all(
-			(JSON.parse(row.pending_writes) as PendingWriteColumn[]).map(async write => {
-				return [
-					write.task_id,
-					write.channel,
-					await this.serde.loadsTyped(write.type ?? 'json', write.value ?? ''),
-				] as [string, string, unknown];
-			})
-		);
-
-		const pending_sends = await Promise.all(
-			(JSON.parse(row.pending_sends) as PendingSendColumn[]).map(send =>
-				this.serde.loadsTyped(send.type ?? 'json', send.value ?? '')
-			)
-		);
-
-		const checkpoint = {
-			...(await this.serde.loadsTyped(row.type ?? 'json', row.checkpoint)),
-			pending_sends,
-		} as Checkpoint;
-
-		this.memorySaver.getTuple(config);
-
-		return {
-			checkpoint,
-			config: finalConfig,
-			metadata: (await this.serde.loadsTyped(
-				row.type ?? 'json',
-				row.metadata
-			)) as CheckpointMetadata,
-			parentConfig: row.parent_checkpoint_id
-				? {
-						configurable: {
-							thread_id: row.thread_id,
-							checkpoint_ns,
-							checkpoint_id: row.parent_checkpoint_id,
-						},
-				  }
-				: undefined,
-			pendingWrites,
-		};
+		return this.memorySaver.getTuple(config);
 	}
 
 	async list(filter?: Partial<{ threadId: string; threadTs: number }>): Promise<any[]> {
