@@ -187,22 +187,22 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		if (row === undefined) {
 			return undefined;
 		}
-		//let finalConfig = config;
-		// if (!checkpoint_id) {
-		// 	finalConfig = {
-		// 		configurable: {
-		// 			thread_id: row.thread_id,
-		// 			checkpoint_ns,
-		// 			checkpoint_id: row.checkpoint_id,
-		// 		},
-		// 	};
-		// }
-		// if (
-		// 	finalConfig.configurable?.thread_id === undefined ||
-		// 	finalConfig.configurable?.checkpoint_id === undefined
-		// ) {
-		// 	throw new Error('Missing thread_id or checkpoint_id');
-		// }
+		let finalConfig = config;
+		if (!checkpoint_id) {
+			finalConfig = {
+				configurable: {
+					thread_id: row.thread_id,
+					checkpoint_ns,
+					checkpoint_id: row.checkpoint_id,
+				},
+			};
+		}
+		if (
+			finalConfig.configurable?.thread_id === undefined ||
+			finalConfig.configurable?.checkpoint_id === undefined
+		) {
+			throw new Error('Missing thread_id or checkpoint_id');
+		}
 
 		// const pendingWrites = await Promise.all(
 		// 	(JSON.parse(row.pending_writes) as PendingWriteColumn[]).map(async write => {
