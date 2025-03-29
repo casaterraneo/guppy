@@ -7,9 +7,9 @@ import { MemorySaver } from '@langchain/langgraph';
 
 import { z } from 'zod';
 
-import type {
-	BaseMessage,
-	BaseMessageLike,
+import {
+	type BaseMessage,
+	type BaseMessageLike,
 	ToolMessage,
 	AIMessage,
 	isAIMessage,
@@ -175,10 +175,10 @@ const app = new Hono()
 
 		const callTool = task('callTool', async (toolCall: ToolCall): Promise<AIMessage> => {
 			const tool = toolsByName[toolCall.name];
-			//const observation = await tool.invoke(toolCall.args);
-			//return new ToolMessage({ content: observation, tool_call_id: toolCall.id });
+			const observation = await tool.invoke(toolCall.args);
+			return new ToolMessage({ content: observation, tool_call_id: toolCall.id });
 			// Can also pass toolCall directly into the tool to return a ToolMessage
-			return tool.invoke(toolCall);
+			//return tool.invoke(toolCall);
 		});
 
 		const agent = entrypoint('agent', async (messages: BaseMessageLike[]) => {
