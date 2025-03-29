@@ -202,6 +202,42 @@ const app = new Hono()
 			return llmResponse;
 		});
 
+		const db = c.get('db');
+		const checkpointer = new D1Checkpointer(db);
+
+		const agentWithMemory = entrypoint(
+			{
+				name: 'agentWithMemory',
+				checkpointer,
+			},
+			async (messages: BaseMessageLike[]) => {
+				const previous = getPreviousState<BaseMessage>() ?? [];
+				let currentMessages = addMessages(previous, messages);
+				let llmResponse = await callModel(currentMessages);
+				while (true) {
+					if (!llmResponse.tool_calls?.length) {
+						break;
+					}
+					// Execute tools
+					const toolResults = await Promise.all(
+						llmResponse.tool_calls.map(toolCall => {
+							return callTool(toolCall);
+						})
+					);
+					// Append to message list
+					currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
+					// Call model again
+					llmResponse = await callModel(currentMessages);
+				}
+				// Append final response for storage
+				currentMessages = addMessages(currentMessages, llmResponse);
+				return entrypoint.final({
+					value: llmResponse,
+					save: currentMessages,
+				});
+			}
+		);
+
 		const prettyPrintMessage = (message: BaseMessage) => {
 			console.log('='.repeat(30), `${message.getType()} message`, '='.repeat(30));
 			console.log(message.content);
@@ -214,14 +250,17 @@ const app = new Hono()
 		const userMessage = { role: 'user', content: input };
 		console.log(userMessage);
 
-		const stream = await agent.stream([userMessage]);
+		const config = { configurable: { thread_id: '2' } };
+
+		const stream = await agentWithMemory.stream([userMessage], config);
+		//const stream = await agent.stream([userMessage]);
 
 		let content = '';
 		for await (const step of stream) {
 			for (const [taskName, update] of Object.entries(step)) {
 				const message = update as BaseMessage;
 				// Only print task updates
-				if (taskName === 'agent') continue;
+				if (taskName === 'agent' || taskName === 'agentWithMemory') continue;
 				console.log(`\n${taskName}:`);
 				prettyPrintMessage(message);
 				content = message;
