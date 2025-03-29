@@ -165,26 +165,32 @@ const app = new Hono()
 		);
 
 		const fakeBrowserTool = tool(
-			(_) => {
-			  return "The search result is xyz...";
+			_ => {
+				return 'The search result is xyz...';
 			},
 			{
-			  name: "browser_tool",
-			  description:
-				"Useful for when you need to find something on the web or summarize a webpage.",
-			  schema: z.object({
-				url: z.string().describe("The URL of the webpage to search."),
-				query: z.string().optional().describe("An optional search query to use."),
-			  }),
+				name: 'browser_tool',
+				description:
+					'Useful for when you need to find something on the web or summarize a webpage.',
+				schema: z.object({
+					url: z.string().describe('The URL of the webpage to search.'),
+					query: z.string().optional().describe('An optional search query to use.'),
+				}),
 			}
-		  );
+		);
 
 		const tools = [getWeather, fakeBrowserTool];
 
 		const toolsByName = Object.fromEntries(tools.map(tool => [tool.name, tool]));
 
 		const callModel = task('callModel', async (messages: BaseMessageLike[]) => {
-			const response = await model.bindTools(tools).invoke(messages);
+			const systemMessage = {
+				role: 'system',
+				content:
+					'You are a helpful assistant that translates English to Italian. Translate the user sentence.',
+			};
+
+			const response = await model.bindTools(tools).invoke([systemMessage, ...messages]);
 			return response;
 		});
 
@@ -261,14 +267,13 @@ const app = new Hono()
 			}
 		};
 
-		const systemMessage = { role: 'system', content: "You are a helpful assistant that translates English to Italian. Translate the user sentence." };
 		// Usage example
 		const userMessage = { role: 'user', content: input };
 		console.log(userMessage);
 
 		const config = { configurable: { thread_id: '2' } };
 
-		const stream = await agentWithMemory.stream([systemMessage, userMessage], config);
+		const stream = await agentWithMemory.stream(userMessage, config);
 		//const stream = await agent.stream([userMessage]);
 
 		let content = '';
