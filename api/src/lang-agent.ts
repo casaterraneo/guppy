@@ -261,13 +261,14 @@ const app = new Hono()
 			}
 		};
 
+		const systemMessage = { role: 'system', content: "You are a helpful assistant that translates English to Italian. Translate the user sentence." };
 		// Usage example
 		const userMessage = { role: 'user', content: input };
 		console.log(userMessage);
 
 		const config = { configurable: { thread_id: '2' } };
 
-		const stream = await agentWithMemory.stream([userMessage], config);
+		const stream = await agentWithMemory.stream([systemMessage, userMessage], config);
 		//const stream = await agent.stream([userMessage]);
 
 		let content = '';
