@@ -164,7 +164,22 @@ const app = new Hono()
 			}
 		);
 
-		const tools = [getWeather];
+		const fakeBrowserTool = tool(
+			(_) => {
+			  return "The search result is xyz...";
+			},
+			{
+			  name: "browser_tool",
+			  description:
+				"Useful for when you need to find something on the web or summarize a webpage.",
+			  schema: z.object({
+				url: z.string().describe("The URL of the webpage to search."),
+				query: z.string().optional().describe("An optional search query to use."),
+			  }),
+			}
+		  );
+
+		const tools = [getWeather, fakeBrowserTool];
 
 		const toolsByName = Object.fromEntries(tools.map(tool => [tool.name, tool]));
 
