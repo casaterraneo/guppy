@@ -360,7 +360,7 @@ const app = new Hono()
 		const addToOrderTool = tool(
 			async ({ drink, modifiers }) => {
 				try {
-					let order = await c.env.KV.get(thread_id, 'json');
+					order = await c.env.KV.get(thread_id, 'json');
 					if (!order) {
 						order = [];
 					}
@@ -385,7 +385,7 @@ const app = new Hono()
 		const confirmOrderTool = tool(
 			async () => {
 				let summary = 'Your order:\n';
-				let order = await c.env.KV.get(thread_id, 'json');
+				order = await c.env.KV.get(thread_id, 'json');
 				if (!order || order.length === 0) {
 					summary += '  (no items)\n';
 				} else {
@@ -408,11 +408,9 @@ const app = new Hono()
 		const getOrderTool = tool(
 			async () => {
 				try {
-					const orderString = await c.env.KV.get(thread_id); // Retrieve as text
-
-					let order = [];
-					if (orderString) {
-						order = JSON.parse(orderString); // Parse the string as JSON
+					order = await c.env.KV.get(thread_id, 'json');
+					if (!order) {
+						order = [];
 					}
 					return order;
 				} catch (error) {
@@ -440,7 +438,7 @@ const app = new Hono()
 
 		const placeOrderTool = tool(
 			async () => {
-				const order = await c.env.KV.get(thread_id, 'json');
+				order = await c.env.KV.get(thread_id, 'json');
 				if (!order || order.length === 0) {
 					return 'No items in the order to place.';
 				}
