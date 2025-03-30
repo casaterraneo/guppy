@@ -402,7 +402,7 @@ const app = new Hono()
 			}
 		);
 
-		const getOrderTool = tool(() => c.env.KV.get(thread_id), {
+		const getOrderTool = tool(() => c.env.KV.get(thread_id, 'json'), {
 			name: 'get_order',
 			description: "Returns the customer's current order.",
 		});
