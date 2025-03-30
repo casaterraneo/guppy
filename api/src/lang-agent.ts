@@ -298,6 +298,7 @@ const app = new Hono()
 		let placedOrder: { drink: string; modifiers: string[] }[] = [];
 
 		const input = messages[0];
+		const thread_id = '3';
 
 		const model = new ChatGoogleGenerativeAI({
 			model: 'gemini-2.0-flash',
@@ -358,7 +359,8 @@ const app = new Hono()
 
 		const addToOrderTool = tool(
 			({ drink, modifiers }) => {
-				order.push({ drink, modifiers: modifiers || [] });
+				//order.push({ drink, modifiers: modifiers || [] });
+				c.env.KV.put(thread_id, { drink, modifiers: modifiers || [] });
 				return `Added ${drink} to the order.`;
 			},
 			{
@@ -393,14 +395,15 @@ const app = new Hono()
 			}
 		);
 
-		const getOrderTool = tool(() => order, {
+		const getOrderTool = tool(() => c.env.KV.get(thread_id), {
 			name: 'get_order',
 			description: "Returns the customer's current order.",
 		});
 
 		const clearOrderTool = tool(
 			() => {
-				order = [];
+				//order = [];
+				c.env.KV.delete(thread_id)
 				return 'Order cleared.';
 			},
 			{
@@ -411,8 +414,10 @@ const app = new Hono()
 
 		const placeOrderTool = tool(
 			() => {
-				placedOrder = [...order];
-				order = [];
+				//placedOrder = [...order];
+				//order = [];
+				placedOrder = [...c.env.KV.get(thread_id)];
+				c.env.KV.delete(thread_id)
 				const estimatedTime = Math.floor(Math.random() * 10) + 1;
 				return `Order placed! Estimated time: ${estimatedTime} minutes.`;
 			},
@@ -513,7 +518,7 @@ say goodbye!`,
 		const userMessage = { role: 'user', content: input };
 		console.log(userMessage);
 
-		const config = { configurable: { thread_id: '3' } };
+		const config = { configurable: { thread_id: thread_id } };
 
 		const stream = await agentWithMemory.stream(userMessage, config);
 
