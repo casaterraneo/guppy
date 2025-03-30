@@ -360,7 +360,13 @@ const app = new Hono()
 		const addToOrderTool = tool(
 			({ drink, modifiers }) => {
 				//order.push({ drink, modifiers: modifiers || [] });
-				c.env.KV.put(thread_id, { drink, modifiers: modifiers || [] });
+				try {
+					c.env.KV.put(thread_id, { drink, modifiers: modifiers || [] });
+				} catch (err) {
+					// In a production application, you could instead choose to retry your KV
+					// read or fall back to a default code path.
+					console.error(`KV returned error: ${err}`);
+				}
 				return `Added ${drink} to the order.`;
 			},
 			{
@@ -403,7 +409,7 @@ const app = new Hono()
 		const clearOrderTool = tool(
 			() => {
 				//order = [];
-				c.env.KV.delete(thread_id)
+				c.env.KV.delete(thread_id);
 				return 'Order cleared.';
 			},
 			{
@@ -417,7 +423,7 @@ const app = new Hono()
 				//placedOrder = [...order];
 				//order = [];
 				placedOrder = [...c.env.KV.get(thread_id)];
-				c.env.KV.delete(thread_id)
+				c.env.KV.delete(thread_id);
 				const estimatedTime = Math.floor(Math.random() * 10) + 1;
 				return `Order placed! Estimated time: ${estimatedTime} minutes.`;
 			},
