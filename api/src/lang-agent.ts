@@ -359,31 +359,35 @@ const app = new Hono()
 
 		const addToOrderTool = tool(
 			async ({ drink, modifiers }) => {
-				//order.push({ drink, modifiers: modifiers || [] });
-				try {
-					const orderData = JSON.stringify({ drink, modifiers: modifiers || [] });
-					await c.env.KV.put(thread_id, orderData);
-				} catch (err) {
-					// In a production application, you could instead choose to retry your KV
-					// read or fall back to a default code path.
-					console.error(`KV returned error: ${err}`);
+			  try {
+				let order = await c.env.KV.get(thread_id, 'json');
+				if (!order) {
+				  order = [];
 				}
-				return `Added ${drink} to the order.`;
+				order.push({ drink, modifiers: modifiers || [] });
+				await c.env.KV.put(thread_id, JSON.stringify(order));
+			  } catch (err) {
+				console.error(`KV returned error: ${err}`);
+				return `Errore nell'aggiunta di ${drink} all'ordine.`;
+			  }
+			  return `Added ${drink} to the order.`;
 			},
 			{
-				name: 'add_to_order',
-				description: "Adds a specified drink to the customer's order, including any modifiers.",
-				schema: z.object({
-					drink: z.string().describe('The name of the drink.'),
-					modifiers: z.array(z.string()).optional().describe('Optional list of modifiers.'),
-				}),
+			  name: 'add_to_order',
+			  description: "Adds a specified drink to the customer's order, including any modifiers.",
+			  schema: z.object({
+				drink: z.string().describe('The name of the drink.'),
+				modifiers: z.array(z.string()).optional().describe('Optional list of modifiers.'),
+			  }),
 			}
-		);
+		  );
+
 
 		const confirmOrderTool = tool(
-			() => {
+			async () => {
 				let summary = 'Your order:\n';
-				if (order.length === 0) {
+				let order = await c.env.KV.get(thread_id, 'json');
+				if (!order || order.length === 0) {
 					summary += '  (no items)\n';
 				} else {
 					for (const item of order) {
@@ -402,15 +406,25 @@ const app = new Hono()
 			}
 		);
 
-		const getOrderTool = tool(() => c.env.KV.get(thread_id, 'json'), {
-			name: 'get_order',
-			description: "Returns the customer's current order.",
-		});
+		const getOrderTool = tool(
+			async () => {
+				let order = await c.env.KV.get(thread_id, 'json');
+				if (!order) {
+				  order = [];
+				}
+				return order;
+			},
+			{
+			  name: 'get_order',
+			  description: "Returns the customer's current order.",
+			}
+		  );
+
 
 		const clearOrderTool = tool(
-			() => {
-				//order = [];
-				c.env.KV.delete(thread_id);
+			async () => {
+				await c.env.KV.delete(thread_id);
+				order = [];
 				return 'Order cleared.';
 			},
 			{
@@ -420,19 +434,22 @@ const app = new Hono()
 		);
 
 		const placeOrderTool = tool(
-			() => {
-				//placedOrder = [...order];
-				//order = [];
-				placedOrder = [...c.env.KV.get(thread_id)];
-				c.env.KV.delete(thread_id);
-				const estimatedTime = Math.floor(Math.random() * 10) + 1;
-				return `Order placed! Estimated time: ${estimatedTime} minutes.`;
+			async () => {
+			  const order = await c.env.KV.get(thread_id, 'json');
+			  if (!order || order.length === 0) {
+				return 'No items in the order to place.';
+			  }
+			  await c.env.KV.put(`${thread_id}_placed`, JSON.stringify(order));
+			  await c.env.KV.delete(thread_id);
+			  const estimatedTime = Math.floor(Math.random() * 10) + 1;
+			  return `Order placed! Estimated time: ${estimatedTime} minutes.`;
 			},
 			{
-				name: 'place_order',
-				description: 'Submits the order and returns an estimated time for completion.',
+			  name: 'place_order',
+			  description: 'Submits the order, saves it as placed, clears the current order, and returns an estimated time for completion.',
 			}
-		);
+		  );
+
 
 		const tools = [
 			getMenuTool,
