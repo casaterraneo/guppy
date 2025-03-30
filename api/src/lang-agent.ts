@@ -408,14 +408,15 @@ const app = new Hono()
 		const getOrderTool = tool(
 			async () => {
 				try {
-					order = await c.env.KV.get(thread_id, 'json');
-					if (!order) {
-						order = [];
+					const orderString = await c.env.KV.get(thread_id);
+					if (orderString) {
+						return orderString; // Return the JSON string directly
+					} else {
+						return '[]'; // Return an empty JSON array string if no order is found
 					}
-					return order;
 				} catch (error) {
 					console.error('Error retrieving order from KV:', error);
-					return []; // Or handle the error as appropriate for your application
+					return 'Error retrieving order.';
 				}
 			},
 			{
