@@ -68,7 +68,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		checkpoint: Checkpoint,
 		metadata: CheckpointMetadata
 	): Promise<RunnableConfig> {
-		console.log(`D1Checkpointer put`);
+		//console.log(`D1Checkpointer put`);
 
 		await this.setup();
 
@@ -123,7 +123,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 
 	async putWrites(config: RunnableConfig, writes: PendingWrite[], taskId: string): Promise<void> {
 		this.setup();
-		console.log(`D1Checkpointer putWrites`);
+		//console.log(`D1Checkpointer putWrites`);
 
 		if (!config.configurable) {
 			throw new Error('Empty configuration supplied.');
@@ -286,7 +286,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 	}
 
 	async list(filter?: Partial<{ threadId: string; threadTs: number }>): Promise<any[]> {
-		console.log(`D1Checkpointer list ${filter}`);
+		//console.log(`D1Checkpointer list ${filter}`);
 		return this.memorySaver.list(filter);
 	}
 }

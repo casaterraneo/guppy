@@ -289,5 +289,171 @@ const app = new Hono()
 		}
 
 		return c.json(content);
-	});
+	})
+	.post('run-baristabot', async c => {
+		const { messages } = await c.req.json();
+		if (!messages) return c.json({ error: 'Message is required' }, 400);
+
+		const input = messages[0];
+
+		const model = new ChatGoogleGenerativeAI({
+			model: 'gemini-2.0-flash',
+			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
+			temperature: 0,
+		});
+
+		const getMenu = tool(
+			_ => {
+				return `
+				MENU:
+				Coffee Drinks:
+				Espresso
+				Americano
+				Cold Brew
+
+				Coffee Drinks with Milk:
+				Latte
+				Cappuccino
+				Cortado
+				Macchiato
+				Mocha
+				Flat White
+
+				Tea Drinks:
+				English Breakfast Tea
+				Green Tea
+				Earl Grey
+
+				Tea Drinks with Milk:
+				Chai Latte
+				Matcha Latte
+				London Fog
+
+				Other Drinks:
+				Steamer
+				Hot Chocolate
+
+				Modifiers:
+				Milk options: Whole, 2%, Oat, Almond, 2% Lactose Free; Default option: whole
+				Espresso shots: Single, Double, Triple, Quadruple; default: Double
+				Caffeine: Decaf, Regular; default: Regular
+				Hot-Iced: Hot, Iced; Default: Hot
+				Sweeteners (option to add one or more): vanilla sweetener, hazelnut sweetener, caramel sauce, chocolate sauce, sugar free vanilla sweetener
+				Special requests: any reasonable modification that does not involve items not on the menu, for example: 'extra hot', 'one pump', 'half caff', 'extra foam', etc.
+
+				"dirty" means add a shot of espresso to a drink that doesn't usually have it, like "Dirty Chai Latte".
+				"Regular milk" is the same as 'whole milk'.
+				"Sweetened" means add some regular sugar, not a sweetener.
+
+				Soy milk has run out of stock today, so soy is not available.`;
+			},
+			{
+				name: 'get_menu',
+				description:
+					'Provide the latest up-to-date menu.',
+			}
+		);
+
+		const tools = [getMenu];
+
+		const toolsByName = Object.fromEntries(tools.map(tool => [tool.name, tool]));
+
+		const callModel = task('callModel', async (messages: BaseMessageLike[]) => {
+			const systemMessage = {
+				role: 'system',
+				content:`You are a BaristaBot, an interactive cafe ordering system. A human will talk to you about the
+available products you have and you will answer any questions about menu items (and only about
+menu items - no off-topic discussion, but you can chat about the products and their history).
+The customer will place an order for 1 or more items from the menu, which you will structure
+and send to the ordering system after confirming the order with the human.
+
+
+Add items to the customer's order with add_to_order, and reset the order with clear_order.
+To see the contents of the order so far, call get_order (this is shown to you, not the user)
+Always confirm_order with the user (double-check) before calling place_order. Calling confirm_order will
+display the order items to the user and returns their response to seeing the list. Their response may contain modifications.
+Always verify and respond with drink and modifier names from the MENU before adding them to the order.
+If you are unsure a drink or modifier matches those on the MENU, ask a question to clarify or redirect.
+You only have the modifiers listed on the menu.
+Once the customer has finished ordering items, Call confirm_order to ensure it is correct then make
+any necessary updates and then call place_order. Once place_order has returned, thank the user and
+say goodbye!`,
+			};
+
+			const response = await model.bindTools(tools).invoke([systemMessage, ...messages]);
+			return response;
+		});
+
+		const callTool = task('callTool', async (toolCall: ToolCall): Promise<AIMessage> => {
+			const tool = toolsByName[toolCall.name];
+			const observation = await tool.invoke(toolCall.args);
+			return new ToolMessage({ content: observation, tool_call_id: toolCall.id });
+		});
+
+		const db = c.get('db');
+		const checkpointer = new D1Checkpointer(db);
+
+		const agentWithMemory = entrypoint(
+			{
+				name: 'agentWithMemory',
+				checkpointer,
+			},
+			async (messages: BaseMessageLike[]) => {
+				const previous = getPreviousState<BaseMessage>() ?? [];
+				let currentMessages = addMessages(previous, messages);
+				let llmResponse = await callModel(currentMessages);
+				while (true) {
+					if (!llmResponse.tool_calls?.length) {
+						break;
+					}
+					// Execute tools
+					const toolResults = await Promise.all(
+						llmResponse.tool_calls.map(toolCall => {
+							return callTool(toolCall);
+						})
+					);
+					// Append to message list
+					currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
+					// Call model again
+					llmResponse = await callModel(currentMessages);
+				}
+				// Append final response for storage
+				currentMessages = addMessages(currentMessages, llmResponse);
+				return entrypoint.final({
+					value: llmResponse,
+					save: currentMessages,
+				});
+			}
+		);
+
+		const prettyPrintMessage = (message: BaseMessage) => {
+			console.log('='.repeat(30), `${message.getType()} message`, '='.repeat(30));
+			console.log(message.content);
+			if (isAIMessage(message) && message.tool_calls?.length) {
+				console.log(JSON.stringify(message.tool_calls, null, 2));
+			}
+		};
+
+		// Usage example
+		const userMessage = { role: 'user', content: input };
+		console.log(userMessage);
+
+		const config = { configurable: { thread_id: '3' } };
+
+		const stream = await agentWithMemory.stream(userMessage, config);
+
+		let content = '';
+		for await (const step of stream) {
+			for (const [taskName, update] of Object.entries(step)) {
+				const message = update as BaseMessage;
+				// Only print task updates
+				if (taskName === 'agentWithMemory') continue;
+				console.log(`\n${taskName}:`);
+				prettyPrintMessage(message);
+				content = message;
+			}
+		}
+
+		return c.json(content);
+	})	;
 export default app;
