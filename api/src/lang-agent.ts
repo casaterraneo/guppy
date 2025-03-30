@@ -294,6 +294,9 @@ const app = new Hono()
 		const { messages } = await c.req.json();
 		if (!messages) return c.json({ error: 'Message is required' }, 400);
 
+		let order: { drink: string; modifiers: string[] }[] = [];
+		let placedOrder: { drink: string; modifiers: string[] }[] = [];
+
 		const input = messages[0];
 
 		const model = new ChatGoogleGenerativeAI({
@@ -302,7 +305,7 @@ const app = new Hono()
 			temperature: 0,
 		});
 
-		const getMenu = tool(
+		const getMenuTool = tool(
 			_ => {
 				return `
 				MENU:
@@ -349,19 +352,95 @@ const app = new Hono()
 			},
 			{
 				name: 'get_menu',
-				description:
-					'Provide the latest up-to-date menu.',
+				description: 'Provide the latest up-to-date menu.',
 			}
 		);
 
-		const tools = [getMenu];
+		const addToOrderTool = tool(
+			({ drink, modifiers }) => {
+				order.push({ drink, modifiers: modifiers || [] });
+				return `Added ${drink} to the order.`;
+			},
+			{
+				name: 'add_to_order',
+				description: "Adds a specified drink to the customer's order, including any modifiers.",
+				schema: z.object({
+					drink: z.string().describe('The name of the drink.'),
+					modifiers: z.array(z.string()).optional().describe('Optional list of modifiers.'),
+				}),
+			}
+		);
+
+		const confirmOrderTool = tool(
+			() => {
+				let summary = 'Your order:\n';
+				if (order.length === 0) {
+					summary += '  (no items)\n';
+				} else {
+					for (const item of order) {
+						summary += `  ${item.drink}\n`;
+						if (item.modifiers && item.modifiers.length > 0) {
+							summary += `   - ${item.modifiers.join(', ')}\n`;
+						}
+					}
+				}
+				summary += '\nIs this correct?';
+				return summary;
+			},
+			{
+				name: 'confirm_order',
+				description: 'Generates an order summary and asks for confirmation.',
+				schema: z.object({}),
+			}
+		);
+
+		const getOrderTool = tool(() => order, {
+			name: 'get_order',
+			description: "Returns the customer's current order.",
+			schema: z.object({}),
+		});
+
+		const clearOrderTool = tool(
+			() => {
+				order = [];
+				return 'Order cleared.';
+			},
+			{
+				name: 'clear_order',
+				description: "Clears all items from the customer's order.",
+				schema: z.object({}),
+			}
+		);
+
+		const placeOrderTool = tool(
+			() => {
+				placedOrder = [...order];
+				order = [];
+				const estimatedTime = Math.floor(Math.random() * 10) + 1;
+				return `Order placed! Estimated time: ${estimatedTime} minutes.`;
+			},
+			{
+				name: 'place_order',
+				description: 'Submits the order and returns an estimated time for completion.',
+				schema: z.object({}),
+			}
+		);
+
+		const tools = [
+			getMenuTool,
+			addToOrderTool,
+			confirmOrderTool,
+			getOrderTool,
+			clearOrderTool,
+			placeOrderTool,
+		];
 
 		const toolsByName = Object.fromEntries(tools.map(tool => [tool.name, tool]));
 
 		const callModel = task('callModel', async (messages: BaseMessageLike[]) => {
 			const systemMessage = {
 				role: 'system',
-				content:`You are a BaristaBot, an interactive cafe ordering system. A human will talk to you about the
+				content: `You are a BaristaBot, an interactive cafe ordering system. A human will talk to you about the
 available products you have and you will answer any questions about menu items (and only about
 menu items - no off-topic discussion, but you can chat about the products and their history).
 The customer will place an order for 1 or more items from the menu, which you will structure
@@ -455,5 +534,5 @@ say goodbye!`,
 		}
 
 		return c.json(content);
-	})	;
+	});
 export default app;
