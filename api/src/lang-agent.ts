@@ -361,7 +361,8 @@ const app = new Hono()
 			async ({ drink, modifiers }) => {
 				//order.push({ drink, modifiers: modifiers || [] });
 				try {
-					await c.env.KV.put(thread_id, { drink, modifiers: modifiers || [] }, { type: 'json' });
+					const orderData = JSON.stringify({ drink, modifiers: modifiers || [] });
+					await c.env.KV.put(thread_id, orderData);
 				} catch (err) {
 					// In a production application, you could instead choose to retry your KV
 					// read or fall back to a default code path.
