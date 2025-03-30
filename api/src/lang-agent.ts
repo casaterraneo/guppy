@@ -390,14 +390,12 @@ const app = new Hono()
 			{
 				name: 'confirm_order',
 				description: 'Generates an order summary and asks for confirmation.',
-				schema: z.object({}),
 			}
 		);
 
 		const getOrderTool = tool(() => order, {
 			name: 'get_order',
 			description: "Returns the customer's current order.",
-			schema: z.object({}),
 		});
 
 		const clearOrderTool = tool(
@@ -408,7 +406,6 @@ const app = new Hono()
 			{
 				name: 'clear_order',
 				description: "Clears all items from the customer's order.",
-				schema: z.object({}),
 			}
 		);
 
@@ -422,7 +419,6 @@ const app = new Hono()
 			{
 				name: 'place_order',
 				description: 'Submits the order and returns an estimated time for completion.',
-				schema: z.object({}),
 			}
 		);
 
