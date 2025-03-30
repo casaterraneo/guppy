@@ -358,10 +358,10 @@ const app = new Hono()
 		);
 
 		const addToOrderTool = tool(
-			({ drink, modifiers }) => {
+			async ({ drink, modifiers }) => {
 				//order.push({ drink, modifiers: modifiers || [] });
 				try {
-					c.env.KV.put(thread_id, { drink, modifiers: modifiers || [] });
+					await c.env.KV.put(thread_id, { drink, modifiers: modifiers || [] });
 				} catch (err) {
 					// In a production application, you could instead choose to retry your KV
 					// read or fall back to a default code path.
