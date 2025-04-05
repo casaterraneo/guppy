@@ -396,7 +396,7 @@ const app = new Hono()
 						}
 					}
 				}
-				summary += '\nIs this correct?';
+				//summary += '\nIs this correct?';
 				return summary;
 			},
 			{
@@ -488,9 +488,10 @@ Calling confirm_order will display immediate the order items to the user and ret
 Ensure the complete order items are displayed before proceeding with any further actions.
 Their response may contain modifications.
 
-Always verify and respond with drink and modifier names from the MENU before adding them to the order.
-If you are unsure a drink or modifier matches those on the MENU, ask a question to clarify or redirect.
-You only have the modifiers listed on the menu.
+Always verify and respond with drink and modifier names from the get_menu function before adding them to the order.
+If you are unsure a drink or modifier matches those on the MENU (from the get_menu function), ask a question to clarify or redirect.
+You only have the modifiers listed on the menu (from the get_menu function).
+
 Once the customer has finished ordering items, Call confirm_order to ensure it is correct then make
 any necessary updates and then call place_order. Once place_order has returned, thank the user and
 say goodbye!
