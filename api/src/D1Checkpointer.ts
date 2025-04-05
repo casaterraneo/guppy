@@ -41,6 +41,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 	private memorySaver: MemorySaver;
 	private db: D1Database;
 	protected isSetup: boolean;
+	protected serde: SerializerProtocol;
 
 	constructor(db: D1Database, serde?: SerializerProtocol) {
 		super(serde);
@@ -122,7 +123,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 	}
 
 	async putWrites(config: RunnableConfig, writes: PendingWrite[], taskId: string): Promise<void> {
-		this.setup();
+		await this.setup();
 		//console.log(`D1Checkpointer putWrites`);
 
 		if (!config.configurable) {
@@ -137,23 +138,25 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 			throw new Error('Missing checkpoint_id field in config.configurable.');
 		}
 
-		const statements = writes.map((write, idx) => {
-			const [type, serializedWrite] = this.serde.dumpsTyped(write[1]);
-			return this.db
-				.prepare(
-					`INSERT OR REPLACE INTO writes (thread_id, checkpoint_ns, checkpoint_id, task_id, idx, channel, type, value) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-				)
-				.bind(
-					config.configurable?.thread_id,
-					config.configurable?.checkpoint_ns || '',
-					config.configurable?.checkpoint_id || '',
-					taskId,
-					idx,
-					write[0],
-					type,
-					serializedWrite
-				);
-		});
+		const statements = await Promise.all(
+			writes.map(async (write, idx) => {
+				const [type, serializedWrite] = this.serde.dumpsTyped(write[1]);
+				return await this.db
+					.prepare(
+						`INSERT OR REPLACE INTO writes (thread_id, checkpoint_ns, checkpoint_id, task_id, idx, channel, type, value) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+					)
+					.bind(
+						config.configurable?.thread_id,
+						config.configurable?.checkpoint_ns || '',
+						config.configurable?.checkpoint_id || '',
+						taskId,
+						idx,
+						write[0],
+						type,
+						serializedWrite
+					);
+			})
+		);
 
 		await this.db.batch(statements);
 	}
@@ -286,7 +289,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 	}
 
 	async list(filter?: Partial<{ threadId: string; threadTs: number }>): Promise<any[]> {
-		//console.log(`D1Checkpointer list ${filter}`);
+		console.log(`D1Checkpointer list ${filter}`);
 		return this.memorySaver.list(filter);
 	}
 }

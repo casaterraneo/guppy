@@ -298,7 +298,7 @@ const app = new Hono()
 		let placedOrder: { drink: string; modifiers: string[] }[] = [];
 
 		const input = messages[0];
-		const thread_id = '3';
+		const thread_id = '4';
 
 		const model = new ChatGoogleGenerativeAI({
 			model: 'gemini-2.0-flash',
@@ -485,7 +485,11 @@ If you are unsure a drink or modifier matches those on the MENU, ask a question 
 You only have the modifiers listed on the menu.
 Once the customer has finished ordering items, Call confirm_order to ensure it is correct then make
 any necessary updates and then call place_order. Once place_order has returned, thank the user and
-say goodbye!`,
+say goodbye!
+
+If any of the tools are unavailable, you can break the fourth wall and tell the user that
+they have not implemented them yet and should keep reading to do so.
+`,
 			};
 
 			const response = await model.bindTools(tools).invoke([systemMessage, ...messages]);
