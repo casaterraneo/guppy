@@ -41,7 +41,6 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 	private memorySaver: MemorySaver;
 	private db: D1Database;
 	protected isSetup: boolean;
-	protected serde: SerializerProtocol;
 
 	constructor(db: D1Database, serde?: SerializerProtocol) {
 		super(serde);
@@ -69,7 +68,7 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 		checkpoint: Checkpoint,
 		metadata: CheckpointMetadata
 	): Promise<RunnableConfig> {
-		//console.log(`D1Checkpointer put`);
+		console.log(`D1Checkpointer put`);
 
 		await this.setup();
 
@@ -123,8 +122,9 @@ export class D1Checkpointer extends BaseCheckpointSaver {
 	}
 
 	async putWrites(config: RunnableConfig, writes: PendingWrite[], taskId: string): Promise<void> {
+		console.log(`D1Checkpointer putWrites`);
+
 		await this.setup();
-		//console.log(`D1Checkpointer putWrites`);
 
 		if (!config.configurable) {
 			throw new Error('Empty configuration supplied.');
