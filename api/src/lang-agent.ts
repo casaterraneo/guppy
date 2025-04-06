@@ -601,7 +601,8 @@ they have not implemented them yet and should keep reading to do so.
 			return `${inputQuery} qux`;
 		});
 
-		const checkpointer = new MemorySaver();
+		const db = c.get('db');
+		const checkpointer = new D1Checkpointer(db);
 
 		const graph = entrypoint(
 			{
@@ -625,12 +626,7 @@ they have not implemented them yet and should keep reading to do so.
 			},
 		};
 
-		const stream = await graph.stream(
-			new Command({
-				resume: 'foo',
-			}),
-			config
-		);
+		const stream = await graph.stream('foo', config);
 
 		for await (const event of stream) {
 			console.log(event);
