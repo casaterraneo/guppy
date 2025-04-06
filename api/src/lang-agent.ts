@@ -14,7 +14,14 @@ import {
 	AIMessage,
 	isAIMessage,
 } from '@langchain/core/messages';
-import { addMessages, entrypoint, task, getPreviousState } from '@langchain/langgraph';
+import {
+	addMessages,
+	entrypoint,
+	task,
+	getPreviousState,
+	interrupt,
+	Command,
+} from '@langchain/langgraph';
 import { type ToolCall } from '@langchain/core/messages/tool';
 
 import { D1Checkpointer } from './D1Checkpointer';
@@ -573,6 +580,72 @@ they have not implemented them yet and should keep reading to do so.
 				prettyPrintMessage(message);
 				content = message;
 			}
+		}
+
+		return c.json(content);
+	})
+	.post('run-interrupt', async c => {
+		const { messages } = await c.req.json();
+		if (!messages) return c.json({ error: 'Message is required' }, 400);
+
+		const step1 = task('step1', async (inputQuery: string) => {
+			return `${inputQuery} bar`;
+		});
+
+		const humanFeedback = task('humanFeedback', async (inputQuery: string) => {
+			const feedback = interrupt(`Please provide feedback: ${inputQuery}`);
+			return `${inputQuery} ${feedback}`;
+		});
+
+		const step3 = task('step3', async (inputQuery: string) => {
+			return `${inputQuery} qux`;
+		});
+
+		const checkpointer = new MemorySaver();
+
+		const graph = entrypoint(
+			{
+				name: 'graph',
+				checkpointer,
+			},
+			async (inputQuery: string) => {
+				const result1 = await step1(inputQuery);
+				const result2 = await humanFeedback(result1);
+				const result3 = await step3(result2);
+				return result3;
+			}
+		);
+
+		const input = messages[0];
+		const thread_id = '5';
+
+		const config = {
+			configurable: {
+				thread_id: thread_id,
+			},
+		};
+
+		const stream = await graph.stream('foo', config);
+
+		for await (const event of stream) {
+			console.log(event);
+		}
+
+		const resumeStream = await graph.stream(
+			new Command({
+				resume: 'baz',
+			}),
+			config
+		);
+
+		let content = '';
+		// Continue execution
+		for await (const event of resumeStream) {
+			if (event.__metadata__?.cached) {
+				continue;
+			}
+			console.log(event);
+			content = event;
 		}
 
 		return c.json(content);
