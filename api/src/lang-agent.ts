@@ -625,7 +625,12 @@ they have not implemented them yet and should keep reading to do so.
 			},
 		};
 
-		const stream = await graph.stream('foo', config);
+		const stream = await graph.stream(
+			new Command({
+				resume: 'foo',
+			}),
+			config
+		);
 
 		for await (const event of stream) {
 			console.log(event);
