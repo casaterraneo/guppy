@@ -626,22 +626,21 @@ they have not implemented them yet and should keep reading to do so.
 			},
 		};
 
-		const stream = await graph.stream('foo', config);
-
-		for await (const event of stream) {
-			console.log(event);
+		var stream;
+		if (input == 'foo') {
+			stream = await graph.stream(input, config);
+		} else {
+			stream = await graph.stream(
+				new Command({
+					resume: input,
+				}),
+				config
+			);
 		}
-
-		const resumeStream = await graph.stream(
-			new Command({
-				resume: 'baz',
-			}),
-			config
-		);
 
 		let content = '';
 		// Continue execution
-		for await (const event of resumeStream) {
+		for await (const event of stream) {
 			if (event.__metadata__?.cached) {
 				continue;
 			}
