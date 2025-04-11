@@ -3,7 +3,6 @@ import { Hono } from 'hono';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { tool } from '@langchain/core/tools';
-import { MemorySaver } from '@langchain/langgraph';
 
 import { z } from 'zod';
 
@@ -21,6 +20,7 @@ import {
 	getPreviousState,
 	interrupt,
 	Command,
+	MemorySaver,
 } from '@langchain/langgraph';
 import { type ToolCall } from '@langchain/core/messages/tool';
 
@@ -711,7 +711,7 @@ they have not implemented them yet and should keep reading to do so.
 			const observation = await tool.invoke(toolCall.args);
 			return new ToolMessage({ content: observation, tool_call_id: toolCall.id });
 			// Can also pass toolCall directly into the tool to return a ToolMessage
-			//return tool.invoke(toolCall);
+			// return tool.invoke(toolCall);
 		});
 
 		const agent = entrypoint(
@@ -726,14 +726,21 @@ they have not implemented them yet and should keep reading to do so.
 					if (!llmResponse.tool_calls?.length) {
 						break;
 					}
+
+					// Execute tools
 					const toolResults = await Promise.all(
 						llmResponse.tool_calls.map(toolCall => {
 							return callTool(toolCall);
 						})
 					);
+
+					// Append to message list
 					currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
+
+					// Call model again
 					llmResponse = await callModel(currentMessages);
 				}
+
 				return llmResponse;
 			}
 		);
@@ -799,35 +806,39 @@ they have not implemented them yet and should keep reading to do so.
 			}
 		};
 
-		// Usage example
-		const userMessage = { role: 'user', content: input };
+		const userMessage = {
+			role: 'user',
+			content: [
+				'Can you reach out for human assistance: what should I feed my cat?',
+				'Separately, can you check the weather in San Francisco?',
+			].join(' '),
+		};
 		console.log(userMessage);
 
-		const config = { configurable: { thread_id: '6' } };
+		const agentStream = await agent.stream([userMessage], {
+			configurable: {
+				thread_id: '6',
+			},
+		});
 
-		//const stream = await agentWithMemory.stream(userMessage, config);
-		const stream = await agent.stream(userMessage, config);
+		let lastStep;
 
-		// let lastStep;
+		for await (const step of agentStream) {
+			prettyPrintStep(step);
+			lastStep = step;
+		}
+		console.log(JSON.stringify(lastStep));
+		const humanResponse = 'You should feed your cat a fish.';
+		const humanCommand = new Command({
+			resume: { data: humanResponse },
+		});
 
-		// for await (const step of stream) {
-		// 	prettyPrintStep(step);
-		// 	lastStep = step;
-		// }
+		const resumeStream2 = await agent.stream(humanCommand, config);
 
-		// return c.json(lastStep);
-		let content = '';
-		for await (const step of stream) {
-			for (const [taskName, update] of Object.entries(step)) {
-				const message = update as BaseMessage;
-				// Only print task updates
-				if (taskName === 'agent' || taskName === 'agentWithMemory') continue;
-				console.log(`\n${taskName}:`);
-				prettyPrintMessage(message);
-				content = message;
-			}
+		for await (const step of resumeStream2) {
+			prettyPrintStep(step);
 		}
 
-		return c.json(content);
+		return c.json(step);
 	});
 export default app;
