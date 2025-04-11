@@ -839,8 +839,9 @@ they have not implemented them yet and should keep reading to do so.
 
 		for await (const step of resumeStream2) {
 			prettyPrintStep(step);
+			lastStep = step;
 		}
 
-		return c.json(step);
+		return c.json(lastStep);
 	});
 export default app;
