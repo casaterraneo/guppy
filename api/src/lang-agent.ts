@@ -649,5 +649,172 @@ they have not implemented them yet and should keep reading to do so.
 		}
 
 		return c.json(content);
+	})
+	.post('run-react-interrupt', async c => {
+		const { messages } = await c.req.json();
+		if (!messages) return c.json({ error: 'Message is required' }, 400);
+
+		const input = messages[0];
+
+		const model = new ChatGoogleGenerativeAI({
+			model: 'gemini-2.0-flash',
+			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
+			temperature: 0,
+		});
+
+		const getWeather = tool(
+			async ({ location }) => {
+				// This is a placeholder for the actual implementation
+				const lowercaseLocation = location.toLowerCase();
+				if (lowercaseLocation.includes('sf') || lowercaseLocation.includes('san francisco')) {
+					return "It's sunny!";
+				} else if (lowercaseLocation.includes('boston')) {
+					return "It's rainy!";
+				} else {
+					return `I am not sure what the weather is in ${location}`;
+				}
+			},
+			{
+				name: 'getWeather',
+				schema: z.object({
+					location: z.string().describe('Location to get the weather for'),
+				}),
+				description: 'Call to get the weather from a specific location.',
+			}
+		);
+
+		const humanAssistance = tool(
+			async ({ query }) => {
+				const humanResponse = interrupt({ query });
+				return humanResponse.data;
+			},
+			{
+				name: 'humanAssistance',
+				description: 'Request assistance from a human.',
+				schema: z.object({
+					query: z.string().describe('Human readable question for the human'),
+				}),
+			}
+		);
+
+		const tools = [getWeather, humanAssistance];
+
+		const toolsByName = Object.fromEntries(tools.map(tool => [tool.name, tool]));
+
+		const callModel = task('callModel', async (messages: BaseMessageLike[]) => {
+			const response = await model.bindTools(tools).invoke(messages);
+			return response;
+		});
+
+		const callTool = task('callTool', async (toolCall: ToolCall): Promise<AIMessage> => {
+			const tool = toolsByName[toolCall.name];
+			const observation = await tool.invoke(toolCall.args);
+			return new ToolMessage({ content: observation, tool_call_id: toolCall.id });
+			// Can also pass toolCall directly into the tool to return a ToolMessage
+			//return tool.invoke(toolCall);
+		});
+
+		const agent = entrypoint(
+			{
+				name: 'agent',
+				checkpointer: new MemorySaver(),
+			},
+			async (messages: BaseMessageLike[]) => {
+				let currentMessages = messages;
+				let llmResponse = await callModel(currentMessages);
+				while (true) {
+					if (!llmResponse.tool_calls?.length) {
+						break;
+					}
+					const toolResults = await Promise.all(
+						llmResponse.tool_calls.map(toolCall => {
+							return callTool(toolCall);
+						})
+					);
+					currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
+					llmResponse = await callModel(currentMessages);
+				}
+				return llmResponse;
+			}
+		);
+
+		const db = c.get('db');
+		const checkpointer = new D1Checkpointer(db);
+
+		const agentWithMemory = entrypoint(
+			{
+				name: 'agentWithMemory',
+				checkpointer,
+			},
+			async (messages: BaseMessageLike[]) => {
+				const previous = getPreviousState<BaseMessage>() ?? [];
+				let currentMessages = addMessages(previous, messages);
+				let llmResponse = await callModel(currentMessages);
+				while (true) {
+					if (!llmResponse.tool_calls?.length) {
+						break;
+					}
+					// Execute tools
+					const toolResults = await Promise.all(
+						llmResponse.tool_calls.map(toolCall => {
+							return callTool(toolCall);
+						})
+					);
+					// Append to message list
+					currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
+					// Call model again
+					llmResponse = await callModel(currentMessages);
+				}
+				// Append final response for storage
+				currentMessages = addMessages(currentMessages, llmResponse);
+				return entrypoint.final({
+					value: llmResponse,
+					save: currentMessages,
+				});
+			}
+		);
+
+		const prettyPrintMessage = (message: BaseMessage) => {
+			console.log('='.repeat(30), `${message.getType()} message`, '='.repeat(30));
+			console.log(message.content);
+			if (isAIMessage(message) && message.tool_calls?.length) {
+				console.log(JSON.stringify(message.tool_calls, null, 2));
+			}
+		};
+
+		const prettyPrintStep = (step: Record<string, any>) => {
+			if (step.__metadata__?.cached) {
+				return;
+			}
+			for (const [taskName, update] of Object.entries(step)) {
+				const message = update as BaseMessage;
+				// Only print task updates
+				if (taskName === 'agent') continue;
+				console.log(`\n${taskName}:`);
+				if (taskName === '__interrupt__') {
+					console.log(update);
+				} else {
+					prettyPrintMessage(message);
+				}
+			}
+		};
+
+		// Usage example
+		const userMessage = { role: 'user', content: input };
+		console.log(userMessage);
+
+		const config = { configurable: { thread_id: '6' } };
+
+		//const stream = await agentWithMemory.stream(userMessage, config);
+		const agentStream = await agent.stream(userMessage, config);
+
+		let lastStep;
+
+		for await (const step of agentStream) {
+			prettyPrintStep(step);
+			lastStep = step;
+		}
+
+		return c.json(lastStep);
 	});
 export default app;

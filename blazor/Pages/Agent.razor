@@ -2,7 +2,7 @@
 @inject IHttpClientFactory HttpClientFactory
 @attribute [Authorize]
 
-<PageTitle>Barista BOT</PageTitle>
+<PageTitle>Agent</PageTitle>
 
 <h1>Barista BOT</h1>
 
@@ -17,6 +17,7 @@
     <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("run-react")'>React</button>
     <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("run-baristabot")'>Barista</button>    
     <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("run-interrupt")'>Interrupt</button>    
+    <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("run-react-interrupt")'>React Interrupt</button>    
 </form>
 
 
