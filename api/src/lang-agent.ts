@@ -714,72 +714,72 @@ they have not implemented them yet and should keep reading to do so.
 			// return tool.invoke(toolCall);
 		});
 
-		const agent = entrypoint(
-			{
-				name: 'agent',
-				checkpointer: new MemorySaver(),
-			},
-			async (messages: BaseMessageLike[]) => {
-				let currentMessages = messages;
-				let llmResponse = await callModel(currentMessages);
-				while (true) {
-					if (!llmResponse.tool_calls?.length) {
-						break;
-					}
-
-					// Execute tools
-					const toolResults = await Promise.all(
-						llmResponse.tool_calls.map(toolCall => {
-							return callTool(toolCall);
-						})
-					);
-
-					// Append to message list
-					currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
-
-					// Call model again
-					llmResponse = await callModel(currentMessages);
-				}
-
-				return llmResponse;
-			}
-		);
-
-		// const db = c.get('db');
-		// const checkpointer = new D1Checkpointer(db);
-
-		// const agentWithMemory = entrypoint(
+		// const agent = entrypoint(
 		// 	{
-		// 		name: 'agentWithMemory',
-		// 		checkpointer,
+		// 		name: 'agent',
+		// 		checkpointer: new MemorySaver(),
 		// 	},
 		// 	async (messages: BaseMessageLike[]) => {
-		// 		const previous = getPreviousState<BaseMessage>() ?? [];
-		// 		let currentMessages = addMessages(previous, messages);
+		// 		let currentMessages = messages;
 		// 		let llmResponse = await callModel(currentMessages);
 		// 		while (true) {
 		// 			if (!llmResponse.tool_calls?.length) {
 		// 				break;
 		// 			}
+
 		// 			// Execute tools
 		// 			const toolResults = await Promise.all(
 		// 				llmResponse.tool_calls.map(toolCall => {
 		// 					return callTool(toolCall);
 		// 				})
 		// 			);
+
 		// 			// Append to message list
 		// 			currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
+
 		// 			// Call model again
 		// 			llmResponse = await callModel(currentMessages);
 		// 		}
-		// 		// Append final response for storage
-		// 		currentMessages = addMessages(currentMessages, llmResponse);
-		// 		return entrypoint.final({
-		// 			value: llmResponse,
-		// 			save: currentMessages,
-		// 		});
+
+		// 		return llmResponse;
 		// 	}
 		// );
+
+		const db = c.get('db');
+		const checkpointer = new D1Checkpointer(db);
+
+		const agent = entrypoint(
+			{
+				name: 'agent',
+				checkpointer,
+			},
+			async (messages: BaseMessageLike[]) => {
+				const previous = getPreviousState<BaseMessage>() ?? [];
+				let currentMessages = addMessages(previous, messages);
+				let llmResponse = await callModel(currentMessages);
+				while (true) {
+					if (!llmResponse.tool_calls?.length) {
+						break;
+					}
+					// Execute tools
+					const toolResults = await Promise.all(
+						llmResponse.tool_calls.map(toolCall => {
+							return callTool(toolCall);
+						})
+					);
+					// Append to message list
+					currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
+					// Call model again
+					llmResponse = await callModel(currentMessages);
+				}
+				// Append final response for storage
+				currentMessages = addMessages(currentMessages, llmResponse);
+				return entrypoint.final({
+					value: llmResponse,
+					save: currentMessages,
+				});
+			}
+		);
 
 		const prettyPrintMessage = (message: BaseMessage) => {
 			const type = message.getType();
