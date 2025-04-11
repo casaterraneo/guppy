@@ -738,41 +738,41 @@ they have not implemented them yet and should keep reading to do so.
 			}
 		);
 
-		const db = c.get('db');
-		const checkpointer = new D1Checkpointer(db);
+		// const db = c.get('db');
+		// const checkpointer = new D1Checkpointer(db);
 
-		const agentWithMemory = entrypoint(
-			{
-				name: 'agentWithMemory',
-				checkpointer,
-			},
-			async (messages: BaseMessageLike[]) => {
-				const previous = getPreviousState<BaseMessage>() ?? [];
-				let currentMessages = addMessages(previous, messages);
-				let llmResponse = await callModel(currentMessages);
-				while (true) {
-					if (!llmResponse.tool_calls?.length) {
-						break;
-					}
-					// Execute tools
-					const toolResults = await Promise.all(
-						llmResponse.tool_calls.map(toolCall => {
-							return callTool(toolCall);
-						})
-					);
-					// Append to message list
-					currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
-					// Call model again
-					llmResponse = await callModel(currentMessages);
-				}
-				// Append final response for storage
-				currentMessages = addMessages(currentMessages, llmResponse);
-				return entrypoint.final({
-					value: llmResponse,
-					save: currentMessages,
-				});
-			}
-		);
+		// const agentWithMemory = entrypoint(
+		// 	{
+		// 		name: 'agentWithMemory',
+		// 		checkpointer,
+		// 	},
+		// 	async (messages: BaseMessageLike[]) => {
+		// 		const previous = getPreviousState<BaseMessage>() ?? [];
+		// 		let currentMessages = addMessages(previous, messages);
+		// 		let llmResponse = await callModel(currentMessages);
+		// 		while (true) {
+		// 			if (!llmResponse.tool_calls?.length) {
+		// 				break;
+		// 			}
+		// 			// Execute tools
+		// 			const toolResults = await Promise.all(
+		// 				llmResponse.tool_calls.map(toolCall => {
+		// 					return callTool(toolCall);
+		// 				})
+		// 			);
+		// 			// Append to message list
+		// 			currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
+		// 			// Call model again
+		// 			llmResponse = await callModel(currentMessages);
+		// 		}
+		// 		// Append final response for storage
+		// 		currentMessages = addMessages(currentMessages, llmResponse);
+		// 		return entrypoint.final({
+		// 			value: llmResponse,
+		// 			save: currentMessages,
+		// 		});
+		// 	}
+		// );
 
 		const prettyPrintMessage = (message: BaseMessage) => {
 			console.log('='.repeat(30), `${message.getType()} message`, '='.repeat(30));
@@ -806,15 +806,28 @@ they have not implemented them yet and should keep reading to do so.
 		const config = { configurable: { thread_id: '6' } };
 
 		//const stream = await agentWithMemory.stream(userMessage, config);
-		const agentStream = await agent.stream(userMessage, config);
+		const stream = await agent.stream(userMessage, config);
 
-		let lastStep;
+		// let lastStep;
 
-		for await (const step of agentStream) {
-			prettyPrintStep(step);
-			lastStep = step;
+		// for await (const step of stream) {
+		// 	prettyPrintStep(step);
+		// 	lastStep = step;
+		// }
+
+		// return c.json(lastStep);
+		let content = '';
+		for await (const step of stream) {
+			for (const [taskName, update] of Object.entries(step)) {
+				const message = update as BaseMessage;
+				// Only print task updates
+				if (taskName === 'agent' || taskName === 'agentWithMemory') continue;
+				console.log(`\n${taskName}:`);
+				prettyPrintMessage(message);
+				content = message;
+			}
 		}
 
-		return c.json(lastStep);
+		return c.json(content);
 	});
 export default app;
