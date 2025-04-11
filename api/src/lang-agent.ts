@@ -815,11 +815,13 @@ they have not implemented them yet and should keep reading to do so.
 		};
 		console.log(userMessage);
 
-		const agentStream = await agent.stream([userMessage], {
+		const config = {
 			configurable: {
 				thread_id: '6',
 			},
-		});
+		};
+
+		const agentStream = await agent.stream([userMessage], config);
 
 		let lastStep;
 
