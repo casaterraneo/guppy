@@ -808,10 +808,7 @@ they have not implemented them yet and should keep reading to do so.
 
 		const userMessage = {
 			role: 'user',
-			content: [
-				'Can you reach out for human assistance: what should I feed my cat?',
-				'Separately, can you check the weather in San Francisco?',
-			].join(' '),
+			content: input,
 		};
 		console.log(userMessage);
 
