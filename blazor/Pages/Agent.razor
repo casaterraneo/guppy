@@ -46,6 +46,7 @@
     private string UserInput { get; set; } = string.Empty;
     private string? ResponseText { get; set; }
     private bool IsLoading { get; set; } = false;
+    private bool IsInterrupt { get; set; } = false;
     private string? ErrorMessage { get; set; }
     private List<string> ResponseMessages { get; set; } = new List<string>(); 
     
@@ -65,16 +66,18 @@
         try
         {
 			using var http = HttpClientFactory.CreateClient("api");
+            var interruptStr =  IsInterrupt ? "__interrupt__" : "" ;
             var requestData = new
-            {
-                messages = new [] { UserInput },
+            {                
+                messages = new [] { $"{interruptStr} {UserInput}" },
             };
             var response = await http.PostAsJsonAsync($"agent/{action}", requestData);            
             if (response.IsSuccessStatusCode)
             {
                 string rawResponse  = await response.Content.ReadAsStringAsync();
-                ResponseText = CleanResponseText(rawResponse);
-                ResponseMessages.Add(ResponseText);
+                IsInterrupt = rawResponse.Contains("__interrupt__");
+                ResponseText = CleanResponseText(rawResponse);                
+                ResponseMessages.Add(ResponseText);                
                 UserInput = string.Empty;
             }
             else

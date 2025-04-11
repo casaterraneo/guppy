@@ -627,12 +627,12 @@ they have not implemented them yet and should keep reading to do so.
 		};
 
 		var stream;
-		if (input == 'foo') {
+		if (!input.includes('__interrupt__')) {
 			stream = await graph.stream(input, config);
 		} else {
 			stream = await graph.stream(
 				new Command({
-					resume: input,
+					resume: input.replace('__interrupt__', '').trim(),
 				}),
 				config
 			);
