@@ -782,11 +782,17 @@ they have not implemented them yet and should keep reading to do so.
 		// );
 
 		const prettyPrintMessage = (message: BaseMessage) => {
-			console.log('='.repeat(30), `${message.getType()} message`, '='.repeat(30));
-			console.log(message.content);
-			if (isAIMessage(message) && message.tool_calls?.length) {
-				console.log(JSON.stringify(message.tool_calls, null, 2));
-			}
+			const type = message.getType();
+			const content =
+				typeof message.content === 'string' ? message.content : JSON.stringify(message.content);
+			const toolCalls =
+				isAIMessage(message) && message.tool_calls?.length
+					? JSON.stringify(message.tool_calls)
+					: '';
+
+			console.log(
+				`[${type.toUpperCase()}] ${content}${toolCalls ? ' | Tool Calls: ' + toolCalls : ''}`
+			);
 		};
 
 		const prettyPrintStep = (step: Record<string, any>) => {
