@@ -654,6 +654,9 @@ they have not implemented them yet and should keep reading to do so.
 		const { messages } = await c.req.json();
 		if (!messages) return c.json({ error: 'Message is required' }, 400);
 
+		//TEST
+		//Can you reach out for human assistance: what should I feed my cat? Separately, can you check the weather in San Francisco?
+		//You should feed your cat a fish.
 		const input = messages[0];
 
 		const model = new ChatGoogleGenerativeAI({
