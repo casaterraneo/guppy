@@ -155,8 +155,9 @@ const app = new Hono()
 		// });
 
 		//command-a-03-2025
+		//command-r-plus-08-2024
 		const model = new ChatCohere({
-			model: 'command-r-plus-08-2024',
+			model: 'command-r7b-12-2024',
 			apiKey: c.env.COHERE_API_KEY,
 			temperature: 0,
 		});
