@@ -197,7 +197,8 @@ const app = new Hono()
 					'You are a helpful assistant that translates English to Italian. Translate the user sentence.',
 			};
 
-			const response = await model.bindTools(tools).invoke([systemMessage, ...messages]);
+			//const response = await model.bindTools(tools).invoke([systemMessage, ...messages]);
+			const response = await model.bindTools(tools).invoke(messages);
 			return response;
 		});
 
@@ -209,33 +210,33 @@ const app = new Hono()
 			//return tool.invoke(toolCall);
 		});
 
-		const agent = entrypoint('agent', async (messages: BaseMessageLike[]) => {
-			let currentMessages = messages;
-			let llmResponse = await callModel(currentMessages);
-			while (true) {
-				if (!llmResponse.tool_calls?.length) {
-					break;
-				}
-				// Execute tools
-				const toolResults = await Promise.all(
-					llmResponse.tool_calls.map(toolCall => {
-						return callTool(toolCall);
-					})
-				);
-				// Append to message list
-				currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
-				// Call model again
-				llmResponse = await callModel(currentMessages);
-			}
-			return llmResponse;
-		});
+		// const agent = entrypoint('agent', async (messages: BaseMessageLike[]) => {
+		// 	let currentMessages = messages;
+		// 	let llmResponse = await callModel(currentMessages);
+		// 	while (true) {
+		// 		if (!llmResponse.tool_calls?.length) {
+		// 			break;
+		// 		}
+		// 		// Execute tools
+		// 		const toolResults = await Promise.all(
+		// 			llmResponse.tool_calls.map(toolCall => {
+		// 				return callTool(toolCall);
+		// 			})
+		// 		);
+		// 		// Append to message list
+		// 		currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
+		// 		// Call model again
+		// 		llmResponse = await callModel(currentMessages);
+		// 	}
+		// 	return llmResponse;
+		// });
 
 		const db = c.get('db');
 		const checkpointer = new D1Checkpointer(db);
 
-		const agentWithMemory = entrypoint(
+		const agent = entrypoint(
 			{
-				name: 'agentWithMemory',
+				name: 'agent',
 				checkpointer,
 			},
 			async (messages: BaseMessageLike[]) => {
@@ -280,7 +281,7 @@ const app = new Hono()
 
 		const config = { configurable: { thread_id: '2' } };
 
-		const stream = await agentWithMemory.stream(userMessage, config);
+		const stream = await agent.stream(userMessage, config);
 		//const stream = await agent.stream([userMessage]);
 
 		let content = '';
@@ -288,7 +289,7 @@ const app = new Hono()
 			for (const [taskName, update] of Object.entries(step)) {
 				const message = update as BaseMessage;
 				// Only print task updates
-				if (taskName === 'agent' || taskName === 'agentWithMemory') continue;
+				if (taskName === 'agent') continue;
 				console.log(`\n${taskName}:`);
 				prettyPrintMessage(message);
 				content = message;
