@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { ChatCohere } from "@langchain/cohere";
 import { tool } from '@langchain/core/tools';
 
 import { z } from 'zod';
@@ -147,11 +148,15 @@ const app = new Hono()
 		//What's the weather in san francisco?
 		const input = messages[0];
 
-		const model = new ChatGoogleGenerativeAI({
-			model: 'gemini-2.0-flash',
-			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
-			temperature: 0,
-		});
+		// const model = new ChatGoogleGenerativeAI({
+		// 	model: 'gemini-2.0-flash',
+		// 	apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
+		// 	temperature: 0,
+		// });
+
+		const model = new ChatCohere({
+			apiKey: process.env.COHERE_API_KEY,
+		  });
 
 		const getWeather = tool(
 			async ({ location }) => {

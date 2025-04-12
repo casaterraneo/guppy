@@ -24,6 +24,7 @@
 		"@cloudflare/ai-utils": "^1.0.1",
 		"@langchain/langgraph": "^0.2.51",
 		"@langchain/google-genai": "^0.1.10",
+		"@langchain/cohere":"^0.3.3",
 		"@langchain/cloudflare":"^0.1.0",
 		"@langchain/core": "^0.3.42",
 		"@langchain/community":"^0.3.33",
