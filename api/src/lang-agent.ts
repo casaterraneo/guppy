@@ -717,72 +717,72 @@ they have not implemented them yet and should keep reading to do so.
 			// return tool.invoke(toolCall);
 		});
 
-		const agent = entrypoint(
-			{
-				name: 'agent',
-				checkpointer: new MemorySaver(),
-			},
-			async (messages: BaseMessageLike[]) => {
-				let currentMessages = messages;
-				let llmResponse = await callModel(currentMessages);
-				while (true) {
-					if (!llmResponse.tool_calls?.length) {
-						break;
-					}
-
-					// Execute tools
-					const toolResults = await Promise.all(
-						llmResponse.tool_calls.map(toolCall => {
-							return callTool(toolCall);
-						})
-					);
-
-					// Append to message list
-					currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
-
-					// Call model again
-					llmResponse = await callModel(currentMessages);
-				}
-
-				return llmResponse;
-			}
-		);
-
-		// const db = c.get('db');
-		// const checkpointer = new D1Checkpointer(db);
-
 		// const agent = entrypoint(
 		// 	{
 		// 		name: 'agent',
-		// 		checkpointer,
+		// 		checkpointer: new MemorySaver(),
 		// 	},
 		// 	async (messages: BaseMessageLike[]) => {
-		// 		const previous = getPreviousState<BaseMessage>() ?? [];
-		// 		let currentMessages = addMessages(previous, messages);
+		// 		let currentMessages = messages;
 		// 		let llmResponse = await callModel(currentMessages);
 		// 		while (true) {
 		// 			if (!llmResponse.tool_calls?.length) {
 		// 				break;
 		// 			}
+
 		// 			// Execute tools
 		// 			const toolResults = await Promise.all(
 		// 				llmResponse.tool_calls.map(toolCall => {
 		// 					return callTool(toolCall);
 		// 				})
 		// 			);
+
 		// 			// Append to message list
 		// 			currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
+
 		// 			// Call model again
 		// 			llmResponse = await callModel(currentMessages);
 		// 		}
-		// 		// Append final response for storage
-		// 		currentMessages = addMessages(currentMessages, llmResponse);
-		// 		return entrypoint.final({
-		// 			value: llmResponse,
-		// 			save: currentMessages,
-		// 		});
+
+		// 		return llmResponse;
 		// 	}
 		// );
+
+		const db = c.get('db');
+		const checkpointer = new D1Checkpointer(db);
+
+		const agent = entrypoint(
+			{
+				name: 'agent',
+				checkpointer,
+			},
+			async (messages: BaseMessageLike[]) => {
+				const previous = getPreviousState<BaseMessage>() ?? [];
+				let currentMessages = addMessages(previous, messages);
+				let llmResponse = await callModel(currentMessages);
+				while (true) {
+					if (!llmResponse.tool_calls?.length) {
+						break;
+					}
+					// Execute tools
+					const toolResults = await Promise.all(
+						llmResponse.tool_calls.map(toolCall => {
+							return callTool(toolCall);
+						})
+					);
+					// Append to message list
+					currentMessages = addMessages(currentMessages, [llmResponse, ...toolResults]);
+					// Call model again
+					llmResponse = await callModel(currentMessages);
+				}
+				// Append final response for storage
+				currentMessages = addMessages(currentMessages, llmResponse);
+				return entrypoint.final({
+					value: llmResponse,
+					save: currentMessages,
+				});
+			}
+		);
 
 		const prettyPrintMessage = (message: BaseMessage) => {
 			const type = message.getType();
@@ -827,17 +827,17 @@ they have not implemented them yet and should keep reading to do so.
 			},
 		};
 
-		const agentStream = await agent.stream([userMessage], config);
+		// const agentStream = await agent.stream([userMessage], config);
 
-		// var agentStream;
-		// if (!input.includes('__interrupt__')) {
-		// 	agentStream = await agent.stream([userMessage], config);
-		// } else {
-		// 	const humanCommand = new Command({
-		// 		resume: { data: input.replace('__interrupt__', '').trim() },
-		// 	});
-		// 	agentStream = await agent.stream(humanCommand, config);
-		// }
+		var agentStream;
+		if (!input.includes('__interrupt__')) {
+			agentStream = await agent.stream([userMessage], config);
+		} else {
+			const humanCommand = new Command({
+				resume: { data: input.replace('__interrupt__', '').trim() },
+			});
+			agentStream = await agent.stream(humanCommand, config);
+		}
 
 		let lastStep;
 
@@ -846,18 +846,18 @@ they have not implemented them yet and should keep reading to do so.
 			lastStep = step;
 		}
 
-		console.log(JSON.stringify(lastStep));
-		const humanResponse = 'You should feed your cat a fish.';
-		const humanCommand = new Command({
-			resume: { data: humanResponse },
-		});
+		// console.log(JSON.stringify(lastStep));
+		// const humanResponse = 'You should feed your cat a fish.';
+		// const humanCommand = new Command({
+		// 	resume: { data: humanResponse },
+		// });
 
-		const resumeStream2 = await agent.stream(humanCommand, config);
+		// const resumeStream2 = await agent.stream(humanCommand, config);
 
-		for await (const step of resumeStream2) {
-			prettyPrintStep(step);
-			lastStep = step;
-		}
+		// for await (const step of resumeStream2) {
+		// 	prettyPrintStep(step);
+		// 	lastStep = step;
+		// }
 
 		return c.json(lastStep);
 	});
