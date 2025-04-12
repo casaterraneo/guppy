@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
-import { ChatCohere } from "@langchain/cohere";
+import { ChatCohere } from '@langchain/cohere';
 import { tool } from '@langchain/core/tools';
 
 import { z } from 'zod';
@@ -155,8 +155,9 @@ const app = new Hono()
 		// });
 
 		const model = new ChatCohere({
+			model: 'command-a-03-2025',
 			apiKey: process.env.COHERE_API_KEY,
-		  });
+		});
 
 		const getWeather = tool(
 			async ({ location }) => {
