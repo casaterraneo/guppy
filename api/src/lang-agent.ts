@@ -154,9 +154,11 @@ const app = new Hono()
 		// 	temperature: 0,
 		// });
 
+		//command-a-03-2025
 		const model = new ChatCohere({
-			model: 'command-a-03-2025',
+			model: 'command-r-plus-08-2024',
 			apiKey: c.env.COHERE_API_KEY,
+			temperature: 0,
 		});
 
 		const getWeather = tool(
