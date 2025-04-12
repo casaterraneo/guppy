@@ -1,0 +1,101 @@
+@page "/agentSupervisor"
+@inject IHttpClientFactory HttpClientFactory
+@attribute [Authorize]
+
+<PageTitle>Agent Supervisor</PageTitle>
+
+<h1>Agent Supervisor</h1>
+
+<p>This component demonstrates how to create a Agent Supervisor.</p>
+<form>
+    <div class="form-group">
+        <label for="userInput">Inserisci il tuo messaggio:</label>
+        <textarea class="form-control" id="userInput" @bind="UserInput" placeholder="Scrivi qualcosa..." rows="4"></textarea>
+    </div>
+    <button type="submit" class="btn btn-secondary" disabled="@IsLoading" @onclick='() => HandleAction("run-agent-supervisor")'>Agent Supervisor</button>
+</form>
+
+
+
+    @if (IsLoading)
+    {
+        <p>Caricamento...</p>
+    }
+    else if (!string.IsNullOrEmpty(ResponseText))
+    {
+        <p><strong>Risposte:</strong></p>
+        @foreach (var response in ResponseMessages)
+         {
+             <p> @((MarkupString)@response)</p>
+         }
+    }
+
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="error">
+        <p>@ErrorMessage</p>
+    </div>
+}
+
+@code {
+    private string UserInput { get; set; } = string.Empty;
+    private string? ResponseText { get; set; }
+    private bool IsLoading { get; set; } = false;
+    private bool IsInterrupt { get; set; } = false;
+    private string? ErrorMessage { get; set; }
+    private List<string> ResponseMessages { get; set; } = new List<string>(); 
+    
+
+    private async Task HandleAction(string action)
+    {
+        if (string.IsNullOrWhiteSpace(UserInput))
+        {
+            ErrorMessage = "Inserire un messaggio valido.";
+            return;
+        }
+
+        IsLoading = true;
+        ErrorMessage = null;
+        ResponseText = null;
+
+        try
+        {
+			using var http = HttpClientFactory.CreateClient("api");
+            var interruptStr =  IsInterrupt ? "__interrupt__" : "" ;
+            var requestData = new
+            {                
+                messages = new [] { $"{interruptStr} {UserInput}" },
+            };
+            var response = await http.PostAsJsonAsync($"agentSupervisor/{action}", requestData);            
+            if (response.IsSuccessStatusCode)
+            {
+                string rawResponse  = await response.Content.ReadAsStringAsync();
+                IsInterrupt = rawResponse.Contains("__interrupt__");
+                ResponseText = CleanResponseText(rawResponse);                
+                ResponseMessages.Add(ResponseText);                
+                UserInput = string.Empty;
+            }
+            else
+            {
+                ErrorMessage = $"Errore API: {response.ReasonPhrase}";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Errore nella richiesta: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private string CleanResponseText(string response)
+    {
+        return System.Text.RegularExpressions.Regex.Unescape(response)
+            .Replace("\n", "<br>")
+            .Replace("\t", "&emsp;") // Tabulazione come spazi HTML
+            .Replace("\\", "");     // Rimuovi eventuali backslash residui
+    }
+}
