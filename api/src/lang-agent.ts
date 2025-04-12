@@ -1125,7 +1125,8 @@ they have not implemented them yet and should keep reading to do so.
 
 		let lastStep;
 		for await (const step of continueStream) {
-			lastStep = printStep(step);
+			printStep(step);
+			lastStep = step;
 		}
 
 		return c.json(lastStep);
