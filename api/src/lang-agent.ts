@@ -830,12 +830,10 @@ they have not implemented them yet and should keep reading to do so.
 		if (!input.includes('__interrupt__')) {
 			agentStream = await agent.stream([userMessage], config);
 		} else {
-			agentStream = await agent.stream(
-				new Command({
-					resume: input.replace('__interrupt__', '').trim(),
-				}),
-				config
-			);
+			const humanCommand = new Command({
+				resume: { data: input.replace('__interrupt__', '').trim() },
+			});
+			agentStream = await agent.stream(humanCommand, config);
 		}
 
 		let lastStep;
