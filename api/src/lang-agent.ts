@@ -204,7 +204,18 @@ const app = new Hono()
 				content:
 `Your goal is to answer the user's weather-related questions. You have access to a tool called 'getWeather' which takes a location as input and returns the weather.
 
-When the user asks about the weather in a specific location, you MUST use the 'getWeather' tool to get the information. Once you have the result from the tool, you should provide that information directly to the user as your final answer and stop.`,
+    When the user asks about the weather in a specific location, you MUST use the 'getWeather' tool to get the information. Once you have the result from the tool, you should provide that information directly to the user as your final answer and stop.
+
+    Use the following format:
+
+    User: What is the weather like in San Francisco?
+    Thought: The user is asking about the weather in San Francisco, I should use the 'getWeather' tool.
+    Action: {"tool": "getWeather", "tool_input": {"location": "San Francisco"}}
+    Observation: It's sunny!
+    Final Answer: The weather in San Francisco is sunny!
+
+    User: {input}
+    Thought:`,
 			};
 
 			//const response = await model.bindTools(tools).invoke([systemTranslateMessage, ...messages]); //funziona
