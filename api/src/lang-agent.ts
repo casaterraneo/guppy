@@ -1123,6 +1123,7 @@ they have not implemented them yet and should keep reading to do so.
 
 		const continueStream = await agent.stream(continueCommand, config3);
 
+		let lastStep;
 		for await (const step of continueStream) {
 			lastStep = printStep(step);
 		}
