@@ -824,7 +824,19 @@ they have not implemented them yet and should keep reading to do so.
 			},
 		};
 
-		const agentStream = await agent.stream([userMessage], config);
+		// const agentStream = await agent.stream([userMessage], config);
+
+		var agentStream;
+		if (!input.includes('__interrupt__')) {
+			agentStream = await agent.stream([userMessage], config);
+		} else {
+			agentStream = await agent.stream(
+				new Command({
+					resume: input.replace('__interrupt__', '').trim(),
+				}),
+				config
+			);
+		}
 
 		let lastStep;
 
@@ -832,18 +844,19 @@ they have not implemented them yet and should keep reading to do so.
 			prettyPrintStep(step);
 			lastStep = step;
 		}
-		console.log(JSON.stringify(lastStep));
-		const humanResponse = 'You should feed your cat a fish.';
-		const humanCommand = new Command({
-			resume: { data: humanResponse },
-		});
 
-		const resumeStream2 = await agent.stream(humanCommand, config);
+		// console.log(JSON.stringify(lastStep));
+		// const humanResponse = 'You should feed your cat a fish.';
+		// const humanCommand = new Command({
+		// 	resume: { data: humanResponse },
+		// });
 
-		for await (const step of resumeStream2) {
-			prettyPrintStep(step);
-			lastStep = step;
-		}
+		// const resumeStream2 = await agent.stream(humanCommand, config);
+
+		// for await (const step of resumeStream2) {
+		// 	prettyPrintStep(step);
+		// 	lastStep = step;
+		// }
 
 		return c.json(lastStep);
 	});
