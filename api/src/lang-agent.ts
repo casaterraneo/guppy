@@ -143,6 +143,8 @@ const app = new Hono()
 		const { messages } = await c.req.json();
 		if (!messages) return c.json({ error: 'Message is required' }, 400);
 
+		//TEST
+		//What's the weather in san francisco?
 		const input = messages[0];
 
 		const model = new ChatGoogleGenerativeAI({
@@ -191,14 +193,21 @@ const app = new Hono()
 		const toolsByName = Object.fromEntries(tools.map(tool => [tool.name, tool]));
 
 		const callModel = task('callModel', async (messages: BaseMessageLike[]) => {
-			const systemMessage = {
+			const systemTranslateMessage = {
 				role: 'system',
 				content:
 					'You are a helpful assistant that translates English to Italian. Translate the user sentence.',
 			};
 
-			//const response = await model.bindTools(tools).invoke([systemMessage, ...messages]);
-			const response = await model.bindTools(tools).invoke(messages);
+			const systemWeatherMessage = {
+				role: 'system',
+				content:
+					'You are a weather agent. You will only answer questions about the weather in a given location.',
+			};
+
+			//const response = await model.bindTools(tools).invoke([systemTranslateMessage, ...messages]); //funziona
+			//const response = await model.bindTools(tools).invoke(messages); //non funziona
+			const response = await model.bindTools(tools).invoke([systemWeatherMessage, ...messages]);
 			return response;
 		});
 
