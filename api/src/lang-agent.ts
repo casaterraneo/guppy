@@ -860,5 +860,273 @@ they have not implemented them yet and should keep reading to do so.
 		// }
 
 		return c.json(lastStep);
+	})
+	.post('run-review-tool-calls', async c => {
+		const { messages } = await c.req.json();
+		if (!messages) return c.json({ error: 'Message is required' }, 400);
+
+		//TEST
+		//Can you reach out for human assistance: what should I feed my cat? Separately, can you check the weather in San Francisco?
+		//You should feed your cat a fish.
+		const input = messages[0];
+
+		const model = new ChatGoogleGenerativeAI({
+			model: 'gemini-2.0-flash',
+			apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
+			temperature: 0,
+		});
+
+		const getWeather = tool(
+			async ({ location }) => {
+				// This is a placeholder for the actual implementation
+				const lowercaseLocation = location.toLowerCase();
+				if (lowercaseLocation.includes('sf') || lowercaseLocation.includes('san francisco')) {
+					return "It's sunny!";
+				} else if (lowercaseLocation.includes('boston')) {
+					return "It's rainy!";
+				} else {
+					return `I am not sure what the weather is in ${location}`;
+				}
+			},
+			{
+				name: 'getWeather',
+				schema: z.object({
+					location: z.string().describe('Location to get the weather for'),
+				}),
+				description: 'Call to get the weather from a specific location.',
+			}
+		);
+
+		function reviewToolCall(toolCall: ToolCall): ToolCall | ToolMessage {
+			// Interrupt for human review
+			const humanReview = interrupt({
+				question: 'Is this correct?',
+				tool_call: toolCall,
+			});
+
+			const { action, data } = humanReview;
+
+			if (action === 'continue') {
+				return toolCall;
+			} else if (action === 'update') {
+				return {
+					...toolCall,
+					args: data,
+				};
+			} else if (action === 'feedback') {
+				return new ToolMessage({
+					content: data,
+					name: toolCall.name,
+					tool_call_id: toolCall.id,
+				});
+			}
+			throw new Error(`Unsupported review action: ${action}`);
+		}
+
+		const tools = [getWeather];
+
+		const toolsByName = Object.fromEntries(tools.map(tool => [tool.name, tool]));
+
+		const callModel = task('callModel', async (messages: BaseMessageLike[]) => {
+			const response = await model.bindTools(tools).invoke(messages);
+			return response;
+		});
+
+		const callTool = task('callTool', async (toolCall: ToolCall): Promise<AIMessage> => {
+			const tool = toolsByName[toolCall.name];
+			const observation = await tool.invoke(toolCall.args);
+			return new ToolMessage({ content: observation, tool_call_id: toolCall.id });
+			// Can also pass toolCall directly into the tool to return a ToolMessage
+			// return tool.invoke(toolCall);
+		});
+
+		const checkpointer = new MemorySaver();
+
+		const agent = entrypoint(
+			{
+				checkpointer,
+				name: 'agent',
+			},
+			async (messages: BaseMessageLike[]) => {
+				const previous = getPreviousState<BaseMessageLike[]>() ?? [];
+				let currentMessages = addMessages(previous, messages);
+				let llmResponse = await callModel(currentMessages);
+				while (true) {
+					if (!llmResponse.tool_calls?.length) {
+						break;
+					}
+					// Review tool calls
+					const toolResults: ToolMessage[] = [];
+					const toolCalls: ToolCall[] = [];
+
+					for (let i = 0; i < llmResponse.tool_calls.length; i++) {
+						const review = await reviewToolCall(llmResponse.tool_calls[i]);
+						if (review instanceof ToolMessage) {
+							toolResults.push(review);
+						} else {
+							// is a validated tool call
+							toolCalls.push(review);
+							if (review !== llmResponse.tool_calls[i]) {
+								llmResponse.tool_calls[i] = review;
+							}
+						}
+					}
+					// Execute remaining tool calls
+					const remainingToolResults = await Promise.all(
+						toolCalls.map(toolCall => callTool(toolCall))
+					);
+
+					// Append to message list
+					currentMessages = addMessages(currentMessages, [
+						llmResponse,
+						...toolResults,
+						...remainingToolResults,
+					]);
+
+					// Call model again
+					llmResponse = await callModel(currentMessages);
+				}
+				// Generate final response
+				currentMessages = addMessages(currentMessages, llmResponse);
+				return entrypoint.final({
+					value: llmResponse,
+					save: currentMessages,
+				});
+			}
+		);
+
+		const prettyPrintMessage = (message: BaseMessage) => {
+			console.log('='.repeat(30), `${message.getType()} message`, '='.repeat(30));
+			console.log(message.content);
+			if (isAIMessage(message) && message.tool_calls?.length) {
+				console.log(JSON.stringify(message.tool_calls, null, 2));
+			}
+		};
+
+		const printStep = (step: Record<string, any>) => {
+			if (step.__metadata__?.cached) {
+				return;
+			}
+			for (const [taskName, result] of Object.entries(step)) {
+				if (taskName === 'agent') {
+					continue; // just stream from tasks
+				}
+
+				console.log(`\n${taskName}:`);
+				if (taskName === '__interrupt__' || taskName === 'reviewToolCall') {
+					console.log(JSON.stringify(result, null, 2));
+				} else {
+					prettyPrintMessage(result);
+				}
+			}
+		};
+
+		const config = {
+			configurable: {
+				thread_id: '7',
+			},
+		};
+
+		const userMessage = {
+			role: 'user',
+			content: "What's the weather in san francisco?",
+		};
+		console.log(userMessage);
+
+		const stream = await agent.stream([userMessage], config);
+
+		for await (const step of stream) {
+			printStep(step);
+		}
+
+		const humanInput = new Command({
+			resume: {
+				action: 'continue',
+			},
+		});
+
+		const resumedStream = await agent.stream(humanInput, config);
+
+		for await (const step of resumedStream) {
+			printStep(step);
+		}
+
+		const config2 = {
+			configurable: {
+				thread_id: '8',
+			},
+		};
+
+		const userMessage2 = {
+			role: 'user',
+			content: "What's the weather in san francisco?",
+		};
+
+		console.log(userMessage2);
+
+		const stream2 = await agent.stream([userMessage2], config2);
+
+		for await (const step of stream2) {
+			printStep(step);
+		}
+
+		const humanInput2 = new Command({
+			resume: {
+				action: 'update',
+				data: { location: 'SF, CA' },
+			},
+		});
+
+		const resumedStream2 = await agent.stream(humanInput2, config2);
+
+		for await (const step of resumedStream2) {
+			printStep(step);
+		}
+
+		const config3 = {
+			configurable: {
+				thread_id: '9',
+			},
+		};
+
+		const userMessage3 = {
+			role: 'user',
+			content: "What's the weather in san francisco?",
+		};
+
+		console.log(userMessage3);
+
+		const stream3 = await agent.stream([userMessage3], config3);
+
+		for await (const step of stream3) {
+			printStep(step);
+		}
+
+		const humanInput3 = new Command({
+			resume: {
+				action: 'feedback',
+				data: 'Please format as <City>, <State>.',
+			},
+		});
+
+		const resumedStream3 = await agent.stream(humanInput3, config3);
+
+		for await (const step of resumedStream3) {
+			printStep(step);
+		}
+
+		const continueCommand = new Command({
+			resume: {
+				action: 'continue',
+			},
+		});
+
+		const continueStream = await agent.stream(continueCommand, config3);
+
+		for await (const step of continueStream) {
+			lastStep = printStep(step);
+		}
+
+		return c.json(lastStep);
 	});
 export default app;
