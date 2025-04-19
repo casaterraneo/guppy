@@ -2,13 +2,11 @@ import { Hono } from 'hono';
 
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { ChatCohere } from '@langchain/cohere';
+
 import { createSupervisor } from '@langchain/langgraph-supervisor';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
-
-import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
-import { ChatCohere } from '@langchain/cohere';
 
 const add = tool(async args => args.a + args.b, {
 	name: 'add',
@@ -54,11 +52,19 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 
 	const input = messages[0];
 
-	const model = new ChatGoogleGenerativeAI({
-		model: 'gemini-2.0-flash',
-		apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
+	// const model = new ChatGoogleGenerativeAI({
+	// 	model: 'gemini-2.0-flash',
+	// 	apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
+	// 	temperature: 0,
+	// });
+
+	const model = new ChatCohere({
+		model: 'command-r7b-12-2024',
+		apiKey: c.env.COHERE_API_KEY,
 		temperature: 0,
 	});
+
+	console.log('model', model);
 
 	const mathAgent = createReactAgent({
 		llm: model,
@@ -66,6 +72,7 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 		name: 'math_expert',
 		prompt: 'You are a math expert. Always use one tool at a time.',
 	});
+	console.log('mathAgent', mathAgent);
 
 	const researchAgent = createReactAgent({
 		llm: model,
@@ -73,6 +80,7 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 		name: 'research_expert',
 		prompt: 'You are a world class researcher with access to web search. Do not do any math.',
 	});
+	console.log('researchAgent', researchAgent);
 
 	const workflow = createSupervisor({
 		agents: [researchAgent, mathAgent],
@@ -82,6 +90,8 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 			'For current events, use research_agent. ' +
 			'For math problems, use math_agent.',
 	});
+
+	console.log('workflow', workflow);
 
 	// Compile and run
 	const app = workflow.compile();
