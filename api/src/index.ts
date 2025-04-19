@@ -24,17 +24,31 @@ async function verifyToken(token) {
 }
 
 const tokenValidator = createMiddleware(async (c, next) => {
-	const token = c.req.header('Authorization')?.split(' ')[1];
+	// 1️⃣ Log dell’header grezzo
+	const authHeader = c.req.header('Authorization');
+	console.log('[Auth Header]', authHeader);
+
+	// 2️⃣ Estrazione del token e log
+	const token = authHeader?.split(' ')[1];
+	console.log('[Extracted Token]', token);
 
 	if (!token) {
+		console.log('[Error] No token provided');
 		return c.json({ error: 'No token provided' }, 401);
 	}
 
 	try {
+		// 3️⃣ Prima di verificare il token
+		console.log('[Verify] Calling verifyToken...');
 		const payload = await verifyToken(token);
+		console.log('[Success] Token payload:', payload);
+
+		// 4️⃣ Salvo il payload e proseguo
 		c.set('user', payload);
 		return next();
 	} catch (err) {
+		// 5️⃣ Log dello stack e del messaggio d’errore
+		console.error('[Verify Error]', err);
 		return c.json({ error: 'Token invalid', message: err.message }, 401);
 	}
 });
