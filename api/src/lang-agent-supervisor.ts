@@ -96,6 +96,8 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 	// Compile and run
 	const app = workflow.compile();
 
+	console.log('app', app);
+
 	const result = await app.invoke({
 		messages: [
 			{
