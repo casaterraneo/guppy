@@ -24,7 +24,7 @@ async function verifyToken(token) {
 }
 
 const tokenValidator = createMiddleware(async (c, next) => {
-	const token = c.req.raw.headers.get('Authorization')?.split(' ')[1];
+	const token = c.req.header('Authorization')?.split(' ')[1];
 
 	if (!token) {
 		return c.json({ error: 'No token provided' }, 401);
