@@ -50,7 +50,7 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 	const { messages } = await c.req.json();
 	if (!messages) return c.json({ error: 'Message is required' }, 400);
 
-	//TEST command-r7b-12-2024, command-a-03-2025, command-r-plus (non va nulla)
+	//TEST command-r7b-12-2024 (funziona), command-a-03-2025, command-r-plus (non va nulla)
 	//what's the combined headcount of the FAANG companies in 2024?
 		//Unfortunately, I am unable to answer your request.
 	//what's the headcount of the Netflix company in 2024?
@@ -91,7 +91,7 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 		agents: [researchAgent, mathAgent],
 		llm: model,
 		//outputMode: "last_message",
-		//outputMode: "full_history",
+		outputMode: "full_history",
 		prompt:
 			'You are a team supervisor managing a research expert and a math expert. ' +
 			'For current events, use research_agent. ' +
