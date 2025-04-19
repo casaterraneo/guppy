@@ -60,20 +60,18 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 		//The answer is 4.
 	const input = messages[0];
 
-	//gemini-2.0-flash
-	const model = new ChatGoogleGenerativeAI({
-		model: 'gemini-2.5-flash-preview-04-17',
-		apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
-		temperature: 0,
-	});
-
-	// const model = new ChatCohere({
-	// 	model: 'command-a-03-2025',
-	// 	apiKey: c.env.COHERE_API_KEY,
+	//gemini-2.0-flash, gemini-2.5-flash-preview-04-17 non vanno
+	// const model = new ChatGoogleGenerativeAI({
+	// 	model: 'gemini-2.0-flash',
+	// 	apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
 	// 	temperature: 0,
 	// });
 
-	console.log('model', model);
+	const model = new ChatCohere({
+		model: 'command-a-03-2025',
+		apiKey: c.env.COHERE_API_KEY,
+		temperature: 0,
+	});
 
 	const mathAgent = createReactAgent({
 		llm: model,
@@ -81,7 +79,6 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 		name: 'math_expert',
 		prompt: 'You are a math expert. Always use one tool at a time.',
 	});
-	console.log('mathAgent', mathAgent);
 
 	const researchAgent = createReactAgent({
 		llm: model,
@@ -89,25 +86,19 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 		name: 'research_expert',
 		prompt: 'You are a world class researcher with access to web search. Do not do any math.',
 	});
-	console.log('researchAgent', researchAgent);
 
 	const workflow = createSupervisor({
 		agents: [researchAgent, mathAgent],
 		llm: model,
 		//outputMode: "last_message",
-		//outputMode: "full_history"
+		outputMode: "full_history"
 		prompt:
 			'You are a team supervisor managing a research expert and a math expert. ' +
 			'For current events, use research_agent. ' +
 			'For math problems, use math_agent.',
 	});
 
-	console.log('workflow', workflow);
-
-	// Compile and run
 	const app = workflow.compile();
-
-	console.log('app', app);
 
 	const result = await app.invoke({
 		messages: [
