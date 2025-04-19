@@ -50,7 +50,7 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 	const { messages } = await c.req.json();
 	if (!messages) return c.json({ error: 'Message is required' }, 400);
 
-	//TEST command-r7b-12-2024
+	//TEST command-r7b-12-2024, command-a-03-2025
 	//what's the combined headcount of the FAANG companies in 2024?
 		//Unfortunately, I am unable to answer your request.
 	//what's the headcount of the Netflix company in 2024?
@@ -67,7 +67,7 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 	// });
 
 	const model = new ChatCohere({
-		model: 'command-a-03-2025',
+		model: 'command-r-plus',
 		apiKey: c.env.COHERE_API_KEY,
 		temperature: 0,
 	});
