@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { createMiddleware } from 'hono/factory';
-import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { createRemoteJWKSet, jwtVerify, JWTVerifyGetKey } from 'jose';
 import employees from './employees';
 import kvs from './kvs';
 import users from './users';
@@ -12,16 +12,60 @@ import baristaBot from './barista-bot';
 import agent from './lang-agent';
 import agentSupervisor from './lang-agent-supervisor';
 
-const JWKS = createRemoteJWKSet(
-	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
+// const JWKS = createRemoteJWKSet(
+// 	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
+// );
+// async function verifyToken(token) {
+// 	const { payload } = await jwtVerify(token, JWKS, {
+// 		audience: 'guppy-api',
+// 		issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
+// 	});
+// 	return payload;
+// }
+
+const originalJWKS = createRemoteJWKSet(
+  new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
 );
-async function verifyToken(token) {
-	const { payload } = await jwtVerify(token, JWKS, {
-		audience: 'guppy-api',
-		issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
-	});
-	return payload;
-}
+
+// Wrappiamo il resolver per loggare header e key
+const JWKS: JWTVerifyGetKey = async (protectedHeader, token) => {
+  console.log('[JWKS] protectedHeader:', protectedHeader);
+  const key = await originalJWKS(protectedHeader, token!);
+  console.log('[JWKS] resolved key instance:', key);
+  // Se è CryptoKey, vediamo algoritmo, usi, tipo
+  if ('algorithm' in key)  console.log('[JWKS] key.algorithm:', key.algorithm);
+  if ('usages'   in key)  console.log('[JWKS] key.usages:', key.usages);
+  if ('type'     in key)  console.log('[JWKS] key.type:', key.type);
+  return key;
+};
+
+
+async function verifyToken(token: string) {
+	console.log('[verifyToken] token:', token);
+
+	try {
+	  console.log('[verifyToken] calling jwtVerify...');
+	  const { payload/*, protectedHeader*/ } = await jwtVerify(
+		token,
+		JWKS,
+		{
+		  audience: 'guppy-api',
+		  issuer:   'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
+		}
+	  );
+	  console.log('[verifyToken] success, payload:', payload);
+	  return payload;
+	} catch (error: any) {
+	  console.error('[verifyToken] jwtVerify threw:', {
+		name: error.name,
+		message: error.message,
+		// se ci sono proprietà custom:
+		code: (error as any).code,
+	  });
+	  throw error;
+	}
+  }
+
 
 const tokenValidator = createMiddleware(async (c, next) => {
 	// 1️⃣ Log dell’header grezzo
