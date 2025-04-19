@@ -81,8 +81,9 @@ const tokenValidator = createMiddleware(async (c, next) => {
 	try {
 		console.log('[Verify] Calling verifyToken...');
 		//const payload = await verifyToken(token);
-		const secret = new TextEncoder().encode(token);
-		const { payload, protectedHeader } = await jose.jwtVerify(secret, JWKS, {
+		//const secret = new TextEncoder().encode(token);
+		const { payload, protectedHeader } = await jose.jwtVerify(token, JWKS, {
+			algorithms: ['RS256'],
 			issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
 			audience: 'guppy-api',
 		});
