@@ -91,7 +91,7 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 		agents: [researchAgent, mathAgent],
 		llm: model,
 		//outputMode: "last_message",
-		outputMode: "full_history"
+		outputMode: "full_history",
 		prompt:
 			'You are a team supervisor managing a research expert and a math expert. ' +
 			'For current events, use research_agent. ' +
