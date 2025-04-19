@@ -68,7 +68,7 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 	// });
 
 	const model = new ChatCohere({
-		model: 'command-a-03-2025',
+		model: 'command-r7b-12-2024',
 		apiKey: c.env.COHERE_API_KEY,
 		temperature: 0,
 	});
@@ -91,7 +91,7 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 		agents: [researchAgent, mathAgent],
 		llm: model,
 		//outputMode: "last_message",
-		outputMode: "full_history",
+		//outputMode: "full_history",
 		prompt:
 			'You are a team supervisor managing a research expert and a math expert. ' +
 			'For current events, use research_agent. ' +
