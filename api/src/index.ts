@@ -3,7 +3,7 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { createMiddleware } from 'hono/factory';
 //import { createRemoteJWKSet, jwtVerify, JWTVerifyGetKey } from 'jose';
-import * as jose from 'jose'
+import * as jose from 'jose';
 import employees from './employees';
 import kvs from './kvs';
 import users from './users';
@@ -13,7 +13,9 @@ import baristaBot from './barista-bot';
 import agent from './lang-agent';
 import agentSupervisor from './lang-agent-supervisor';
 
-const JWKS = jose.createRemoteJWKSet(new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json'))
+const JWKS = jose.createRemoteJWKSet(
+	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
+);
 
 // const JWKS = createRemoteJWKSet(
 // 	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
@@ -82,7 +84,7 @@ const tokenValidator = createMiddleware(async (c, next) => {
 		const { payload, protectedHeader } = await jose.jwtVerify(token, JWKS, {
 			issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
 			audience: 'guppy-api',
-		  })
+		});
 		console.log('[Success] Token payload:', payload);
 		console.log('[Success] Token protectedHeader:', protectedHeader);
 
