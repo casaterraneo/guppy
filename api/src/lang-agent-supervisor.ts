@@ -50,7 +50,7 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 	const { messages } = await c.req.json();
 	if (!messages) return c.json({ error: 'Message is required' }, 400);
 
-	//TEST command-r7b-12-2024, command-a-03-2025
+	//TEST command-r7b-12-2024, command-a-03-2025, command-r-plus (non va nulla)
 	//what's the combined headcount of the FAANG companies in 2024?
 		//Unfortunately, I am unable to answer your request.
 	//what's the headcount of the Netflix company in 2024?
@@ -60,17 +60,17 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 		//The answer is 4.
 	const input = messages[0];
 
-	// const model = new ChatGoogleGenerativeAI({
-	// 	model: 'gemini-2.0-flash',
-	// 	apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
-	// 	temperature: 0,
-	// });
-
-	const model = new ChatCohere({
-		model: 'command-r-plus',
-		apiKey: c.env.COHERE_API_KEY,
+	const model = new ChatGoogleGenerativeAI({
+		model: 'gemini-2.0-flash',
+		apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
 		temperature: 0,
 	});
+
+	// const model = new ChatCohere({
+	// 	model: 'command-a-03-2025',
+	// 	apiKey: c.env.COHERE_API_KEY,
+	// 	temperature: 0,
+	// });
 
 	console.log('model', model);
 
