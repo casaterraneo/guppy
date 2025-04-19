@@ -60,8 +60,9 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 		//The answer is 4.
 	const input = messages[0];
 
+	//gemini-2.0-flash
 	const model = new ChatGoogleGenerativeAI({
-		model: 'gemini-2.0-flash',
+		model: 'gemini-2.5-flash-preview-04-17',
 		apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
 		temperature: 0,
 	});
