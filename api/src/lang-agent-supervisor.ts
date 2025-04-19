@@ -50,6 +50,14 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 	const { messages } = await c.req.json();
 	if (!messages) return c.json({ error: 'Message is required' }, 400);
 
+	//TEST command-r7b-12-2024
+	//what's the combined headcount of the FAANG companies in 2024?
+		//Unfortunately, I am unable to answer your request.
+	//what's the headcount of the Netflix company in 2024?
+		//The headcount of Netflix in 2024 is 14,000 employees.
+		//Apologies, I have no information on the headcount of Netflix in 2024.
+	//2+2
+		//The answer is 4.
 	const input = messages[0];
 
 	// const model = new ChatGoogleGenerativeAI({
@@ -59,7 +67,7 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 	// });
 
 	const model = new ChatCohere({
-		model: 'command-r7b-12-2024',
+		model: 'command-a-03-2025',
 		apiKey: c.env.COHERE_API_KEY,
 		temperature: 0,
 	});
@@ -86,6 +94,7 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 		agents: [researchAgent, mathAgent],
 		llm: model,
 		outputMode: "last_message",
+		//outputMode: "full_history"
 		prompt:
 			'You are a team supervisor managing a research expert and a math expert. ' +
 			'For current events, use research_agent. ' +
@@ -103,7 +112,6 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 		messages: [
 			{
 				role: 'user',
-				//content: "what's the combined headcount of the FAANG companies in 2024??"
 				content: input,
 			},
 		],
