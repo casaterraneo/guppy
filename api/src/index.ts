@@ -17,11 +17,36 @@ const JWKS = jose.createRemoteJWKSet(
 	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
 );
 
+//OK v5 KO v6
+// async function verifyToken(token) {
+// 	const { payload } = await jose.jwtVerify(token, JWKS, {
+// 		audience: 'guppy-api',
+// 		issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
+// 	});
+// 	return payload;
+// }
+
+//Test v6
 async function verifyToken(token) {
-	const { payload } = await jose.jwtVerify(token, JWKS, {
-		audience: 'guppy-api',
-		issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
-	});
+	const { payload, protectedHeader } = await jose
+		.jwtVerify(jwt, JWKS, options)
+		.catch(async error => {
+			if (error?.code === 'ERR_JWKS_MULTIPLE_MATCHING_KEYS') {
+				for await (const publicKey of error) {
+					try {
+						return await jose.jwtVerify(jwt, publicKey, options);
+					} catch (innerError) {
+						if (innerError?.code === 'ERR_JWS_SIGNATURE_VERIFICATION_FAILED') {
+							continue;
+						}
+						throw innerError;
+					}
+				}
+				throw new jose.errors.JWSSignatureVerificationFailed();
+			}
+
+			throw error;
+		});
 	return payload;
 }
 
@@ -68,7 +93,7 @@ const tokenValidator = createMiddleware(async (c, next) => {
 	//console.log('[Auth Header]', authHeader);
 
 	const token = authHeader?.split(' ')[1];
-	//console.log('[Extracted Token]', token);
+	console.log('[Extracted Token]', token);
 
 	if (!token) {
 		console.log('[Error] No token provided');
@@ -82,7 +107,7 @@ const tokenValidator = createMiddleware(async (c, next) => {
 		// 	issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
 		// 	audience: 'guppy-api',
 		// });
-		//console.log('[Success] Token payload:', payload);
+		console.log('[Success] Token payload:', payload);
 		//console.log('[Success] Token protectedHeader:', protectedHeader);
 
 		c.set('user', payload);
