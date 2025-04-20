@@ -2,7 +2,6 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { createMiddleware } from 'hono/factory';
-//import { createRemoteJWKSet, jwtVerify, JWTVerifyGetKey } from 'jose';
 import * as jose from 'jose';
 import employees from './employees';
 import kvs from './kvs';
@@ -54,81 +53,22 @@ async function verifyToken(jwt) {
 	return payload;
 }
 
-// const originalJWKS = createRemoteJWKSet(
-// 	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
-// );
-
-// Wrappiamo il resolver per loggare header e key
-// const JWKS: JWTVerifyGetKey = async (protectedHeader, token) => {
-// 	console.log('[JWKS] protectedHeader:', protectedHeader);
-// 	const key = await originalJWKS(protectedHeader, token!);
-// 	console.log('[JWKS] resolved key instance:', key);
-// 	// Se è CryptoKey, vediamo algoritmo, usi, tipo
-// 	if ('algorithm' in key) console.log('[JWKS] key.algorithm:', key.algorithm);
-// 	if ('usages' in key) console.log('[JWKS] key.usages:', key.usages);
-// 	if ('type' in key) console.log('[JWKS] key.type:', key.type);
-// 	return key;
-// };
-
-// async function verifyToken(token: string) {
-// 	console.log('[verifyToken] token:', token);
-
-// 	try {
-// 		console.log('[verifyToken] calling jwtVerify...');
-// 		const { payload /*, protectedHeader*/ } = await jwtVerify(token, JWKS, {
-// 			audience: 'guppy-api',
-// 			issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
-// 		});
-// 		console.log('[verifyToken] success, payload:', payload);
-// 		return payload;
-// 	} catch (error: any) {
-// 		console.error('[verifyToken] jwtVerify threw:', {
-// 			name: error.name,
-// 			message: error.message,
-// 			// se ci sono proprietà custom:
-// 			code: (error as any).code,
-// 		});
-// 		throw error;
-// 	}
-// }
-
 const tokenValidator = createMiddleware(async (c, next) => {
 	const authHeader = c.req.header('Authorization');
 	//console.log('[Auth Header]', authHeader);
 
 	const token = authHeader?.split(' ')[1];
-	console.log('[Extracted Token]', token);
+	//console.log('[Extracted Token]', token);
 
 	if (!token) {
 		console.log('[Error] No token provided');
 		return c.json({ error: 'No token provided' }, 401);
 	}
 
-	// const publicJwk = {
-	// 	kty: 'RSA',
-	// 	kid: 'kBJvTwqXRHAZ7pSQEpqko',
-	// 	use: 'sig',
-	// 	alg: 'RS256',
-	// 	n: 'scyjJr-dOiU_h8xOQSDncfNGbia0Qg1-Qn4k58QhfeBXqcUfIB5cCGCcExIItLR6oTj1mcXcBcl43VA-754tKNVnVYnOCsyvLsE7Z5b-W9Yi0zO4IM4xMHA3JB6VQZCcCMQOY5MerELBx_UplT4l9j0okS1vCSQ5KH6XAY_nmbuKNKk7qlKq3WGXasCPJwnwajs28X_XymNfT7sRQu_HajzmMEMwJFZV976M28Obdm54w2QcrjCzfhjToLXnxzwww8Sw9BgXe5uWVlU-SBFiYmWJBhi5SW9VOD_bxU7IrN-EvnzaNBqyeOcMiGeKVVRRiQKZsv-Y55MqqE_Ar1slBQ',
-	// 	e: 'AQAB',
-	// };
-
-	//const publicKey = await jose.importJWK(publicJwk, 'RS256');
-	//console.log('[Success] ImportJWK publicKey', publicKey);
 	try {
 		//console.log('[Verify] Calling verifyToken...');
 		const payload = await verifyToken(token);
-		// const { payload, protectedHeader } = await jose.jwtVerify(token, JWKS, {
-		// 	issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
-		// 	audience: 'guppy-api',
-		// });
-		// const { payload, protectedHeader } = await jose.jwtVerify(token, publicKey, {
-		// 	issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
-		// 	audience: 'guppy-api',
-		// });
-		console.log('[Success] Token payload:', payload);
-		//console.log('[Success] Token protectedHeader:', protectedHeader);
-
+		//console.log('[Success] Token payload:', payload);
 		c.set('user', payload);
 		return next();
 	} catch (err) {
