@@ -114,7 +114,7 @@ const tokenValidator = createMiddleware(async (c, next) => {
 	};
 
 	const publicKey = await jose.importJWK(publicJwk, 'RS256');
-
+	console.log('[Success] ImportJWK publicKey', publicKey);
 	try {
 		//console.log('[Verify] Calling verifyToken...');
 		//const payload = await verifyToken(token);
