@@ -68,10 +68,10 @@ const JWKS = jose.createRemoteJWKSet(
 
 const tokenValidator = createMiddleware(async (c, next) => {
 	const authHeader = c.req.header('Authorization');
-	console.log('[Auth Header]', authHeader);
+	//console.log('[Auth Header]', authHeader);
 
 	const token = authHeader?.split(' ')[1];
-	console.log('[Extracted Token]', token);
+	//console.log('[Extracted Token]', token);
 
 	if (!token) {
 		console.log('[Error] No token provided');
@@ -81,14 +81,12 @@ const tokenValidator = createMiddleware(async (c, next) => {
 	try {
 		console.log('[Verify] Calling verifyToken...');
 		//const payload = await verifyToken(token);
-		//const secret = new TextEncoder().encode(token);
 		const { payload, protectedHeader } = await jose.jwtVerify(token, JWKS, {
-			algorithms: ['RS256'],
 			issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
 			audience: 'guppy-api',
 		});
-		console.log('[Success] Token payload:', payload);
-		console.log('[Success] Token protectedHeader:', protectedHeader);
+		//console.log('[Success] Token payload:', payload);
+		//console.log('[Success] Token protectedHeader:', protectedHeader);
 
 		c.set('user', payload);
 		return next();
