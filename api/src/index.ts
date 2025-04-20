@@ -104,13 +104,28 @@ const tokenValidator = createMiddleware(async (c, next) => {
 		return c.json({ error: 'No token provided' }, 401);
 	}
 
+	const publicJwk = {
+		kty: 'RSA',
+		kid: 'kBJvTwqXRHAZ7pSQEpqko',
+		use: 'sig',
+		alg: 'RS256',
+		n: 'scyjJr-dOiU_h8xOQSDncfNGbia0Qg1-Qn4k58QhfeBXqcUfIB5cCGCcExIItLR6oTj1mcXcBcl43VA-754tKNVnVYnOCsyvLsE7Z5b-W9Yi0zO4IM4xMHA3JB6VQZCcCMQOY5MerELBx_UplT4l9j0okS1vCSQ5KH6XAY_nmbuKNKk7qlKq3WGXasCPJwnwajs28X_XymNfT7sRQu_HajzmMEMwJFZV976M28Obdm54w2QcrjCzfhjToLXnxzwww8Sw9BgXe5uWVlU-SBFiYmWJBhi5SW9VOD_bxU7IrN-EvnzaNBqyeOcMiGeKVVRRiQKZsv-Y55MqqE_Ar1slBQ',
+		e: 'AQAB',
+	};
+
+	const publicKey = await jose.importJWK(publicJwk, 'RS256');
+
 	try {
 		//console.log('[Verify] Calling verifyToken...');
-		const payload = await verifyToken(token);
+		//const payload = await verifyToken(token);
 		// const { payload, protectedHeader } = await jose.jwtVerify(token, JWKS, {
 		// 	issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
 		// 	audience: 'guppy-api',
 		// });
+		const { payload, protectedHeader } = await jose.jwtVerify(token, publicKey, {
+			issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
+			audience: 'guppy-api',
+		});
 		console.log('[Success] Token payload:', payload);
 		//console.log('[Success] Token protectedHeader:', protectedHeader);
 
