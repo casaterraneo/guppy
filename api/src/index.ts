@@ -27,7 +27,7 @@ const JWKS = jose.createRemoteJWKSet(
 // }
 
 //Test v6
-async function verifyToken(token) {
+async function verifyToken(jwt) {
 	const options = {
 		issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
 		audience: 'guppy-api',
