@@ -17,13 +17,13 @@ const JWKS = jose.createRemoteJWKSet(
 	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
 );
 
-// async function verifyToken(token) {
-// 	const { payload } = await jwtVerify(token, JWKS, {
-// 		audience: 'guppy-api',
-// 		issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
-// 	});
-// 	return payload;
-// }
+async function verifyToken(token) {
+	const { payload } = await jose.jwtVerify(token, JWKS, {
+		audience: 'guppy-api',
+		issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
+	});
+	return payload;
+}
 
 // const originalJWKS = createRemoteJWKSet(
 // 	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
@@ -76,12 +76,12 @@ const tokenValidator = createMiddleware(async (c, next) => {
 	}
 
 	try {
-		console.log('[Verify] Calling verifyToken...');
-		//const payload = await verifyToken(token);
-		const { payload, protectedHeader } = await jose.jwtVerify(token, JWKS, {
-			issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
-			audience: 'guppy-api',
-		});
+		//console.log('[Verify] Calling verifyToken...');
+		const payload = await verifyToken(token);
+		// const { payload, protectedHeader } = await jose.jwtVerify(token, JWKS, {
+		// 	issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
+		// 	audience: 'guppy-api',
+		// });
 		//console.log('[Success] Token payload:', payload);
 		//console.log('[Success] Token protectedHeader:', protectedHeader);
 
