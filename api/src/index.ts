@@ -28,6 +28,10 @@ const JWKS = jose.createRemoteJWKSet(
 
 //Test v6
 async function verifyToken(token) {
+	const options = {
+		issuer: 'https://dev-lnkfyfu1two0vaem.us.auth0.com/',
+		audience: 'guppy-api',
+	};
 	const { payload, protectedHeader } = await jose
 		.jwtVerify(jwt, JWKS, options)
 		.catch(async error => {
