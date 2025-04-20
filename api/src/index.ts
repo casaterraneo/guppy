@@ -17,9 +17,6 @@ const JWKS = jose.createRemoteJWKSet(
 	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
 );
 
-// const JWKS = createRemoteJWKSet(
-// 	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
-// );
 // async function verifyToken(token) {
 // 	const { payload } = await jwtVerify(token, JWKS, {
 // 		audience: 'guppy-api',
