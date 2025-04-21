@@ -43,6 +43,7 @@ const webSearch = tool(
 		schema: z.object({
 			query: z.string(),
 		}),
+		returnDirect: true,
 	}
 );
 
