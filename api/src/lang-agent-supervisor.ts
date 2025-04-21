@@ -61,17 +61,17 @@ const app = new Hono().post('run-agent-supervisor', async c => {
 	const input = messages[0];
 
 	//gemini-2.0-flash, gemini-2.5-flash-preview-04-17 non vanno
-	// const model = new ChatGoogleGenerativeAI({
-	// 	model: 'gemini-2.0-flash',
-	// 	apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
-	// 	temperature: 0,
-	// });
-
-	const model = new ChatCohere({
-		model: 'command-r7b-12-2024',
-		apiKey: c.env.COHERE_API_KEY,
+	const model = new ChatGoogleGenerativeAI({
+		model: 'gemini-2.0-flash',
+		apiKey: c.env.GOOGLE_AI_STUDIO_TOKEN,
 		temperature: 0,
 	});
+
+	// const model = new ChatCohere({
+	// 	model: 'command-r7b-12-2024',
+	// 	apiKey: c.env.COHERE_API_KEY,
+	// 	temperature: 0,
+	// });
 
 	const mathAgent = createReactAgent({
 		llm: model,
