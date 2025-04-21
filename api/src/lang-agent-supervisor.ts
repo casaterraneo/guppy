@@ -25,7 +25,7 @@ const multiply = tool(async args => args.a * args.b, {
 		b: z.number(),
 	}),
 });
-
+//returnDirect: true,
 const webSearch = tool(
 	async args => {
 		return (
@@ -42,8 +42,7 @@ const webSearch = tool(
 		description: 'Search the web for information.',
 		schema: z.object({
 			query: z.string(),
-		}),
-		returnDirect: true,
+		})
 	}
 );
 
