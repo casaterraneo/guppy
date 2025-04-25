@@ -113,7 +113,7 @@ app.route('/api/barista-bot', baristaBot);
 app.route('/api/agent', agent);
 app.route('/api/agentSupervisor', agentSupervisor);
 app.route('/api/counter-do', counterDO);
-app.route('/api', testClientWebSocket);
+app.route('/ws', testClientWebSocket);
 
 app.onError((err, c) => {
 	console.error(`${err}`);

@@ -49,7 +49,7 @@
             Port = -1
         };
 
-        uri = $"{uriBuilder.Uri}raw";
+        uri = uriBuilder.Uri.ToString().Replace("api", "ws");
     }
 
     async Task ConnectAsync()

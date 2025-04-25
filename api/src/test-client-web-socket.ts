@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { upgradeWebSocket } from 'hono/cloudflare-workers';
 
 const app = new Hono().get(
-	'/raw',
+	'/',
 	upgradeWebSocket(c => {
 		return {
 			onMessage(event, ws) {
