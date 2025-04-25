@@ -1,0 +1,78 @@
+@page "/counterdo"
+@inject IHttpClientFactory HttpClientFactory
+@attribute [Authorize]
+
+<PageTitle>Counter DO</PageTitle>
+
+<h1>Counter</h1>
+
+<p>This component demonstrates how call a Counter Durable Object.</p>
+
+<p>Valore corrente: @(currentCount.HasValue ? currentCount.Value.ToString() : "Non impostato")</p>
+
+<button class="btn btn-info" @onclick="GetCurrentCount">Ottieni valore</button>
+<button class="btn btn-primary" @onclick="IncrementCount">Incrementa</button>
+<button class="btn btn-secondary" @onclick="DecrementCount">Decrementa</button>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger mt-3">
+        @errorMessage
+        <button type="button" class="btn-close float-end" @onclick="ClearError" aria-label="Close"></button>
+    </div>
+}
+
+
+@code {
+    private int? currentCount = null;
+    private string errorMessage = string.Empty;
+    
+    private void ClearError()
+    {
+        errorMessage = string.Empty;
+    }
+
+    private async Task GetCurrentCount()
+    {
+        try
+        {
+            using var http = HttpClientFactory.CreateClient("api");
+            currentCount = await http.GetFromJsonAsync<int?>("counter-do");
+            errorMessage = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Errore durante il recupero del contatore: {ex.Message}";
+        }
+    }
+
+    private async Task IncrementCount()
+    {
+        try
+        {
+            using var http = HttpClientFactory.CreateClient("api");
+            var response = await http.PostAsJsonAsync("counter-do/increment", currentCount);
+            currentCount = await response.Content.ReadFromJsonAsync<int?>();
+            errorMessage = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Errore durante l'incremento: {ex.Message}";
+        }
+    }
+
+    private async Task DecrementCount()
+    {
+        try
+        {
+            using var http = HttpClientFactory.CreateClient("api");
+            var response = await http.PostAsJsonAsync("counter-do/decrement", currentCount);
+            currentCount = await response.Content.ReadFromJsonAsync<int?>();
+            errorMessage = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Errore durante il decremento: {ex.Message}";
+        }
+    }
+}

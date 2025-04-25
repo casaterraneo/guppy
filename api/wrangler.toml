@@ -27,6 +27,9 @@ index_name = "guppy-vector-development"
 [env.staging]
 workers_dev = true
 vars = { ENVIRONMENT = "staging" }
+durable_objects.bindings = [
+  {name = "Counter", class_name = "COUNTER"}
+]
 
 [env.staging.ai]
 binding = "AI"

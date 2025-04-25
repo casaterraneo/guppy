@@ -6,11 +6,15 @@ import * as jose from 'jose';
 import employees from './employees';
 import kvs from './kvs';
 import users from './users';
+
 import googleAI from './google-ai';
 import workersAI from './workers-ai';
 import baristaBot from './barista-bot';
 import agent from './lang-agent';
 import agentSupervisor from './lang-agent-supervisor';
+
+import { DurableObject } from 'cloudflare:workers';
+import counterDO from './counter-do';
 
 const JWKS = jose.createRemoteJWKSet(
 	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
@@ -92,6 +96,37 @@ const dbSetter = createMiddleware(async (c, next) => {
 	}
 });
 
+export class Counter extends DurableObject {
+	// In-memory state
+	value = 0;
+
+	constructor(ctx: DurableObjectState, env: Env) {
+		super(ctx, env);
+
+		// `blockConcurrencyWhile()` ensures no requests are delivered until initialization completes.
+		ctx.blockConcurrencyWhile(async () => {
+			// After initialization, future reads do not need to access storage.
+			this.value = (await ctx.storage.get('value')) || 0;
+		});
+	}
+
+	async getCounterValue() {
+		return this.value;
+	}
+
+	async increment(amount = 1): Promise<number> {
+		this.value += amount;
+		await this.ctx.storage.put('value', this.value);
+		return this.value;
+	}
+
+	async decrement(amount = 1): Promise<number> {
+		this.value -= amount;
+		await this.ctx.storage.put('value', this.value);
+		return this.value;
+	}
+}
+
 const app = new Hono();
 app.use(logger());
 app.use('/*', cors());
@@ -106,6 +141,7 @@ app.route('/api/workers-ai', workersAI);
 app.route('/api/barista-bot', baristaBot);
 app.route('/api/agent', agent);
 app.route('/api/agentSupervisor', agentSupervisor);
+app.route('/api/counter-do', counterDO);
 
 app.onError((err, c) => {
 	console.error(`${err}`);
