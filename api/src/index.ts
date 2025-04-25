@@ -118,11 +118,12 @@ app.onError((err, c) => {
 });
 app.notFound(c => c.text('Not found', 404));
 
-export { Counter };
+//export { Counter };
 
 export default {
 	fetch: app.fetch,
 	async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
 		//ctx.waitUntil(env.LEADERBOARD_WORKFLOW.create());
 	},
+	Counter,
 };
