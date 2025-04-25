@@ -88,5 +88,6 @@
     public void Dispose()
     {        
         _ = CloseAsync();
+        webSocket?.Dispose();
     }
 }
