@@ -13,7 +13,7 @@ import baristaBot from './barista-bot';
 import agent from './lang-agent';
 import agentSupervisor from './lang-agent-supervisor';
 
-import { Counter } from './counter-do';
+import { Counter } from './counter';
 import counterDO from './counter-do';
 
 const JWKS = jose.createRemoteJWKSet(
