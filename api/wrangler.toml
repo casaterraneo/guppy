@@ -28,7 +28,7 @@ index_name = "guppy-vector-development"
 workers_dev = true
 vars = { ENVIRONMENT = "staging" }
 durable_objects.bindings = [
-  {name = "Counter", class_name = "COUNTER"}
+  {name = "COUNTER", class_name = "Counter"}
 ]
 migrations = [
   {tag = "v1", new_sqlite_classes = ["Counter"]}
