@@ -4,29 +4,39 @@
 @using System.Threading
 @implements IDisposable
 @attribute [Authorize]
+@inject IWebAssemblyHostEnvironment Env
 
 <h1>Echo test</h1>
 <h3>State: @webSocket.State</h3>
 
 @if (webSocket.State == WebSocketState.Open)
 {
-    <form @onsubmit="@SendMessageAsync">
+    <div>BaseAddress: @Env.BaseAddress</div>
+    <div>
+        Uri: <input @bind="@uri" />
+    </div>
+    <div>
         Message: <input @bind="@message" />
-        <button type="submit">Send</button>
-    </form>
+    </div> 
+
+    <button class="btn btn-info" @onclick="ConnectAsync">Connect</button>
+    <button class="btn btn-primary" @onclick="SendMessageAsync">SendMessage</button>
+    <button class="btn btn-secondary" @onclick="CloseAsync">Close</button>
 
     <pre>@log</pre>
 }
 
 @code {
+    //https://gist.github.com/SteveSandersonMS/5aaff6b010b0785075b0a08cc1e40e01
     CancellationTokenSource disposalTokenSource = new CancellationTokenSource();
     ClientWebSocket webSocket = new ClientWebSocket();
     string message = "Hello, websocket!";
+    string uri = "wss://ws.postman-echo.com/raw";
     string log = "";
 
-    protected override async Task OnInitializedAsync()
+    async Task ConnectAsync()
     {
-        await webSocket.ConnectAsync(new Uri("wss://ws.postman-echo.com/raw"), disposalTokenSource.Token);
+        await webSocket.ConnectAsync(new Uri(uri), disposalTokenSource.Token);
         _ = ReceiveLoop();
     }
 
@@ -52,9 +62,14 @@
         }
     }
 
+    async Task CloseAsync()
+    {
+        await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Bye", CancellationToken.None);        
+    }
+
     public void Dispose()
     {
         disposalTokenSource.Cancel();
-        _ = webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Bye", CancellationToken.None);
+        _ = CloseAsync();
     }
 }

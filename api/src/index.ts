@@ -16,6 +16,8 @@ import agentSupervisor from './lang-agent-supervisor';
 import { Counter } from './counter';
 import counterDO from './counter-do';
 
+import testClientWebSocket from './test-client-web-socket';
+
 const JWKS = jose.createRemoteJWKSet(
 	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
 );
@@ -111,6 +113,7 @@ app.route('/api/barista-bot', baristaBot);
 app.route('/api/agent', agent);
 app.route('/api/agentSupervisor', agentSupervisor);
 app.route('/api/counter-do', counterDO);
+app.route('/ws', testClientWebSocket);
 
 app.onError((err, c) => {
 	console.error(`${err}`);
