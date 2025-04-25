@@ -3,8 +3,11 @@
 @using System.Text
 @using System.Threading
 @implements IDisposable
-@attribute [Authorize]
+
+@inject IHttpClientFactory HttpClientFactory
 @inject IWebAssemblyHostEnvironment Env
+
+@attribute [Authorize]
 
 <h1>Echo test</h1>
 <h3>State: @webSocket.State</h3>
@@ -39,7 +42,8 @@
 
     protected override void OnInitialized()
     {
-        var uriBuilder = new UriBuilder(Env.BaseAddress)
+        using var http = HttpClientFactory.CreateClient("api");
+        var uriBuilder = new UriBuilder(http.BaseAddress)
         {
             Scheme = "wss",
             Port = -1
