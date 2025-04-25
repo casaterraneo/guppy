@@ -30,6 +30,9 @@ vars = { ENVIRONMENT = "staging" }
 durable_objects.bindings = [
   {name = "Counter", class_name = "COUNTER"}
 ]
+migrations = [
+  {tag = "v1", new_sqlite_classes = ["Interview"]}
+]
 
 [env.staging.ai]
 binding = "AI"

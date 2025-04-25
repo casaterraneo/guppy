@@ -13,7 +13,7 @@ import baristaBot from './barista-bot';
 import agent from './lang-agent';
 import agentSupervisor from './lang-agent-supervisor';
 
-import { DurableObject } from 'cloudflare:workers';
+import { Counter } from './counter-do';
 import counterDO from './counter-do';
 
 const JWKS = jose.createRemoteJWKSet(
@@ -96,37 +96,6 @@ const dbSetter = createMiddleware(async (c, next) => {
 	}
 });
 
-export class Counter extends DurableObject {
-	// In-memory state
-	value = 0;
-
-	constructor(ctx: DurableObjectState, env: Env) {
-		super(ctx, env);
-
-		// `blockConcurrencyWhile()` ensures no requests are delivered until initialization completes.
-		ctx.blockConcurrencyWhile(async () => {
-			// After initialization, future reads do not need to access storage.
-			this.value = (await ctx.storage.get('value')) || 0;
-		});
-	}
-
-	async getCounterValue() {
-		return this.value;
-	}
-
-	async increment(amount = 1): Promise<number> {
-		this.value += amount;
-		await this.ctx.storage.put('value', this.value);
-		return this.value;
-	}
-
-	async decrement(amount = 1): Promise<number> {
-		this.value -= amount;
-		await this.ctx.storage.put('value', this.value);
-		return this.value;
-	}
-}
-
 const app = new Hono();
 app.use(logger());
 app.use('/*', cors());
@@ -148,6 +117,8 @@ app.onError((err, c) => {
 	return c.text(err.toString());
 });
 app.notFound(c => c.text('Not found', 404));
+
+export { Counter };
 
 export default {
 	fetch: app.fetch,
