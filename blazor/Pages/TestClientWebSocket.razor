@@ -81,12 +81,12 @@
 
     async Task CloseAsync()
     {
+        disposalTokenSource.Cancel();
         await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Bye", CancellationToken.None);        
     }
 
     public void Dispose()
-    {
-        disposalTokenSource.Cancel();
+    {        
         _ = CloseAsync();
     }
 }
