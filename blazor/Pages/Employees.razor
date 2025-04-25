@@ -9,18 +9,19 @@
 
 <p>This component demonstrates fetching data from the server.</p>
 
-<div>
-	<input type="text" @bind="searchText" placeholder="Inserisci la chiave" />
-	<i class="bi bi-search pointer" @onclick ="() => GetEmployees()"></i>
-	<InputSelect class="form-control" @bind-Value="searchConfigId">
-		<option value="">Seleziona...</option>
-		<option value="1">1</option>
-		<option value="2">2</option>
-		<option value="3">3</option>
-		<option value="4">4</option>		
-	</InputSelect>	
+<div class="d-flex align-items-center gap-2">
+    <input type="text" @bind="searchText" class="form-control" placeholder="Inserisci la chiave" style="max-width: 200px;" />
+    
+    <i class="bi bi-search pointer" @onclick="() => GetEmployees()" style="cursor: pointer; font-size: 1.2rem;"></i>
+    
+    <InputSelect class="form-select w-auto" @bind-Value="searchConfigId">
+        <option value="">Seleziona...</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>		
+    </InputSelect>	
 </div>
-
 
 @if (employees == null)
 {
