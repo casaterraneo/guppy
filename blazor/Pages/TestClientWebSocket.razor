@@ -9,20 +9,20 @@
 <h1>Echo test</h1>
 <h3>State: @webSocket.State</h3>
 
+<div>BaseAddress: @Env.BaseAddress</div>
+<div>
+    Uri: <input type="text" @bind="@uri" />
+</div>
+<div>
+    Message: <input type="text" @bind="@message" />
+</div> 
+
+<button class="btn btn-info" @onclick="ConnectAsync">Connect</button>
+<button class="btn btn-primary" @onclick="SendMessageAsync">SendMessage</button>
+<button class="btn btn-secondary" @onclick="CloseAsync">Close</button>
+
 @if (webSocket.State == WebSocketState.Open)
 {
-    <div>BaseAddress: @Env.BaseAddress</div>
-    <div>
-        Uri: <input @bind="@uri" />
-    </div>
-    <div>
-        Message: <input @bind="@message" />
-    </div> 
-
-    <button class="btn btn-info" @onclick="ConnectAsync">Connect</button>
-    <button class="btn btn-primary" @onclick="SendMessageAsync">SendMessage</button>
-    <button class="btn btn-secondary" @onclick="CloseAsync">Close</button>
-
     <pre>@log</pre>
 }
 
