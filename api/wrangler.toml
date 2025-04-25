@@ -31,7 +31,7 @@ durable_objects.bindings = [
   {name = "Counter", class_name = "COUNTER"}
 ]
 migrations = [
-  {tag = "v1", new_sqlite_classes = ["Interview"]}
+  {tag = "v1", new_sqlite_classes = ["Counter"]}
 ]
 
 [env.staging.ai]
