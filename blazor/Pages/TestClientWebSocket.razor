@@ -26,7 +26,7 @@
 
 @if (_webSocket.State == WebSocketState.Open)
 {
-    <pre>@log</pre>
+    <pre>@_log</pre>
 }
 
 @code {
@@ -40,7 +40,6 @@
     //wss://ws.postman-echo.com/raw
     //https://guppy-api-staging.casa-terraneo.workers.dev/
     //wss://guppy-api-staging.casa-terraneo.workers.dev/ws
-    string log = "";
 
     protected override async Task OnInitializedAsync()
     {
