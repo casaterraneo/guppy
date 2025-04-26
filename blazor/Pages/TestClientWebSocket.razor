@@ -10,37 +10,39 @@
 @attribute [Authorize]
 
 <h1>Echo test</h1>
-<h3>State: @webSocket.State</h3>
+<h3>State: @_webSocket.State</h3>
 
 <div>BaseAddress: @Env.BaseAddress</div>
 <div>
-    Uri: <input type="text" @bind="@uri" />
+    Uri: <input type="text" @bind="@_uri" />
 </div>
 <div>
-    Message: <input type="text" @bind="@message" />
+    Message: <input type="text" @bind="@_message" />
 </div> 
 
 <button class="btn btn-info" @onclick="ConnectAsync">Connect</button>
 <button class="btn btn-primary" @onclick="SendMessageAsync">SendMessage</button>
 <button class="btn btn-secondary" @onclick="CloseAsync">Close</button>
 
-@if (webSocket.State == WebSocketState.Open)
+@if (_webSocket.State == WebSocketState.Open)
 {
     <pre>@log</pre>
 }
 
 @code {
     //https://gist.github.com/SteveSandersonMS/5aaff6b010b0785075b0a08cc1e40e01
-    CancellationTokenSource disposalTokenSource = new CancellationTokenSource();
-    ClientWebSocket webSocket = new ClientWebSocket();
-    string message = "Hello, websocket!";
-    string? uri;
+    private ClientWebSocket _webSocket;
+    private CancellationTokenSource _cts;
+    private Task _receiveTask;
+    private string _log = string.Empty;
+    private string _message = "Hello, websocket!";
+    string _uri;
     //wss://ws.postman-echo.com/raw
     //https://guppy-api-staging.casa-terraneo.workers.dev/
     //wss://guppy-api-staging.casa-terraneo.workers.dev/ws
     string log = "";
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         using var http = HttpClientFactory.CreateClient("api");
         var uriBuilder = new UriBuilder(http.BaseAddress)
@@ -48,47 +50,69 @@
             Scheme = "wss",
             Port = -1
         };
-        uri = uriBuilder.Uri.ToString().Replace("/api", "/ws").TrimEnd('/');
+        _uri = uriBuilder.Uri.ToString().Replace("/api", "/ws").TrimEnd('/');
+
+        _webSocket = new ClientWebSocket();
+        _cts = new CancellationTokenSource();
+        await ConnectAsync();
     }
 
-    async Task ConnectAsync()
+    private async Task ConnectAsync()
     {
-        await webSocket.ConnectAsync(new Uri(uri), disposalTokenSource.Token);
-        _ = ReceiveLoop();
-    }
-
-    async Task SendMessageAsync()
-    {
-        log += $"IAsyncDisposable Sending: {message}\n";
-        var dataToSend = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
-        await webSocket.SendAsync(dataToSend, WebSocketMessageType.Text, true, disposalTokenSource.Token);
-    }
-
-    async Task ReceiveLoop()
-    {
-        var buffer = new ArraySegment<byte>(new byte[1024]);
-        while (!disposalTokenSource.IsCancellationRequested)
+        if (_webSocket.State != WebSocketState.Open)
         {
-            // Note that the received block might only be part of a larger message. If this applies in your scenario,
-            // check the received.EndOfMessage and consider buffering the blocks until that property is true.
-            // Or use a higher-level library such as SignalR.
-            var received = await webSocket.ReceiveAsync(buffer, disposalTokenSource.Token);
-            var receivedAsText = Encoding.UTF8.GetString(buffer.Array, 0, received.Count);
-            log += $"Received: {receivedAsText}\n";
-            StateHasChanged();
+            await _webSocket.ConnectAsync(new Uri(_uri), _cts.Token);
+            _receiveTask = ReceiveLoopAsync();
         }
     }
 
-    async Task CloseAsync()
+    private async Task ReceiveLoopAsync()
     {
-        disposalTokenSource.Cancel();
-        await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Bye", CancellationToken.None);        
+        var buffer = new byte[1024];
+        try
+        {
+            while (!_cts.IsCancellationRequested && _webSocket.State == WebSocketState.Open)
+            {
+                var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cts.Token);
+                var text = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                _log += $"Ricevuto: {text}\n";
+                StateHasChanged();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Chiusura attesa, non loggiamo
+        }
+        catch (Exception ex)
+        {
+            _log += $"Errore ReceiveLoop: {ex.Message}\n";
+        }
+    }
+
+    private async Task SendMessageAsync()
+    {
+        if (_webSocket.State == WebSocketState.Open)
+        {
+            var bytes = Encoding.UTF8.GetBytes(_message);
+            await _webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, _cts.Token);
+            _log += $"Inviato: {_message}\n";
+            _message = string.Empty;
+        }
+    }
+
+    private async Task CloseAsync()
+    {
+        if (_webSocket.State == WebSocketState.Open)
+        {
+            _cts.Cancel();  // Fa terminare ReceiveLoop
+            await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Chiusura client", CancellationToken.None);
+        }
     }
 
     public async ValueTask DisposeAsync()
     {
         await CloseAsync();
-        webSocket?.Dispose();
-        disposalTokenSource?.Dispose();
+        _webSocket?.Dispose();
+        _cts?.Dispose();
     }
 }
