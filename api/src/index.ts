@@ -13,10 +13,9 @@ import baristaBot from './barista-bot';
 import agent from './lang-agent';
 import agentSupervisor from './lang-agent-supervisor';
 
-import { Counter } from './counter';
 import counterDO from './counter-do';
-
 import testClientWebSocket from './test-client-web-socket';
+import testWsDo from './test-ws-do';
 
 const JWKS = jose.createRemoteJWKSet(
 	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
@@ -113,7 +112,8 @@ app.route('/api/barista-bot', baristaBot);
 app.route('/api/agent', agent);
 app.route('/api/agentSupervisor', agentSupervisor);
 app.route('/api/counter-do', counterDO);
-app.route('/ws', testClientWebSocket);
+//app.route('/ws', testClientWebSocket);
+app.route('/ws', testWsDo);
 
 app.onError((err, c) => {
 	console.error(`${err}`);
@@ -121,7 +121,8 @@ app.onError((err, c) => {
 });
 app.notFound(c => c.text('Not found', 404));
 
-export { Counter };
+export { Counter } from './DurableObject/counter';
+export { WebhookReceiver } from "./DurableObject/receiver";
 
 export default {
 	fetch: app.fetch,

@@ -29,9 +29,11 @@ workers_dev = true
 vars = { ENVIRONMENT = "staging" }
 durable_objects.bindings = [
   {name = "COUNTER", class_name = "Counter"}
+	{ name = "WEBHOOK_RECEIVER", class_name = "WebhookReceiver" }
 ]
 migrations = [
-  {tag = "v1", new_sqlite_classes = ["Counter"]}
+  {tag = "v1", new_sqlite_classes = ["Counter"]},
+  {tag = "v1", new_sqlite_classes = ["WebhookReceiver"]},
 ]
 
 [env.staging.ai]
