@@ -59,7 +59,7 @@
 
     async Task SendMessageAsync()
     {
-        log += $"Sending: {message}\n";
+        log += $"IAsyncDisposable Sending: {message}\n";
         var dataToSend = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
         await webSocket.SendAsync(dataToSend, WebSocketMessageType.Text, true, disposalTokenSource.Token);
     }
