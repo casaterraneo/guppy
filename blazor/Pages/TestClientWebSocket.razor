@@ -2,7 +2,7 @@
 @using System.Net.WebSockets
 @using System.Text
 @using System.Threading
-@implements IDisposable
+@implements IAsyncDisposable
 
 @inject IHttpClientFactory HttpClientFactory
 @inject IWebAssemblyHostEnvironment Env
@@ -85,9 +85,9 @@
         await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Bye", CancellationToken.None);        
     }
 
-    public void Dispose()
-    {        
-        _ = CloseAsync();
+    public async ValueTask DisposeAsync()
+    {
+        await CloseAsync();
         webSocket?.Dispose();
     }
 }
