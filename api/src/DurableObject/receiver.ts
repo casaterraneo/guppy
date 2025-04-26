@@ -26,9 +26,14 @@ export class WebhookReceiver extends DurableObject {
 		// Upon receiving a message from the client, reply with the same message,
 		// but will prefix the message with "[Durable Object]: " and return the
 		// total number of connections.
-		ws.send(
-			`[Durable Object] message: ${message}, connections: ${this.ctx.getWebSockets().length}`
-		);
+		// ws.send(
+		// 	`[Durable Object] message: ${message}, connections: ${this.ctx.getWebSockets().length}`
+		// );
+
+		// Broadcast the message to all connected clients
+		for (const connection of this.ctx.getWebSockets()) {
+			connection.send(message);
+		}
 	}
 
 	async webSocketClose(ws, code, reason, wasClean) {
