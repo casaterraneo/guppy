@@ -89,5 +89,6 @@
     {
         await CloseAsync();
         webSocket?.Dispose();
+        disposalTokenSource?.Dispose();
     }
 }
