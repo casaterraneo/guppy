@@ -10,8 +10,8 @@ const app = new Hono().get(
 				ws.send(event.data);
 			},
 			onClose: (event, ws) => {
-				console.log('Connection closing');
-				ws.close();
+				//console.log('Connection closing');
+				//ws.close();
 				console.log('Connection closed');
 			},
 		};
