@@ -48,8 +48,8 @@
         };
         _uri = uriBuilder.Uri.ToString().Replace("/api", "/ws").TrimEnd('/');
 
-        //_webSocket = new ClientWebSocket();
-        //_cts = new CancellationTokenSource();
+        _webSocket = new ClientWebSocket();
+        _cts = new CancellationTokenSource();
     }
 
     private async Task ConnectAsync()
