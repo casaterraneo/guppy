@@ -57,21 +57,26 @@
 
     private async Task ConnectAsync()
     {
+        _log += $"Start ConnectAsync State: {_webSocket.State}\n";
         if (_webSocket.State != WebSocketState.Open)
         {
             await _webSocket.ConnectAsync(new Uri(_uri), _cts.Token);
             _receiveTask = ReceiveLoopAsync();
         }
+        _log += $"End ConnectAsync State: {_webSocket.State}\n";
     }
 
     private async Task ReceiveLoopAsync()
     {
+        _log += $"Start ReceiveLoopAsync State: {_webSocket.State}\n";
         var buffer = new byte[1024];
         try
         {
             while (!_cts.IsCancellationRequested && _webSocket.State == WebSocketState.Open)
             {
+                _log += $"Start ReceiveAsync State: {_webSocket.State}\n";
                 var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cts.Token);
+               _log += $"End ReceiveAsync State: {_webSocket.State}\n";
                 var text = Encoding.UTF8.GetString(buffer, 0, result.Count);
                 _log += $"Ricevuto: {text}\n";
                 StateHasChanged();
@@ -85,10 +90,12 @@
         {
             _log += $"Errore ReceiveLoop: {ex.Message}\n";
         }
+        _log += $"End ReceiveLoopAsync State: {_webSocket.State}\n";
     }
 
     private async Task SendMessageAsync()
     {
+       _log += $"Start SendMessageAsync State: {_webSocket.State}\n";
         if (_webSocket.State == WebSocketState.Open)
         {
             var bytes = Encoding.UTF8.GetBytes(_message);
@@ -96,21 +103,27 @@
             _log += $"Inviato: {_message}\n";
             _message = string.Empty;
         }
+        _log += $"End SendMessageAsync State: {_webSocket.State}\n";
     }
 
     private async Task CloseAsync()
     {
+       _log += $"Start CloseAsync State: {_webSocket.State}\n";
         if (_webSocket.State == WebSocketState.Open)
         {
             _cts.Cancel();  // Fa terminare ReceiveLoop
             await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Chiusura client", CancellationToken.None);
+            _log += $"State: {_webSocket.State}\n";
         }
+       _log += $"End CloseAsync State: {_webSocket.State}\n";
     }
 
     public async ValueTask DisposeAsync()
     {
-        await CloseAsync();
-        _webSocket?.Dispose();
+       _log += $"Start DisposeAsync State: {_webSocket.State}\n";
+        await CloseAsync();             
+        _webSocket?.Dispose();         
         _cts?.Dispose();
+        _log += $"End DisposeAsync\n";
     }
 }
