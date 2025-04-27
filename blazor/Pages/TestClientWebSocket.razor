@@ -10,7 +10,7 @@
 @attribute [Authorize]
 
 <h1>Echo test 1</h1>
-<h3>State: @_webSocket.State</h3>
+<h3>State: @_webSocket?.State</h3>
 
 <div>BaseAddress: @Env.BaseAddress</div>
 <div>
