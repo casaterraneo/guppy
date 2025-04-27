@@ -9,7 +9,7 @@
 
 @attribute [Authorize]
 
-<h1>Echo test</h1>
+<h1>Echo test 1</h1>
 <h3>State: @_webSocket.State</h3>
 
 <div>BaseAddress: @Env.BaseAddress</div>
@@ -24,10 +24,7 @@
 <button class="btn btn-primary" @onclick="SendMessageAsync">SendMessage</button>
 <button class="btn btn-secondary" @onclick="CloseAsync">Close</button>
 
-@if (_webSocket.State == WebSocketState.Open)
-{
-    <pre>@_log</pre>
-}
+<pre>@_log</pre>
 
 @code {
     //https://gist.github.com/SteveSandersonMS/5aaff6b010b0785075b0a08cc1e40e01
