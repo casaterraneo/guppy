@@ -32,38 +32,47 @@
         // Protezione contro indici fuori limite
         if (index < 0 || index >= board.Length)
         {
+            Console.WriteLine($"Indice fuori limite: {index}");
             return;
         }
 
         if (!string.IsNullOrWhiteSpace(board[index]) || gameEnded)
+        {
+            Console.WriteLine($"Mossa non valida. Cell occupata o gioco finito. Index: {index}");
             return;
+        }
 
         board[index] = currentPlayer;
+        Console.WriteLine($"Mossa di {currentPlayer} alla posizione {index}");
 
         if (CheckWinner())
         {
             status = $"Vince {currentPlayer}!";
             gameEnded = true;
+            Console.WriteLine($"Gioco finito! {currentPlayer} ha vinto!");
         }
         else if (board.All(cell => !string.IsNullOrWhiteSpace(cell)))
         {
             status = "Pareggio!";
             gameEnded = true;
+            Console.WriteLine("Pareggio!");
         }
         else
         {
             currentPlayer = (currentPlayer == "X") ? "O" : "X";
             status = $"Turno di {currentPlayer}";
+            Console.WriteLine($"Cambio giocatore. È il turno di {currentPlayer}");
         }
+        StateHasChanged();  // Forza il rendering per aggiornare la UI
     }
 
     private bool CheckWinner()
     {
-        int[][] winningCombos = new int[][]
+        int[][] winningCombos = new int[][] 
         {
-            new[] {0,1,2}, new[] {3,4,5}, new[] {6,7,8},  // righe
-            new[] {0,3,6}, new[] {1,4,7}, new[] {2,5,8},  // colonne
-            new[] {0,4,8}, new[] {2,4,6}                  // diagonali
+            new[] {0, 1, 2}, new[] {3, 4, 5}, new[] {6, 7, 8},  // righe
+            new[] {0, 3, 6}, new[] {1, 4, 7}, new[] {2, 5, 8},  // colonne
+            new[] {0, 4, 8}, new[] {2, 4, 6}                  // diagonali
         };
 
         foreach (var combo in winningCombos)
@@ -76,10 +85,11 @@
             if (a < 0 || a >= board.Length || b < 0 || b >= board.Length || c < 0 || c >= board.Length)
                 continue;
 
-            if (!string.IsNullOrWhiteSpace(board[a]) &&
-                board[a] == board[b] &&
+            if (!string.IsNullOrWhiteSpace(board[a]) && 
+                board[a] == board[b] && 
                 board[b] == board[c])
             {
+                Console.WriteLine($"Vincitore trovato: {board[a]} alla combo ({a}, {b}, {c})");
                 return true;
             }
         }
@@ -92,5 +102,6 @@
         currentPlayer = "X";
         status = "Turno di X";
         gameEnded = false;
+        Console.WriteLine("Partita reset. Inizia un nuovo gioco.");
     }
 }
