@@ -1,0 +1,89 @@
+@page "/tris"
+
+@using System.Text
+
+<h3 class="text-center mb-4">Tic Tac Toe</h3>
+
+<div class="container text-center">
+    <div class="row" style="max-width: 200px; margin: auto;">
+        @for (int row = 0; row < 3; row++)
+        {
+            <div class="row w-100">
+                @for (int col = 0; col < 3; col++)
+                {
+                    int index = row * 3 + col;
+                    <button class="btn btn-outline-primary col-4 m-1"
+                            style="height: 60px; font-size: 24px;"
+                            @onclick="() => MakeMove(index)">
+                        @board[index]
+                    </button>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="mt-4">
+        <h5>@status</h5>
+        <button class="btn btn-secondary mt-2" @onclick="Reset">Reset</button>
+    </div>
+</div>
+
+@code {
+    private string[] board = new string[9];
+    private string currentPlayer = "X";
+    private string status = "Turno di X";
+    private bool gameEnded = false;
+
+    private void MakeMove(int index)
+    {
+        if (!string.IsNullOrWhiteSpace(board[index]) || gameEnded)
+            return;
+
+        board[index] = currentPlayer;
+
+        if (CheckWinner())
+        {
+            status = $"Vince {currentPlayer}!";
+            gameEnded = true;
+        }
+        else if (board.All(cell => !string.IsNullOrWhiteSpace(cell)))
+        {
+            status = "Pareggio!";
+            gameEnded = true;
+        }
+        else
+        {
+            currentPlayer = (currentPlayer == "X") ? "O" : "X";
+            status = $"Turno di {currentPlayer}";
+        }
+    }
+
+    private bool CheckWinner()
+    {
+        int[][] winningCombos = new int[][]
+        {
+            new[] {0,1,2}, new[] {3,4,5}, new[] {6,7,8}, // righe
+            new[] {0,3,6}, new[] {1,4,7}, new[] {2,5,8}, // colonne
+            new[] {0,4,8}, new[] {2,4,6}                // diagonali
+        };
+
+        foreach (var combo in winningCombos)
+        {
+            if (!string.IsNullOrWhiteSpace(board[combo[0]]) &&
+                board[combo[0]] == board[combo[1]] &&
+                board[combo[1]] == board[combo[2]])
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void Reset()
+    {
+        board = new string[9];
+        currentPlayer = "X";
+        status = "Turno di X";
+        gameEnded = false;
+    }
+}
