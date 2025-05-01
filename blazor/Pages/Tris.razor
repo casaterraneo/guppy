@@ -1,7 +1,6 @@
 @page "/tris"
 
 @using System.Text
-
 @attribute [Authorize]
 
 <h3 class="text-center mb-4">Tris</h3>
@@ -30,6 +29,12 @@
 
     private void MakeMove(int index)
     {
+        // Protezione contro indici fuori limite
+        if (index < 0 || index >= board.Length)
+        {
+            return;
+        }
+
         if (!string.IsNullOrWhiteSpace(board[index]) || gameEnded)
             return;
 
@@ -56,16 +61,24 @@
     {
         int[][] winningCombos = new int[][]
         {
-            new[] {0,1,2}, new[] {3,4,5}, new[] {6,7,8}, // righe
-            new[] {0,3,6}, new[] {1,4,7}, new[] {2,5,8}, // colonne
-            new[] {0,4,8}, new[] {2,4,6}                // diagonali
+            new[] {0,1,2}, new[] {3,4,5}, new[] {6,7,8},  // righe
+            new[] {0,3,6}, new[] {1,4,7}, new[] {2,5,8},  // colonne
+            new[] {0,4,8}, new[] {2,4,6}                  // diagonali
         };
 
         foreach (var combo in winningCombos)
         {
-            if (!string.IsNullOrWhiteSpace(board[combo[0]]) &&
-                board[combo[0]] == board[combo[1]] &&
-                board[combo[1]] == board[combo[2]])
+            var a = combo[0];
+            var b = combo[1];
+            var c = combo[2];
+
+            // Protezione aggiuntiva, anche se i combo sono statici
+            if (a < 0 || a >= board.Length || b < 0 || b >= board.Length || c < 0 || c >= board.Length)
+                continue;
+
+            if (!string.IsNullOrWhiteSpace(board[a]) &&
+                board[a] == board[b] &&
+                board[b] == board[c])
             {
                 return true;
             }
