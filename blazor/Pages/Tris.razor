@@ -74,7 +74,8 @@
         
         if(currentPlayer == "" && board.Count(c => c == "X") == 0)
             currentPlayer = "X";
-        else 
+
+        if(currentPlayer == "" && board.Count(c => c == "O") == 0)
             currentPlayer = "O";
 
         board[idx] = currentPlayer;
@@ -86,31 +87,23 @@
             winner = $"Ha vinto {currentPlayer}!";
         }
     }
-    bool IsMyTurn()
+    private bool IsMyTurn()
     {
         int countX = board.Count(c => c == "X");
         int countO = board.Count(c => c == "O");
 
-        if (currentPlayer == "")
-        {            
-            return true;
-        }
+        if(_webSocket.State != WebSocketState.Open)
+            return false;
+        if (currentPlayer == "")                    
+            return true;        
         if (currentPlayer == "X")
-        {
-            // X gioca se ha fatto lo stesso numero di mosse di O (inizia sempre)
-            return countX == countO;
-        }
-        else if (currentPlayer == "O")
-        {
-            // O gioca se ha fatto una mossa in meno di X
-            return countX > countO;
-        }
-        else
-        {
-            throw new ArgumentException("Player deve essere 'X' o 'O'");
-        }
+            return countX == countO; // X gioca se ha fatto lo stesso numero di mosse di O (inizia sempre)
+        if (currentPlayer == "O")
+            return countX > countO;// O gioca se ha fatto una mossa in meno di X
+
+        throw new ArgumentException("Player deve essere 'X' o 'O'");        
     }
-    bool CheckWin(string player)
+    private bool CheckWin(string player)
     {
         int[,] wins = new int[,] {
             {0,1,2}, {3,4,5}, {6,7,8}, // righe
@@ -125,11 +118,12 @@
         return false;
     }
 
-    void Reset()
+    private async Task Reset()
     {
         board = new string[9];
         winner = null;
         currentPlayer = "";
+        await SendMessageAsync();   // Invia il messaggio al server
     }
 
     protected override void OnInitialized()
