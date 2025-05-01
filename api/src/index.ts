@@ -113,7 +113,7 @@ app.route('/api/agent', agent);
 app.route('/api/agentSupervisor', agentSupervisor);
 app.route('/api/counter-do', counterDO);
 app.route('/ws', testClientWebSocket);
-//app.route('/ws', testWsDo);
+app.route('/wsdo', testWsDo);
 
 app.onError((err, c) => {
 	console.error(`${err}`);

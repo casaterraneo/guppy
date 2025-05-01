@@ -114,7 +114,7 @@
     private async Task CloseAsync()
     {
        _log += $"Start CloseAsync State: {_webSocket.State}\n";
-        if (_webSocket.State == WebSocketState.Open)
+        if (_webSocket is not null && _webSocket.State == WebSocketState.Open)
         {
             //_cts.Cancel();  // Fa terminare ReceiveLoop
             await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Chiusura client", CancellationToken.None);
