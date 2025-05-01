@@ -33,7 +33,7 @@ durable_objects.bindings = [
 	{name = "TRIS_RECEIVER", class_name = "TrisReceiver"},
 ]
 migrations = [
-  {tag = "v1", new_sqlite_classes = ["Counter", "WebhookReceiver","TrisReceiver"]},
+  {tag = "v1", new_sqlite_classes = ["Counter", "WebhookReceiver", "TrisReceiver"]},
 ]
 
 [env.staging.ai]
