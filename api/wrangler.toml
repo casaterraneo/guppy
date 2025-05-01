@@ -28,12 +28,10 @@ index_name = "guppy-vector-development"
 workers_dev = true
 vars = { ENVIRONMENT = "staging" }
 durable_objects.bindings = [
-  {name = "COUNTER", class_name = "Counter"},
-	{name = "WEBHOOK_RECEIVER", class_name = "WebhookReceiver"},
 	{name = "TRIS_RECEIVER", class_name = "TrisReceiver"},
 ]
 migrations = [
-  {tag = "v1", new_sqlite_classes = ["Counter", "WebhookReceiver", "TrisReceiver"]},
+  {tag = "v1", new_sqlite_classes = ["TrisReceiver"]},
 ]
 
 [env.staging.ai]
