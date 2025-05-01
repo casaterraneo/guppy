@@ -1,7 +1,14 @@
 @page "/tris"
 @attribute [Authorize]
 
+@implements IAsyncDisposable
+
+@inject IHttpClientFactory HttpClientFactory
+@inject IWebAssemblyHostEnvironment Env
+
 @using System.Linq
+@using System.Net.WebSockets
+@using System.Text
 
 <h3 class="mb-4">Tris (Tic Tac Toe)</h3>
 
@@ -18,7 +25,7 @@
                             <button class="btn btn-outline-primary btn-lg"
                                     style="width: 70px; height: 70px; font-size:2rem;"
                                     disabled="@(!string.IsNullOrEmpty(board[idx]) || !string.IsNullOrEmpty(winner))"
-                                    @onclick="() => MakeMove(idx)">
+                                    @onclick="async () => await MakeMoveAsync(idx)">
                                 @board[idx]
                             </button>
                         }
@@ -53,13 +60,20 @@
     string currentPlayer = "X";
     // Vincitore (null se la partita è in corso)
     string winner;
+    string _uri;
+    private ClientWebSocket _webSocket;
+    private CancellationTokenSource _cts;
 
-    void MakeMove(int idx)
+    private async Task MakeMoveAsync(int idx)
     {
         if (!string.IsNullOrEmpty(board[idx]) || !string.IsNullOrEmpty(winner))
             return;
 
         board[idx] = currentPlayer;
+
+        await ConnectAsync();       // Connessione al server WebSocket
+        await SendMessageAsync();   // Invia il messaggio al server
+        
         if (CheckWin(currentPlayer))
         {
             winner = $"Ha vinto {currentPlayer}!";
@@ -91,4 +105,86 @@
         winner = null;
         currentPlayer = "X";
     }
+
+    protected override void OnInitialized()
+    {
+        using var http = HttpClientFactory.CreateClient("api");
+        var uriBuilder = new UriBuilder(http.BaseAddress)
+        {
+            Scheme = "wss",
+            Port = -1
+        };
+        _uri = uriBuilder.Uri.ToString().Replace("/api", "/tris").TrimEnd('/');
+
+        _webSocket = new ClientWebSocket();
+        _cts = new CancellationTokenSource();
+    }   
+
+    private async Task ConnectAsync()
+    {
+        if (_webSocket.State == WebSocketState.Closed 
+            || _webSocket.State == WebSocketState.Aborted 
+            || _webSocket.State == WebSocketState.None)
+        {
+            _webSocket = new ClientWebSocket();
+            _cts = new CancellationTokenSource();
+        }        
+        if (_webSocket.State != WebSocketState.Open)
+        {
+            await _webSocket.ConnectAsync(new Uri(_uri), _cts.Token);
+            _ = ReceiveLoopAsync();
+        }
+    }
+
+    private async Task ReceiveLoopAsync()
+    {        
+        var buffer = new byte[1024];
+        try
+        {
+            while (_webSocket.State == WebSocketState.Open && !_cts.IsCancellationRequested)
+            {                
+                var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cts.Token);             
+                var text = Encoding.UTF8.GetString(buffer, 0, result.Count);   
+                if(!string.IsNullOrWhiteSpace(text))
+                {
+                    board = text.Split('|').ToArray(); // Aggiorna la griglia con il messaggio ricevuto
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Chiusura attesa, non loggiamo
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Errore ReceiveLoop: {ex.Message}");
+        }
+    }
+
+    private async Task SendMessageAsync()
+    {       
+        if (_webSocket.State == WebSocketState.Open)
+        {
+            var _message = string.Join("|", board);
+            var bytes = Encoding.UTF8.GetBytes(_message);
+            await _webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, _cts.Token);            
+        }
+    }
+
+    private async Task CloseAsync()
+    {       
+        if (_webSocket is not null && _webSocket.State == WebSocketState.Open)
+        {            
+            await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Chiusura client", CancellationToken.None);     
+            _cts.Cancel();  // Fa terminare ReceiveLoop
+        }       
+    }
+
+    public async ValueTask DisposeAsync()
+    {       
+        await CloseAsync();             
+        _webSocket?.Dispose();         
+        _cts?.Dispose();     
+    }         
 }

@@ -16,6 +16,7 @@ import agentSupervisor from './lang-agent-supervisor';
 import counterDO from './counter-do';
 import testClientWebSocket from './test-client-web-socket';
 import testWsDo from './test-ws-do';
+import tris from './tris';
 
 const JWKS = jose.createRemoteJWKSet(
 	new URL('https://dev-lnkfyfu1two0vaem.us.auth0.com/.well-known/jwks.json')
@@ -114,6 +115,7 @@ app.route('/api/agentSupervisor', agentSupervisor);
 app.route('/api/counter-do', counterDO);
 app.route('/ws', testClientWebSocket);
 app.route('/wsdo', testWsDo);
+app.route('/tris', tris);
 
 app.onError((err, c) => {
 	console.error(`${err}`);
