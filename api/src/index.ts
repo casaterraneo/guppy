@@ -125,6 +125,7 @@ app.notFound(c => c.text('Not found', 404));
 
 export { Counter } from './DurableObject/counter';
 export { WebhookReceiver } from "./DurableObject/receiver";
+export { TrisReceiver } from "./DurableObject/tris-receiver";
 
 export default {
 	fetch: app.fetch,
