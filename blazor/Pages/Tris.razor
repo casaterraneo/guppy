@@ -12,6 +12,8 @@
 
 <h3 class="mb-4">Tris (Tic Tac Toe)</h3>
 
+<button class="btn btn-primary mt-2" @onclick="ConnectAsync">Inizia Partita</button>
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-auto">
@@ -24,7 +26,9 @@
                             int idx = row * 3 + col;
                             <button class="btn btn-outline-primary btn-lg"
                                     style="width: 70px; height: 70px; font-size:2rem;"
-                                    disabled="@(!string.IsNullOrEmpty(board[idx]) || !string.IsNullOrEmpty(winner))"
+                                    disabled="@(!string.IsNullOrEmpty(board[idx]) 
+                                                || !string.IsNullOrEmpty(winner) 
+                                                || !IsMyTurn())"
                                     @onclick="async () => await MakeMoveAsync(idx)">
                                 @board[idx]
                             </button>
@@ -53,12 +57,9 @@
     </div>
 </div>
 
-@code {
-    // Stato della griglia (3x3)
-    string[] board = new string[9];
-    // Turno attuale: "X" o "O"
-    string currentPlayer = "X";
-    // Vincitore (null se la partita è in corso)
+@code {    
+    string[] board = new string[9];    
+    string currentPlayer = "";       
     string winner;
     string _uri;
     private ClientWebSocket _webSocket;
@@ -66,24 +67,49 @@
 
     private async Task MakeMoveAsync(int idx)
     {
-        if (!string.IsNullOrEmpty(board[idx]) || !string.IsNullOrEmpty(winner))
-            return;
+        if (!string.IsNullOrEmpty(board[idx]) 
+            || !string.IsNullOrEmpty(winner)
+            || _webSocket.State != WebSocketState.Open)
+            return;        
+        
+        if(currentPlayer == "" && board.Count(c => c == "X") == 0)
+            currentPlayer = "X";
+        else 
+            currentPlayer = "O";
 
         board[idx] = currentPlayer;
 
-        await ConnectAsync();       // Connessione al server WebSocket
         await SendMessageAsync();   // Invia il messaggio al server
         
         if (CheckWin(currentPlayer))
         {
             winner = $"Ha vinto {currentPlayer}!";
         }
+    }
+    bool IsMyTurn()
+    {
+        int countX = board.Count(c => c == "X");
+        int countO = board.Count(c => c == "O");
+
+        if (currentPlayer == "")
+        {            
+            return true;
+        }
+        if (currentPlayer == "X")
+        {
+            // X gioca se ha fatto lo stesso numero di mosse di O (inizia sempre)
+            return countX == countO;
+        }
+        else if (currentPlayer == "O")
+        {
+            // O gioca se ha fatto una mossa in meno di X
+            return countX > countO;
+        }
         else
         {
-            currentPlayer = currentPlayer == "X" ? "O" : "X";
+            throw new ArgumentException("Player deve essere 'X' o 'O'");
         }
     }
-
     bool CheckWin(string player)
     {
         int[,] wins = new int[,] {
@@ -103,7 +129,7 @@
     {
         board = new string[9];
         winner = null;
-        currentPlayer = "X";
+        currentPlayer = "";
     }
 
     protected override void OnInitialized()
@@ -145,11 +171,12 @@
             {                
                 var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cts.Token);             
                 var text = Encoding.UTF8.GetString(buffer, 0, result.Count);   
-                if(!string.IsNullOrWhiteSpace(text))
-                {
-                    board = text.Split('|').ToArray(); // Aggiorna la griglia con il messaggio ricevuto
-                    StateHasChanged();
-                }
+                
+                if(string.IsNullOrWhiteSpace(text)) 
+                    continue; 
+
+                board = text.Split('|').ToArray();
+                StateHasChanged();
             }
         }
         catch (OperationCanceledException)
