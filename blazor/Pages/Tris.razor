@@ -9,9 +9,10 @@
     <div class="board">
         @for (int i = 0; i < 9; i++)
         {
+            var index = i;
             <button class="btn btn-outline-primary cell"
-                    @onclick="() => MakeMove(i)">
-                @board[i]
+                    @onclick="() => MakeMove(index)">
+                @board[index]
             </button>
         }
     </div>
