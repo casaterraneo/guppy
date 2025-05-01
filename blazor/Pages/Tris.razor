@@ -1,108 +1,94 @@
 @page "/tris"
-
-@using System.Text
 @attribute [Authorize]
 
-<h3 class="text-center mb-4">Tris</h3>
+@using System.Linq
 
-<div class="container text-center">
-    <div class="board">
-        @for (int i = 0; i < 9; i++)
-        {
-            var index = i;
-            <button class="btn btn-outline-primary cell"
-                    @onclick="() => MakeMove(index)">
-                @board[index]
-            </button>
-        }
+<h3 class="mb-4">Tris (Tic Tac Toe)</h3>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <div class="d-grid gap-2">
+                @for (int row = 0; row < 3; row++)
+                {
+                    <div class="btn-group">
+                        @for (int col = 0; col < 3; col++)
+                        {
+                            int idx = row * 3 + col;
+                            <button class="btn btn-outline-primary btn-lg"
+                                    style="width: 70px; height: 70px; font-size:2rem;"
+                                    disabled="@(!string.IsNullOrEmpty(board[idx]) || !string.IsNullOrEmpty(winner))"
+                                    @onclick="() => MakeMove(idx)">
+                                @board[idx]
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
     </div>
-    <div class="mt-4">
-        <h5>@status</h5>
-        <button class="btn btn-secondary mt-2" @onclick="Reset">Reset</button>
+    <div class="row mt-4 justify-content-center">
+        <div class="col-auto">
+            @if (!string.IsNullOrEmpty(winner))
+            {
+                <div class="alert alert-success">
+                    @winner
+                </div>
+            }
+            else if (board.All(cell => !string.IsNullOrEmpty(cell)))
+            {
+                <div class="alert alert-warning">
+                    Pareggio!
+                </div>
+            }
+            <button class="btn btn-secondary mt-2" @onclick="Reset">Reset</button>
+        </div>
     </div>
 </div>
 
 @code {
-    private string[] board = new string[9];
-    private string currentPlayer = "X";
-    private string status = "Turno di X";
-    private bool gameEnded = false;
+    // Stato della griglia (3x3)
+    string[] board = new string[9];
+    // Turno attuale: "X" o "O"
+    string currentPlayer = "X";
+    // Vincitore (null se la partita è in corso)
+    string winner;
 
-    private void MakeMove(int index)
+    void MakeMove(int idx)
     {
-        // Protezione contro indici fuori limite
-        if (index < 0 || index >= board.Length)
-        {
-            Console.WriteLine($"Indice fuori limite: {index}");
+        if (!string.IsNullOrEmpty(board[idx]) || !string.IsNullOrEmpty(winner))
             return;
-        }
 
-        if (!string.IsNullOrWhiteSpace(board[index]) || gameEnded)
+        board[idx] = currentPlayer;
+        if (CheckWin(currentPlayer))
         {
-            Console.WriteLine($"Mossa non valida. Cell occupata o gioco finito. Index: {index}");
-            return;
-        }
-
-        board[index] = currentPlayer;
-        Console.WriteLine($"Mossa di {currentPlayer} alla posizione {index}");
-
-        if (CheckWinner())
-        {
-            status = $"Vince {currentPlayer}!";
-            gameEnded = true;
-            Console.WriteLine($"Gioco finito! {currentPlayer} ha vinto!");
-        }
-        else if (board.All(cell => !string.IsNullOrWhiteSpace(cell)))
-        {
-            status = "Pareggio!";
-            gameEnded = true;
-            Console.WriteLine("Pareggio!");
+            winner = $"Ha vinto {currentPlayer}!";
         }
         else
         {
-            currentPlayer = (currentPlayer == "X") ? "O" : "X";
-            status = $"Turno di {currentPlayer}";
-            Console.WriteLine($"Cambio giocatore. È il turno di {currentPlayer}");
+            currentPlayer = currentPlayer == "X" ? "O" : "X";
         }
-        StateHasChanged();  // Forza il rendering per aggiornare la UI
     }
 
-    private bool CheckWinner()
+    bool CheckWin(string player)
     {
-        int[][] winningCombos = new int[][] 
-        {
-            new[] {0, 1, 2}, new[] {3, 4, 5}, new[] {6, 7, 8},  // righe
-            new[] {0, 3, 6}, new[] {1, 4, 7}, new[] {2, 5, 8},  // colonne
-            new[] {0, 4, 8}, new[] {2, 4, 6}                  // diagonali
+        int[,] wins = new int[,] {
+            {0,1,2}, {3,4,5}, {6,7,8}, // righe
+            {0,3,6}, {1,4,7}, {2,5,8}, // colonne
+            {0,4,8}, {2,4,6}           // diagonali
         };
-
-        foreach (var combo in winningCombos)
+        for (int i = 0; i < wins.GetLength(0); i++)
         {
-            var a = combo[0];
-            var b = combo[1];
-            var c = combo[2];
-
-            // Protezione aggiuntiva, anche se i combo sono statici
-            if (a < 0 || a >= board.Length || b < 0 || b >= board.Length || c < 0 || c >= board.Length)
-                continue;
-
-            if (!string.IsNullOrWhiteSpace(board[a]) && 
-                board[a] == board[b] && 
-                board[b] == board[c])
-            {
-                Console.WriteLine($"Vincitore trovato: {board[a]} alla combo ({a}, {b}, {c})");
+            if (board[wins[i,0]] == player && board[wins[i,1]] == player && board[wins[i,2]] == player)
                 return true;
-            }
         }
         return false;
     }
 
-    private void Reset()
+    void Reset()
     {
         board = new string[9];
+        winner = null;
         currentPlayer = "X";
-        status = "Turno di X";
-        gameEnded = false;
-        Console.WriteLine("Partita reset. Inizia un nuovo gioco.");
     }
 }
