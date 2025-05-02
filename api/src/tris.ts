@@ -6,7 +6,9 @@ const app = new Hono().get('/', async c => {
 	}
 
 	const user = c.get('user');
+	console.log('[user.name for DO]', user?.name);
 	if (!user) {
+		console.log('No user found');
 		return c.text('No user found', 401);
 	}
 	console.log('[user.name for DO]', user.name);
