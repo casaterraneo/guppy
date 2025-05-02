@@ -8,7 +8,7 @@ const app = new Hono().get('/', async c => {
 	const username = c.req.query('username');
 
 	console.log('[user.name for DO]', username);
-	if (!user) {
+	if (!username) {
 		console.log('No user found');
 		return c.text('No user found', 401);
 	}
