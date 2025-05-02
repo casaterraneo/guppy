@@ -151,9 +151,9 @@
         {
             Scheme = "wss",
             Port = -1,
-            Query = $"username={Uri.EscapeDataString(username)}"
         };
         _uri = uriBuilder.Uri.ToString().Replace("/api", "/tris").TrimEnd('/');
+        _uri = $"{_uri}?username={Uri.EscapeDataString(username)}";
 
         _webSocket = new ClientWebSocket();
         _cts = new CancellationTokenSource();
