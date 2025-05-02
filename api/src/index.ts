@@ -101,7 +101,7 @@ const dbSetter = createMiddleware(async (c, next) => {
 const app = new Hono();
 app.use(logger());
 app.use('/*', cors());
-app.use('/api/*', tokenValidator);
+app.use('/*', tokenValidator);
 app.use('/api/*', dbSetter);
 
 app.route('/api/employees', employees);
