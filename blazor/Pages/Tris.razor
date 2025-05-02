@@ -9,6 +9,7 @@
 @using System.Linq
 @using System.Net.WebSockets
 @using System.Text
+@using System.Security.Claims
 
 <PageTitle>Tris</PageTitle>
 
@@ -63,12 +64,14 @@
 </div>
 
 @code {    
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationState { get; set; }    
     string[] board = new string[9];    
     string currentPlayer = "";       
     string winner;
     string _uri;
     private ClientWebSocket _webSocket;
-    private CancellationTokenSource _cts;
+    private CancellationTokenSource _cts;    
 
     private async Task MakeMoveAsync(int idx)
     {
@@ -133,13 +136,22 @@
         await SendMessageAsync();   // Invia il messaggio al server
     }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
+        var state = await AuthenticationState;
+        var username = state?.User?.Identity?.Name;
+        if (string.IsNullOrEmpty(username))
+        {
+            throw new InvalidOperationException("Username non trovato.");
+        }
+        
         using var http = HttpClientFactory.CreateClient("api");
         var uriBuilder = new UriBuilder(http.BaseAddress)
         {
             Scheme = "wss",
-            Port = -1
+            Port = -1,
+            Query = $"username={Uri.EscapeDataString(username)}"
         };
         _uri = uriBuilder.Uri.ToString().Replace("/api", "/tris").TrimEnd('/');
 
