@@ -3,9 +3,17 @@ import { DurableObject } from 'cloudflare:workers';
 // 1. Make sure the class name corresponds exactly with the one
 // added in wrangler.toml earlier
 export class TrisReceiver extends DurableObject {
+	board: string;
+
 	constructor(ctx: DurableObjectState, env: CloudflareBindings) {
 		super(ctx, env);
+
+		ctx.blockConcurrencyWhile(async () => {
+			// After initialization, future reads do not need to access storage.
+			this.board = (await ctx.storage.get('board')) || '';
+		});
 	}
+
 	// 2. This fetch method serves as a communication layer between the Worker
 	// and the Durable Object
 	async fetch(request: Request) {
@@ -15,7 +23,13 @@ export class TrisReceiver extends DurableObject {
 		const [client, server] = Object.values(webSocketPair);
 		this.ctx.acceptWebSocket(server);
 
-		//return new Response("Hello world from a Durable Object");
+		//this.board = (await ctx.storage.get('board')) || '';
+
+		if (this.board) {
+			console.log(`Server send board to client: ${this.board}`);
+			server.send(this.board);
+		}
+
 		return new Response(null, {
 			status: 101,
 			webSocket: client,
@@ -23,13 +37,7 @@ export class TrisReceiver extends DurableObject {
 	}
 
 	async webSocketMessage(ws, message) {
-		// Upon receiving a message from the client, reply with the same message,
-		// but will prefix the message with "[Durable Object]: " and return the
-		// total number of connections.
-		// ws.send(
-		// 	`[Durable Object] message: ${message}, connections: ${this.ctx.getWebSockets().length}`
-		// );
-
+		await this.ctx.storage.put('board', message);
 		// Broadcast the message to all connected clients
 		for (const connection of this.ctx.getWebSockets()) {
 			connection.send(message);

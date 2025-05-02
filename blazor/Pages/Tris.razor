@@ -10,9 +10,14 @@
 @using System.Net.WebSockets
 @using System.Text
 
-<h3 class="mb-4">Tris (Tic Tac Toe)</h3>
+<PageTitle>Tris</PageTitle>
 
-<button class="btn btn-primary mt-2" @onclick="ConnectAsync">Inizia Partita</button>
+<h3 class="mb-4">Tris</h3>
+
+<button class="btn btn-primary mt-2" 
+    disabled="@(_webSocket.State == WebSocketState.Open)"
+    @onclick="ConnectAsync">Inizia Partita
+</button>
 
 <div class="container">
     <div class="row justify-content-center">
@@ -87,6 +92,7 @@
             winner = $"Ha vinto {currentPlayer}!";
         }
     }
+
     private bool IsMyTurn()
     {
         int countX = board.Count(c => c == "X");
@@ -103,6 +109,7 @@
 
         throw new ArgumentException("Player deve essere 'X' o 'O'");        
     }
+
     private bool CheckWin(string player)
     {
         int[,] wins = new int[,] {
