@@ -27,6 +27,20 @@
     <span class="badge bg-primary me-2">GameId: @gameId</span>
 </div>
 
+@foreach (var player in playerList)
+{
+    <div class="mb-3">
+        <span>Player: @player</span>
+    </div>
+}
+
+@if (string.IsNullOrWhiteSpace(GetCurrentPlayer()))
+{
+    <div class="mb-3">
+        <span>current player: @GetCurrentPlayer()</span>
+    </div>
+}
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-auto">
@@ -78,7 +92,6 @@
     GameState gameState = GameState.Idle;
     string gameId = "";
     string[] board = new string[9];    
-    string currentPlayer = "";   
     string userName   = "";
     List<string> playerList = new List<string>();       
     string winner;
@@ -91,49 +104,48 @@
     {
         using var http = HttpClientFactory.CreateClient("api");
         var gameId = await http.GetFromJsonAsync<string>($"tris/{userName}");
+        
+        playerList.Add($"{userName}|X");
+        playerList.Add($"{userName}|O");
 
-        @* playerList.Add($"{userName}|X");
-        playerList.Add($"{userName}|O"); *@
+        StateHasChanged();
     }
 
     private async Task MakeMove(int idx)
     {
         if (!string.IsNullOrEmpty(board[idx]) 
             || !string.IsNullOrEmpty(winner)
-            || _webSocket.State != WebSocketState.Open)
+            || !IsMyTurn())
             return;        
 
-        if(currentPlayer == "" && board.Count(c => c == "X") == 0)
-            currentPlayer = "X";
+        board[idx] = GetTurn();        
+                
+        //await SendMessageAsync();
 
-        if(currentPlayer == "" && board.Count(c => c == "O") == 0)
-            currentPlayer = "O";
-
-        board[idx] = currentPlayer;
-
-        await SendMessageAsync();   // Invia il messaggio al server
-
-        if (CheckWin(currentPlayer))
+        if (CheckWin(GetTurn()))
         {
-            winner = $"Ha vinto {currentPlayer}!";
+            winner = $"Ha vinto {GetTurn()}!";
         }
+
+        StateHasChanged();
     }
 
-    private bool IsMyTurn()
+    private string? GetCurrentPlayer()
+    {
+        return playerList.FirstOrDefault(p => p.Contains($"|{GetTurn()}"));
+    }
+    
+    private string GetTurn()
     {
         int countX = board.Count(c => c == "X");
         int countO = board.Count(c => c == "O");
 
-        if(_webSocket.State != WebSocketState.Open)
-            return false;
-        if (currentPlayer == "")                    
-            return true;        
-        if (currentPlayer == "X")
-            return countX == countO; // X gioca se ha fatto lo stesso numero di mosse di O (inizia sempre)
-        if (currentPlayer == "O")
-            return countX > countO;// O gioca se ha fatto una mossa in meno di X
+        return countX == countO ? "X" : "O";
+    }
 
-        throw new ArgumentException("Player deve essere 'X' o 'O'");        
+    private bool IsMyTurn()
+    {
+        return playerList.Exists(p => p == $"{userName}|{GetTurn()}");
     }
 
     private bool CheckWin(string player)
@@ -155,7 +167,6 @@
     {
         board = new string[9];
         winner = null;
-        currentPlayer = "";
         await SendMessageAsync();   // Invia il messaggio al server
     }
 
