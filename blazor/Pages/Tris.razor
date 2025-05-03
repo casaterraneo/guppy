@@ -118,13 +118,14 @@
             || !IsMyTurn())
             return;        
 
-        board[idx] = GetTurn();        
+        var move = GetTurn();
+        board[idx] = move;        
                 
         //await SendMessageAsync();
 
-        if (CheckWin(GetTurn()))
+        if (CheckWin(move))
         {
-            winner = $"Ha vinto {GetTurn()}!";
+            winner = $"Ha vinto {move}!";
         }
 
         StateHasChanged();
