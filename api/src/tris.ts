@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 
 const app = new Hono()
-	.get('/', async c => {
+	.get('/:username', async c => {
 		const username = c.req.param('username');
 		if (!username) return c.json({ error: 'UserName is required' }, 400);
 		return c.json(username + '|' + username);
