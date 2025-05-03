@@ -15,10 +15,17 @@
 
 <h3 class="mb-4">Tris</h3>
 
-<button class="btn btn-primary mt-2" 
-    disabled="@(_webSocket.State == WebSocketState.Open)"
-    @onclick="ConnectAsync">Inizia Partita
-</button>
+
+
+<div class="mb-3">
+    <button class="btn btn-primary mt-2" 
+        @onclick="async () => await Start()">Inizia Partita
+    </button>
+</div>
+
+<div class="mb-3">
+    <span class="badge bg-primary me-2">GameId: @gameId</span>
+</div>
 
 <div class="container">
     <div class="row justify-content-center">
@@ -35,7 +42,7 @@
                                     disabled="@(!string.IsNullOrEmpty(board[idx]) 
                                                 || !string.IsNullOrEmpty(winner) 
                                                 || !IsMyTurn())"
-                                    @onclick="async () => await MakeMoveAsync(idx)">
+                                    @onclick="async () => await MakeMove(idx)">
                                 @board[idx]
                             </button>
                         }
@@ -63,23 +70,39 @@
     </div>
 </div>
 
-@code {    
+@code {
     [CascadingParameter]
-    private Task<AuthenticationState> AuthenticationState { get; set; }    
+    private Task<AuthenticationState> AuthenticationState { get; set; }   
+
+    enum GameState { Idle, Searching, Playing }     
+    GameState gameState = GameState.Idle;
+    string gameId = "";
     string[] board = new string[9];    
-    string currentPlayer = "";       
+    string currentPlayer = "";   
+    string userName   = "";
+    List<string> playerList = new List<string>();       
     string winner;
+
     string _uri;
     private ClientWebSocket _webSocket;
     private CancellationTokenSource _cts;    
 
-    private async Task MakeMoveAsync(int idx)
+    private async Task Start()
+    {
+        using var http = HttpClientFactory.CreateClient("api");
+        var gameId = await http.GetFromJsonAsync<string>("tris");
+
+        @* playerList.Add($"{userName}|X");
+        playerList.Add($"{userName}|O"); *@
+    }
+
+    private async Task MakeMove(int idx)
     {
         if (!string.IsNullOrEmpty(board[idx]) 
             || !string.IsNullOrEmpty(winner)
             || _webSocket.State != WebSocketState.Open)
             return;        
-        
+
         if(currentPlayer == "" && board.Count(c => c == "X") == 0)
             currentPlayer = "X";
 
@@ -89,7 +112,7 @@
         board[idx] = currentPlayer;
 
         await SendMessageAsync();   // Invia il messaggio al server
-        
+
         if (CheckWin(currentPlayer))
         {
             winner = $"Ha vinto {currentPlayer}!";
@@ -119,7 +142,7 @@
             {0,1,2}, {3,4,5}, {6,7,8}, // righe
             {0,3,6}, {1,4,7}, {2,5,8}, // colonne
             {0,4,8}, {2,4,6}           // diagonali
-        };
+    };
         for (int i = 0; i < wins.GetLength(0); i++)
         {
             if (board[wins[i,0]] == player && board[wins[i,1]] == player && board[wins[i,2]] == player)
@@ -140,20 +163,20 @@
     {
         await base.OnInitializedAsync();
         var state = await AuthenticationState;
-        var username = state?.User?.Identity?.Name;
-        if (string.IsNullOrEmpty(username))
+        userName = state?.User?.Identity?.Name;
+        if (string.IsNullOrEmpty(userName))
         {
-            throw new InvalidOperationException("Username non trovato.");
+            throw new InvalidOperationException("UserName non trovato.");
         }
-        
+
         using var http = HttpClientFactory.CreateClient("api");
         var uriBuilder = new UriBuilder(http.BaseAddress)
         {
             Scheme = "wss",
             Port = -1,
         };
-        _uri = uriBuilder.Uri.ToString().Replace("/api", "/tris").TrimEnd('/');
-        _uri = $"{_uri}?username={Uri.EscapeDataString(username)}";
+        _uri = uriBuilder.Uri.ToString().Replace("/api", "/wstris").TrimEnd('/');
+        _uri = $"{_uri}?username={Uri.EscapeDataString(userName)}";
 
         _webSocket = new ClientWebSocket();
         _cts = new CancellationTokenSource();
@@ -184,7 +207,7 @@
             {                
                 var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cts.Token);             
                 var text = Encoding.UTF8.GetString(buffer, 0, result.Count);   
-                
+
                 if(string.IsNullOrWhiteSpace(text)) 
                     continue; 
 
@@ -226,5 +249,5 @@
         await CloseAsync();             
         _webSocket?.Dispose();         
         _cts?.Dispose();     
-    }         
+    }
 }
