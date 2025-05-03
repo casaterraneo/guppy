@@ -10,12 +10,13 @@ var environment = builder.HostEnvironment;
 
 var baseUrl = builder.Configuration["BaseUrl"] ?? builder.HostEnvironment.BaseAddress;
 
-builder.Services.AddHttpClient("api", client => client.BaseAddress = new Uri(baseUrl))
-    .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()
+builder.Services.AddHttpClient("api", client => client.BaseAddress = new Uri(baseUrl))    
+    .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>()    
     .ConfigureHandler(
         authorizedUrls: [baseUrl]
         //,scopes: new[] { "example.read", "example.write" }
-        ));              
+        ))
+    .AddStandardResilienceHandler();
 
 builder.Services.AddOidcAuthentication(options =>
 {
