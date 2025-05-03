@@ -4,7 +4,14 @@ const app = new Hono()
 	.get('/:username', async c => {
 		const username = c.req.param('username');
 		if (!username) return c.json({ error: 'UserName is required' }, 400);
-		return c.json(username + '|' + username);
+
+		const game =
+		{
+			gameId: username + '|' + username,
+			playerList: [username + '|X', username + '|O' ]
+		};
+
+		return c.json(game);
 	})
 	.get('/', async c => {
 		if (c.req.header('upgrade') !== 'websocket') {
