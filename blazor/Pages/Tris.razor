@@ -34,7 +34,7 @@
     </div>
 }
 
-@if (string.IsNullOrWhiteSpace(GetCurrentPlayer()))
+@if (!string.IsNullOrWhiteSpace(GetCurrentPlayer()))
 {
     <div class="mb-3">
         <span>current player: @GetCurrentPlayer()</span>
@@ -103,7 +103,7 @@
     private async Task Start()
     {
         using var http = HttpClientFactory.CreateClient("api");
-        var gameId = await http.GetFromJsonAsync<string>($"tris/{userName}");
+        gameId = await http.GetFromJsonAsync<string>($"tris/{userName}");
         
         playerList.Add($"{userName}|X");
         playerList.Add($"{userName}|O");
