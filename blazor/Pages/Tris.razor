@@ -90,7 +90,7 @@
     private async Task Start()
     {
         using var http = HttpClientFactory.CreateClient("api");
-        var gameId = await http.GetFromJsonAsync<string>("tris");
+        var gameId = await http.GetFromJsonAsync<string>($"tris/{userName}");
 
         @* playerList.Add($"{userName}|X");
         playerList.Add($"{userName}|O"); *@
