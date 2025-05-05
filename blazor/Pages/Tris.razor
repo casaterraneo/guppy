@@ -118,8 +118,9 @@
 
         var move = GetTurn();
         board[idx] = move;        
-                
-        //await SendMessageAsync();
+        
+        //se il gioco non è local? come faccio a ricaricare la partita per
+        await SendMessageAsync();
 
         if (CheckWin(move))
         {
