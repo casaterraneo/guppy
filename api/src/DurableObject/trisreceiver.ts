@@ -38,6 +38,7 @@ export class TrisReceiver extends DurableObject {
 
 	async webSocketMessage(ws, message) {
 		await this.ctx.storage.put('board', message);
+		this.board = message;
 		// Broadcast the message to all connected clients
 		for (const connection of this.ctx.getWebSockets()) {
 			connection.send(message);
