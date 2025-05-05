@@ -103,11 +103,9 @@
     private async Task Start()
     {
         using var http = HttpClientFactory.CreateClient("api");
-        game = await http.GetFromJsonAsync<Game>($"tris/{userName}");
-        
-        //playerList.Add($"{userName}|X");
-        //playerList.Add($"{userName}|O");
+        game = await http?.GetFromJsonAsync<Game>($"tris/{userName}");      
 
+        await ConnectAsync();
         StateHasChanged();
     }
 
@@ -180,22 +178,25 @@
         {
             throw new InvalidOperationException("UserName non trovato.");
         }
-
-        using var http = HttpClientFactory.CreateClient("api");
-        var uriBuilder = new UriBuilder(http.BaseAddress)
-        {
-            Scheme = "wss",
-            Port = -1,
-        };
-        _uri = uriBuilder.Uri.ToString().Replace("/api", "/wstris").TrimEnd('/');
-        _uri = $"{_uri}?username={Uri.EscapeDataString(userName)}";
-
-        _webSocket = new ClientWebSocket();
-        _cts = new CancellationTokenSource();
     }   
 
     private async Task ConnectAsync()
     {
+        if(_webSocket is null)
+        {
+            using var http = HttpClientFactory.CreateClient("api");
+            var uriBuilder = new UriBuilder(http.BaseAddress)
+            {
+                Scheme = "wss",
+                Port = -1,
+            };
+            _uri = uriBuilder.Uri.ToString().Replace("/api", "/wstris").TrimEnd('/');
+            _uri = $"{_uri}?gameId={Uri.EscapeDataString(game.GameId)}";
+
+            _webSocket = new ClientWebSocket();
+            _cts = new CancellationTokenSource();
+        }
+
         if (_webSocket.State == WebSocketState.Closed 
             || _webSocket.State == WebSocketState.Aborted 
             || _webSocket.State == WebSocketState.None)

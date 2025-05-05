@@ -5,10 +5,9 @@ const app = new Hono()
 		const username = c.req.param('username');
 		if (!username) return c.json({ error: 'UserName is required' }, 400);
 
-		const game =
-		{
+		const game = {
 			gameId: username + '|' + username,
-			playerList: [username + '|X', username + '|O' ]
+			playerList: [username + '|X', username + '|O'],
 		};
 
 		return c.json(game);
@@ -18,15 +17,15 @@ const app = new Hono()
 			return c.text('Expected Upgrade: websocket', 426);
 		}
 
-		const username = c.req.query('username');
+		const gameId = c.req.query('gameId');
 
-		console.log('[user.name for DO]', username);
-		if (!username) {
-			console.log('No user found');
-			return c.text('No user found', 401);
+		console.log('[gameId for DO]', gameId);
+		if (!gameId) {
+			console.log('No gameId found');
+			return c.text('No gameId found', 401);
 		}
 
-		const id = c.env.TRIS_RECEIVER.idFromName(username);
+		const id = c.env.TRIS_RECEIVER.idFromName(gameId);
 		const stub = c.env.TRIS_RECEIVER.get(id);
 
 		return stub.fetch(c.req.raw);
