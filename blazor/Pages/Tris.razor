@@ -22,21 +22,28 @@
     </button>
 </div>
 
-<div class="mb-3">
-    <span class="badge bg-primary me-2">GameId: @game.GameId</span>
+<div class="mb-12">
+    <div class="mb-3">
+        <span class="badge bg-primary me-2">GameId: @game.GameId</span>
+    </div>
+    @foreach (var player in game.PlayerList)
+    {
+        <div class="mb-3">
+            <span>Player: @player.Name</span>
+        </div>
+    }
+    @if (!string.IsNullOrWhiteSpace(GetCurrentPlayer()))
+    {
+        <div class="mb-3">
+            <span>current player: @GetCurrentPlayer()</span>
+        </div>
+    }    
 </div>
 
-@foreach (var player in game.PlayerList)
+@if (game.ItemList.Any())
 {
-    <div class="mb-3">
-        <span>Player: @player.Name</span>
-    </div>
-}
-
-@if (!string.IsNullOrWhiteSpace(GetCurrentPlayer()))
-{
-    <div class="mb-3">
-        <span>current player: @GetCurrentPlayer()</span>
+    <div class="mb-6">
+        <span>Item list: @string.Join(", ", game.ItemList)</span>
     </div>
 }
 
