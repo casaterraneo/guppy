@@ -97,6 +97,8 @@
     private ClientWebSocket _webSocket;
     private CancellationTokenSource _cts;    
 
+
+    //rename play game, is possible to reconnect to game already started?
     private async Task Start()
     {
         using var http = HttpClientFactory.CreateClient("api");

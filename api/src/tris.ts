@@ -7,13 +7,13 @@ const app = new Hono()
 		if (!userName) return c.json({ error: 'UserName is required' }, 400);
 
 		const player1 = new Papi.Player();
-		player1.name = userName;
+		player1.name = `${userName}|X`;
 
 		const player2 = new Papi.Player();
-		player2.name = userName;
+		player2.name = `${userName}|O`;
 
 		const game = new Papi.Game();
-		game.gameId = `${player1.name}|${player2.name}`;
+		game.gameId = `${userName}|${userName}`;
 		game.playerList.push(player1, player2);
 
 		return c.json(game);
