@@ -10,12 +10,11 @@
 @using System.Net.WebSockets
 @using System.Text
 @using System.Security.Claims
+@using Blazor.Papi
 
 <PageTitle>Tris</PageTitle>
 
 <h3 class="mb-4">Tris</h3>
-
-
 
 <div class="mb-3">
     <button class="btn btn-primary mt-2" 
@@ -89,11 +88,9 @@
     private Task<AuthenticationState> AuthenticationState { get; set; }   
 
     enum GameState { Idle, Searching, Playing }     
-    GameState gameState = GameState.Idle;
-    //string gameId = "";
+    GameState gameState = GameState.Idle;    
     string[] board = new string[9];    
-    string userName  = "";
-    //List<string> playerList = new List<string>();       
+    string userName  = "";    
     Game game = new Game();
     string winner = string.Empty;
     string _uri = string.Empty;
@@ -103,7 +100,7 @@
     private async Task Start()
     {
         using var http = HttpClientFactory.CreateClient("api");
-        game = await http?.GetFromJsonAsync<Game>($"tris/{userName}");      
+        game = await http?.GetFromJsonAsync<Game>($"tris/{userName}");
 
         await ConnectAsync();
         StateHasChanged();
@@ -132,7 +129,7 @@
 
     private string? GetCurrentPlayer()
     {
-        return game.PlayerList.FirstOrDefault(p => p.Contains($"|{GetTurn()}"));
+        return game.PlayerList.FirstOrDefault(p => p.Name.Contains($"|{GetTurn()}"))?.Name;
     }
     
     private string GetTurn()
@@ -145,7 +142,7 @@
 
     private bool IsMyTurn()
     {
-        return game.PlayerList.Exists(p => p == $"{userName}|{GetTurn()}");
+        return game.PlayerList.Exists(p => p.Name == $"{userName}|{GetTurn()}");
     }
 
     private bool CheckWin(string player)
@@ -265,9 +262,4 @@
         _cts?.Dispose();     
     }
 
-    public class Game
-    {
-        public string GameId { get; set; } = string.Empty;
-        public List<string> PlayerList { get; set; } = new List<string>();
-    }    
 }

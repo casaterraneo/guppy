@@ -1,14 +1,20 @@
 import { Hono } from 'hono';
+import * as Papi from './Papi';
 
 const app = new Hono()
 	.get('/:username', async c => {
-		const username = c.req.param('username');
-		if (!username) return c.json({ error: 'UserName is required' }, 400);
+		const userName = c.req.param('username');
+		if (!userName) return c.json({ error: 'UserName is required' }, 400);
 
-		const game = {
-			gameId: username + '|' + username,
-			playerList: [username + '|X', username + '|O'],
-		};
+		const player1 = new Papi.Player();
+		player1.name = userName;
+
+		const player2 = new Papi.Player();
+		player2.name = userName;
+
+		const game = new Papi.Game();
+		game.gameId = `${player1.playerId}|${player2.playerId}`;
+		game.playerList.push(player1, player2);
 
 		return c.json(game);
 	})
