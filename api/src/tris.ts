@@ -13,7 +13,7 @@ const app = new Hono()
 		player2.name = userName;
 
 		const game = new Papi.Game();
-		game.gameId = `${player1.playerId}|${player2.playerId}`;
+		game.gameId = `${player1.name}|${player2.name}`;
 		game.playerList.push(player1, player2);
 
 		return c.json(game);
