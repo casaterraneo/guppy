@@ -23,22 +23,19 @@
 </div>
 
 <div class="mb-12">
-    <div class="mb-3">
-        <span class="badge bg-primary me-2">GameId: @game.GameId</span>
-    </div>
+    <span class="badge bg-primary me-2">GameId: @game.GameId</span>
+
     @foreach (var player in game.PlayerList)
     {
-        <div class="mb-3">
-            <span>Player: @player.Name</span>
-        </div>
+        <span class="me-2">Player: @player.Name</span>
     }
+
     @if (!string.IsNullOrWhiteSpace(GetCurrentPlayer()))
     {
-        <div class="mb-3">
-            <span>current player: @GetCurrentPlayer()</span>
-        </div>
-    }    
+        <span>Current player: @GetCurrentPlayer()</span>
+    }
 </div>
+
 
 @if (game.ItemList.Any())
 {
@@ -138,7 +135,7 @@
 
     private string? GetCurrentPlayer()
     {
-        return game.PlayerList.FirstOrDefault(p => p.Name.Contains($"|{GetTurn()}"))?.Name;
+        return game.PlayerList.FirstOrDefault(p => p.PlayerId == GetTurn())?.Name;
     }
     
     private string GetTurn()
@@ -151,7 +148,7 @@
 
     private bool IsMyTurn()
     {
-        return game.PlayerList.Exists(p => p.Name == $"{userName}|{GetTurn()}");
+        return game.PlayerList.Exists(p => p.PlayerId == GetTurn());
     }
 
     private bool CheckWin(string player)
