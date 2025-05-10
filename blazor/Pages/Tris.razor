@@ -47,7 +47,8 @@
         <span>Item list: @string.Join(", ", game.ItemList)</span>
     </div>
 }
-
+@if (game.Board.Any())
+{
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-auto">
@@ -90,7 +91,7 @@
         </div>
     </div>
 </div>
-
+}
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> AuthenticationState { get; set; }   
