@@ -32,8 +32,12 @@
 
     @if (!string.IsNullOrWhiteSpace(GetCurrentPlayer()))
     {
-        <span>Current player: @GetCurrentPlayer()</span>
+        <span class="me-2">Current player: @GetCurrentPlayer()</span>
     }
+    @if (!string.IsNullOrWhiteSpace(@GetTurn()))
+    {
+        <span class="me-2">Current turn: @GetTurn()</span>
+    }    
 </div>
 
 
@@ -56,11 +60,11 @@
                             int idx = row * 3 + col;
                             <button class="btn btn-outline-primary btn-lg"
                                     style="width: 70px; height: 70px; font-size:2rem;"
-                                    disabled="@(!string.IsNullOrEmpty(board[idx]) 
+                                    disabled="@(!string.IsNullOrEmpty(game.Board[idx]) 
                                                 || !string.IsNullOrEmpty(winner) 
                                                 || !IsMyTurn())"
                                     @onclick="async () => await MakeMove(idx)">
-                                @board[idx]
+                                @game.Board[idx]
                             </button>
                         }
                     </div>
@@ -76,7 +80,7 @@
                     @winner
                 </div>
             }
-            else if (board.All(cell => !string.IsNullOrEmpty(cell)))
+            else if (game.Board.All(cell => !string.IsNullOrEmpty(cell)))
             {
                 <div class="alert alert-warning">
                     Pareggio!
@@ -93,7 +97,6 @@
 
     enum GameState { Idle, Searching, Playing }     
     GameState gameState = GameState.Idle;    
-    string[] board = new string[9];    
     string userName  = "";    
     Game game = new Game();
     string winner = string.Empty;
@@ -114,13 +117,13 @@
 
     private async Task MakeMove(int idx)
     {
-        if (!string.IsNullOrEmpty(board[idx]) 
+        if (!string.IsNullOrEmpty(game.Board[idx]) 
             || !string.IsNullOrEmpty(winner)
             || !IsMyTurn())
             return;        
 
         var move = GetTurn();
-        board[idx] = move;        
+        game.Board[idx] = move;        
         
         //se il gioco non è local? come faccio a ricaricare la partita per
         await SendMessageAsync();
@@ -140,8 +143,8 @@
     
     private string GetTurn()
     {
-        int countX = board.Count(c => c == "X");
-        int countO = board.Count(c => c == "O");
+        int countX = game.Board.Count(c => c == "X");
+        int countO = game.Board.Count(c => c == "O");
 
         return countX == countO ? "X" : "O";
     }
@@ -157,10 +160,11 @@
             {0,1,2}, {3,4,5}, {6,7,8}, // righe
             {0,3,6}, {1,4,7}, {2,5,8}, // colonne
             {0,4,8}, {2,4,6}           // diagonali
-    };
+        };
+
         for (int i = 0; i < wins.GetLength(0); i++)
         {
-            if (board[wins[i,0]] == player && board[wins[i,1]] == player && board[wins[i,2]] == player)
+            if (game.Board[wins[i,0]] == player && game.Board[wins[i,1]] == player && game.Board[wins[i,2]] == player)
                 return true;
         }
         return false;
@@ -168,7 +172,7 @@
 
     private async Task Reset()
     {
-        board = new string[9];
+        game.Board = new string[9];
         winner = null;
         await SendMessageAsync();   // Invia il messaggio al server
     }
@@ -228,7 +232,7 @@
                 if(string.IsNullOrWhiteSpace(text)) 
                     continue; 
 
-                board = text.Split('|').ToArray();
+                game.Board = text.Split('|').ToArray();
                 StateHasChanged();
             }
         }
@@ -246,7 +250,7 @@
     {       
         if (_webSocket.State == WebSocketState.Open)
         {
-            var _message = string.Join("|", board);
+            var _message = string.Join("|", game.Board);
             var bytes = Encoding.UTF8.GetBytes(_message);
             await _webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, _cts.Token);            
         }
