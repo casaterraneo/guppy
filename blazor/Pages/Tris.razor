@@ -22,85 +22,75 @@
     </button>
 </div>
 
-<div class="mb-12">
-    <span class="badge bg-primary me-2">GameId: @game.GameId</span>
-
-    @foreach (var player in game.PlayerList)
-    {
-        <span class="me-2">Player: @player.Name</span>
-    }
-
-    @if (!string.IsNullOrWhiteSpace(GetCurrentPlayer()))
-    {
-        <span class="me-2">Current player: @GetCurrentPlayer()</span>
-    }
-    @if (!string.IsNullOrWhiteSpace(@GetTurn()))
-    {
-        <span class="me-2">Current turn: @GetTurn()</span>
-    }    
-</div>
-
-
-@if (game.ItemList.Any())
+@if (game != null)
 {
+    <div class="mb-12">
+        <span class="badge bg-primary me-2">GameId: @game.GameId</span>
+
+        @foreach (var player in game.PlayerList)
+        {
+            <span class="me-2">Player: @player.Name</span>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(GetCurrentPlayer()))
+        {
+            <span class="me-2">Current player: @GetCurrentPlayer()</span>
+        }
+        @if (!string.IsNullOrWhiteSpace(@GetTurn()))
+        {
+            <span class="me-2">Current turn: @GetTurn()</span>
+        }    
+    </div>
+
     <div class="mb-6">
         <span>Item list: @string.Join(", ", game.ItemList)</span>
     </div>
-}
-@if (game.Board.Any())
-{
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-auto">
-            <div class="d-grid gap-2">
-                @for (int row = 0; row < 3; row++)
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                <div class="d-grid gap-2">
+                    @for (int row = 0; row < 3; row++)
+                    {
+                        <div class="btn-group">
+                            @for (int col = 0; col < 3; col++)
+                            {
+                                int idx = row * 3 + col;
+                                <button class="btn btn-outline-primary btn-lg"
+                                        style="width: 70px; height: 70px; font-size:2rem;"
+                                        disabled="@(!string.IsNullOrEmpty(game.Board[idx]) 
+                                                    || !IsMyTurn())"
+                                        @onclick="async () => await MakeMove(idx)">
+                                    @game.Board[idx]
+                                </button>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4 justify-content-center">
+            <div class="col-auto">
+                @if (game.Phase == Game.GamePhase.Finished)
                 {
-                    <div class="btn-group">
-                        @for (int col = 0; col < 3; col++)
-                        {
-                            int idx = row * 3 + col;
-                            <button class="btn btn-outline-primary btn-lg"
-                                    style="width: 70px; height: 70px; font-size:2rem;"
-                                    disabled="@(!string.IsNullOrEmpty(game.Board[idx]) 
-                                                || !string.IsNullOrEmpty(winner) 
-                                                || !IsMyTurn())"
-                                    @onclick="async () => await MakeMove(idx)">
-                                @game.Board[idx]
-                            </button>
-                        }
+                    <div class="alert alert-success">
+                        @gameResult
                     </div>
                 }
+                <button class="btn btn-secondary mt-2" @onclick="Reset">Reset</button>
             </div>
         </div>
     </div>
-    <div class="row mt-4 justify-content-center">
-        <div class="col-auto">
-            @if (!string.IsNullOrEmpty(winner))
-            {
-                <div class="alert alert-success">
-                    @winner
-                </div>
-            }
-            else if (game.Board.All(cell => !string.IsNullOrEmpty(cell)))
-            {
-                <div class="alert alert-warning">
-                    Pareggio!
-                </div>
-            }
-            <button class="btn btn-secondary mt-2" @onclick="Reset">Reset</button>
-        </div>
-    </div>
-</div>
 }
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> AuthenticationState { get; set; }   
 
-    enum GameState { Idle, Searching, Playing }     
-    GameState gameState = GameState.Idle;    
+    //enum GameState { Idle, Searching, Playing }     
+    //GameState gameState = GameState.Idle;    
     string userName  = "";    
-    Game game = new Game();
-    string winner = string.Empty;
+    Game game = null;
+    string gameResult = string.Empty;
     string _uri = string.Empty;
     private ClientWebSocket _webSocket;
     private CancellationTokenSource _cts;    
@@ -118,8 +108,10 @@
 
     private async Task MakeMove(int idx)
     {
+        if(game.Phase == Game.GamePhase.Finished)
+            return;
+
         if (!string.IsNullOrEmpty(game.Board[idx]) 
-            || !string.IsNullOrEmpty(winner)
             || !IsMyTurn())
             return;        
 
@@ -129,10 +121,7 @@
         //se il gioco non è local? come faccio a ricaricare la partita per
         await SendMessageAsync();
 
-        if (CheckWin(move))
-        {
-            winner = $"Ha vinto {move}!";
-        }
+        CheckWin();
 
         StateHasChanged();
     }
@@ -152,10 +141,11 @@
 
     private bool IsMyTurn()
     {
-        return game.PlayerList.Exists(p => p.PlayerId == GetTurn());
+        return game.Phase == Game.GamePhase.Started &&
+            game.PlayerList.Exists(p => p.PlayerId == GetTurn());
     }
 
-    private bool CheckWin(string player)
+    private void CheckWin()
     {
         int[,] wins = new int[,] {
             {0,1,2}, {3,4,5}, {6,7,8}, // righe
@@ -163,18 +153,26 @@
             {0,4,8}, {2,4,6}           // diagonali
         };
 
-        for (int i = 0; i < wins.GetLength(0); i++)
+        foreach (var symbol in new[] { "X", "O" })
         {
-            if (game.Board[wins[i,0]] == player && game.Board[wins[i,1]] == player && game.Board[wins[i,2]] == player)
-                return true;
+            for (int i = 0; i < wins.GetLength(0); i++)
+            {
+                if (game.Board[wins[i,0]] == symbol &&
+                    game.Board[wins[i,1]] == symbol &&
+                    game.Board[wins[i,2]] == symbol)
+                {
+                    gameResult = $"Ha vinto {symbol}!";
+                    game.Phase = Game.GamePhase.Finished;
+                    return;
+                }
+            }
         }
-        return false;
     }
 
     private async Task Reset()
     {
         game.Board = new string[9];
-        winner = null;
+        gameResult = null;
         await SendMessageAsync();   // Invia il messaggio al server
     }
 

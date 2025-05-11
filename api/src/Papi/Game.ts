@@ -5,4 +5,5 @@ export class Game {
     playerList: Player[] = [];
 	itemList: string[] = ["X", "X", "X", "X", "X", "O", "O", "O", "O"];
 	board: string[] = new Array(9).fill("");
+	phase: 'started' | 'finished' = 'started';
 }
