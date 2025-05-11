@@ -3,7 +3,7 @@ import { Player } from './Player';
 export class Game {
     gameId: string = '';
     playerList: Player[] = [];
-	itemList: string[] = ["X", "X", "X", "X", "X", "O", "O", "O", "O"];
+	itemList: string[] = ["X", "O", "X", "O", "X", "O", "X", "O", "X"];
 	board: string[] = new Array(9).fill("");
 	phase: 'started' | 'finished' = 'started';
 }

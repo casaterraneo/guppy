@@ -115,8 +115,11 @@
             || !IsMyTurn())
             return;        
 
-        var move = GetTurn();
-        game.Board[idx] = move;        
+        //var symbol = GetTurn();        
+        var symbol = game.ItemList[0];
+        //simula la mossa dalla scatola alla board
+        game.ItemList.RemoveAt(0);
+        game.Board[idx] = symbol;
         
         //se il gioco non è local? come faccio a ricaricare la partita per
         await SendMessageAsync();
