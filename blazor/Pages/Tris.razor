@@ -74,7 +74,7 @@
                 @if (game.Phase == Game.GamePhase.Finished)
                 {
                     <div class="alert alert-success">
-                        @gameResult
+                        @game.GameResult
                     </div>
                 }
                 <button class="btn btn-secondary mt-2" @onclick="Reset">Reset</button>
@@ -121,7 +121,7 @@
         //se il gioco non è local? come faccio a ricaricare la partita per
         await SendMessageAsync();
 
-        CheckWin();
+        game.CheckWinOrDraw();
 
         StateHasChanged();
     }
@@ -143,30 +143,6 @@
     {
         return game.Phase == Game.GamePhase.Started &&
             game.PlayerList.Exists(p => p.PlayerId == GetTurn());
-    }
-
-    private void CheckWin()
-    {
-        int[,] wins = new int[,] {
-            {0,1,2}, {3,4,5}, {6,7,8}, // righe
-            {0,3,6}, {1,4,7}, {2,5,8}, // colonne
-            {0,4,8}, {2,4,6}           // diagonali
-        };
-
-        foreach (var symbol in new[] { "X", "O" })
-        {
-            for (int i = 0; i < wins.GetLength(0); i++)
-            {
-                if (game.Board[wins[i,0]] == symbol &&
-                    game.Board[wins[i,1]] == symbol &&
-                    game.Board[wins[i,2]] == symbol)
-                {
-                    gameResult = $"Ha vinto {symbol}!";
-                    game.Phase = Game.GamePhase.Finished;
-                    return;
-                }
-            }
-        }
     }
 
     private async Task Reset()
