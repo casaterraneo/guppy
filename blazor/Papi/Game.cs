@@ -9,11 +9,11 @@ public class Game
     public string GameId { get; set; } = string.Empty;
     public List<Player> PlayerList { get; set; } = [];
     public List<string> ItemList { get; set; } = [];
-    public string[][] Board { get; set; }  = [];
+    public string[][] Board { get; set; } = [];
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public GamePhase Phase { get; set; } = GamePhase.Start;
-    
+
     public string? GameResult { get; set; }
 
     public void CheckWinOrDraw()
@@ -52,6 +52,31 @@ public class Game
             GameResult = "Draw";
             Phase = GamePhase.End;
         }
-    }  
+    }
+
+    public string GetTurn()
+    {
+        int countX = 0;
+        int countO = 0;
+
+        foreach (var row in Board)
+        {
+            countX += row.Count(c => c == "X");
+            countO += row.Count(c => c == "O");
+        }
+
+        return countX == countO ? "X" : "O";
+    }
+
+    public bool IsMyTurn(string userName)
+    {
+        return Phase == GamePhase.Start &&
+            PlayerList.Exists(p => p.Name == userName && p.PlayerId == GetTurn());
+    }     
+    
+    public string? GetCurrentPlayer()
+    {
+        return PlayerList.FirstOrDefault(p => p.PlayerId == GetTurn())?.Name;
+    }     
 }
 

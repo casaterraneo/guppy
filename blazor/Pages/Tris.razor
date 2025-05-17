@@ -45,13 +45,13 @@
             <span class="me-2">Player: @player.Name</span>
         }
 
-        @if (!string.IsNullOrWhiteSpace(GetCurrentPlayer()))
+        @if (!string.IsNullOrWhiteSpace(game.GetCurrentPlayer()))
         {
-            <span class="me-2">Current player: @GetCurrentPlayer()</span>
+            <span class="me-2">Current player: @game.GetCurrentPlayer()</span>
         }
-        @if (!string.IsNullOrWhiteSpace(@GetTurn()))
+        @if (!string.IsNullOrWhiteSpace(game.@GetTurn()))
         {
-            <span class="me-2">Current turn: @GetTurn()</span>
+            <span class="me-2">Current turn: @game.GetTurn()</span>
         }    
     </div>
 
@@ -72,7 +72,7 @@
                                 int col = c; // variabile temporanea per lo stesso motivo
                                 <button class="btn btn-outline-primary btn-lg"
                                         style="width: 70px; height: 70px; font-size:2rem;"
-                                        disabled="@(!string.IsNullOrEmpty(game.Board[row][col]) || !IsMyTurn())"
+                                        disabled="@(!string.IsNullOrEmpty(game.Board[row][col]) || !game.IsMyTurn(userName))"
                                         @onclick="async () => await MakeMove(row, col)">
                                     @game.Board[row][col]
                                 </button>
@@ -128,10 +128,9 @@
 
     private async Task MakeMove(int row, int col)
     {
-        if (game.Phase == Game.GamePhase.End)
-            return;
-
-        if (!string.IsNullOrEmpty(game.Board[row][col]) || !IsMyTurn())
+        if (game.Phase == Game.GamePhase.End
+            || !game.IsMyTurn(userName)
+            || !string.IsNullOrEmpty(game.Board[row][col]))
             return;
 
         var symbol = game.ItemList[0];
@@ -145,30 +144,6 @@
         StateHasChanged();
     }
 
-    private string? GetCurrentPlayer()
-    {
-        return game.PlayerList.FirstOrDefault(p => p.PlayerId == GetTurn())?.Name;
-    }
-
-    private string GetTurn()
-    {
-        int countX = 0;
-        int countO = 0;
-
-        foreach (var row in game.Board)
-        {
-            countX += row.Count(c => c == "X");
-            countO += row.Count(c => c == "O");
-        }
-
-        return countX == countO ? "X" : "O";
-    }
-
-    private bool IsMyTurn()
-    {
-        return game.Phase == Game.GamePhase.Start &&
-            game.PlayerList.Exists(p => p.PlayerId == GetTurn());
-    }
 
     private async Task Reset()
     {
