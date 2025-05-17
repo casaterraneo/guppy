@@ -16,7 +16,7 @@
 <PageTitle>Tris</PageTitle>
 
 <h3 class="mb-4">Tris</h3>
-StateHasChanged
+
 <div class="mb-3">
     <button class="btn btn-primary mt-2" 
         @onclick="async () => await Start()">Inizia Partita
@@ -242,7 +242,7 @@ StateHasChanged
                 if(string.IsNullOrWhiteSpace(text)) 
                     continue; 
 
-                Game game = JsonSerializer.Deserialize<Game>(text);
+                game = JsonSerializer.Deserialize<Game>(text);
                 StateHasChanged();
             }
         }
