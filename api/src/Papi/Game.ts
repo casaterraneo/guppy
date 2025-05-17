@@ -1,9 +1,13 @@
 import { Player } from './Player';
 
 export class Game {
-    gameId: string = '';
-    playerList: Player[] = [];
-	itemList: string[] = ["X", "O", "X", "O", "X", "O", "X", "O", "X"];
-	board: string[] = new Array(9).fill("");
+	gameId: string = '';
+	playerList: Player[] = [];
+	itemList: string[] = ['X', 'O', 'X', 'O', 'X', 'O', 'X', 'O', 'X'];
+	board: string[][] = Game.createEmptyBoard(3);
 	phase: 'start' | 'end' = 'start';
+
+	static createEmptyBoard(size: number): string[][] {
+		return Array.from({ length: size }, () => Array(size).fill(''));
+	}
 }

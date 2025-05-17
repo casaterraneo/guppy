@@ -57,18 +57,16 @@
         <div class="row justify-content-center">
             <div class="col-auto">
                 <div class="d-grid gap-2">
-                    @for (int row = 0; row < 3; row++)
+                    @for (int row = 0; row < game.Board.Length; row++)
                     {
                         <div class="btn-group">
-                            @for (int col = 0; col < 3; col++)
+                            @for (int col = 0; col < game.Board[row].Length; col++)
                             {
-                                int idx = row * 3 + col;
                                 <button class="btn btn-outline-primary btn-lg"
                                         style="width: 70px; height: 70px; font-size:2rem;"
-                                        disabled="@(!string.IsNullOrEmpty(game.Board[idx]) 
-                                                    || !IsMyTurn())"
-                                        @onclick="async () => await MakeMove(idx)">
-                                    @game.Board[idx]
+                                        disabled="@(!string.IsNullOrEmpty(game.Board[row][col]) || !IsMyTurn())"
+                                        @onclick="async () => await MakeMove(row, col)">
+                                    @game.Board[row][col]
                                 </button>
                             }
                         </div>
@@ -121,28 +119,25 @@
         StateHasChanged();
     }
 
-    private async Task MakeMove(int idx)
+    private async Task MakeMove(int row, int col)
     {
-        if(game.Phase == Game.GamePhase.End)
+        if (game.Phase == Game.GamePhase.End)
             return;
 
-        if (!string.IsNullOrEmpty(game.Board[idx]) 
-            || !IsMyTurn())
-            return;        
+        if (!string.IsNullOrEmpty(game.Board[row][col]) || !IsMyTurn())
+            return;
 
-        //var symbol = GetTurn();        
         var symbol = game.ItemList[0];
-        //simula la mossa dalla scatola alla board
         game.ItemList.RemoveAt(0);
-        game.Board[idx] = symbol;
+        game.Board[row][col] = symbol;
 
-        //se il gioco non è local? come faccio a ricaricare la partita per
         await SendMessageAsync();
 
         game.CheckWinOrDraw();
 
         StateHasChanged();
     }
+
 
     private string? GetCurrentPlayer()
     {
@@ -151,11 +146,18 @@
 
     private string GetTurn()
     {
-        int countX = game.Board.Count(c => c == "X");
-        int countO = game.Board.Count(c => c == "O");
+        int countX = 0;
+        int countO = 0;
+
+        foreach (var row in game.Board)
+        {
+            countX += row.Count(c => c == "X");
+            countO += row.Count(c => c == "O");
+        }
 
         return countX == countO ? "X" : "O";
     }
+
 
     private bool IsMyTurn()
     {
@@ -165,9 +167,16 @@
 
     private async Task Reset()
     {
-        game.Board = new string[9];
+        game.Board = new string[3][];
+        for (int i = 0; i < 3; i++)
+        {
+            game.Board[i] = new string[3];
+            for (int j = 0; j < 3; j++)
+                game.Board[i][j] = string.Empty;
+        }
+
         gameResult = null;
-        await SendMessageAsync();   // Invia il messaggio al server
+        await SendMessageAsync();
     }
 
     protected override async Task OnInitializedAsync()
