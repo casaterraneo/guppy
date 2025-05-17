@@ -23,16 +23,11 @@
     </button>
 </div>
 
-<div class="mb-3">
-    <label for="gameIdInput" class="form-label">Game ID</label>
-    <input id="gameIdInput" class="form-control" @bind="gameIdToClear" placeholder="Inserisci Game ID" />
+<div class="d-flex align-items-center gap-2 mb-3">
+    <input class="form-control" placeholder="Game ID" @bind="gameIdToClear" />
+    <button class="btn btn-primary" @onclick="ClearDo">Clear DO</button>
 </div>
 
-<div class="mb-3">
-    <button class="btn btn-primary mt-2" 
-        @onclick="async () => await ClearDo()">Clear Do
-    </button>
-</div>
 
 @if (game != null)
 {
@@ -122,7 +117,7 @@
         using var http = HttpClientFactory.CreateClient("api");
         game = await http?.GetFromJsonAsync<Game>($"tris/{userName}");
 
-        await ConnectAsync();
+        //await ConnectAsync();
         StateHasChanged();
     }
 
