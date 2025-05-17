@@ -23,9 +23,15 @@
     </button>
 </div>
 
-<div class="d-flex align-items-center gap-2 mb-3">
-    <input class="form-control" placeholder="Game ID" @bind="gameIdToClear" />
-    <button class="btn btn-primary" @onclick="ClearDo">Clear DO</button>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <input class="form-control w-auto" placeholder="Game ID" @bind="gameIdToClear" />
+                <button class="btn btn-primary" @onclick="ClearDo">Clear DO</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -57,11 +63,13 @@
         <div class="row justify-content-center">
             <div class="col-auto">
                 <div class="d-grid gap-2">
-                    @for (int row = 0; row < game.Board.Length; row++)
+                    @for (int r = 0; r < game.Board.Length; r++)
                     {
+                        int row = r; // variabile temporanea per evitare problemi con la closure
                         <div class="btn-group">
-                            @for (int col = 0; col < game.Board[row].Length; col++)
+                            @for (int c = 0; c < game.Board[row].Length; c++)
                             {
+                                int col = c; // variabile temporanea per lo stesso motivo
                                 <button class="btn btn-outline-primary btn-lg"
                                         style="width: 70px; height: 70px; font-size:2rem;"
                                         disabled="@(!string.IsNullOrEmpty(game.Board[row][col]) || !IsMyTurn())"
@@ -124,6 +132,12 @@
         if (game.Phase == Game.GamePhase.End)
             return;
 
+        if (row < 0 || row >= game.Board.Length || col < 0 || col >= game.Board[row].Length)
+        {
+            Console.WriteLine($"Invalid move: ({row}, {col})");
+            return;
+        }
+
         if (!string.IsNullOrEmpty(game.Board[row][col]) || !IsMyTurn())
             return;
 
@@ -131,7 +145,7 @@
         game.ItemList.RemoveAt(0);
         game.Board[row][col] = symbol;
 
-        await SendMessageAsync();
+        //await SendMessageAsync();
 
         game.CheckWinOrDraw();
 
@@ -176,7 +190,7 @@
         }
 
         gameResult = null;
-        await SendMessageAsync();
+        //await SendMessageAsync();
     }
 
     protected override async Task OnInitializedAsync()
