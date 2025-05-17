@@ -48,11 +48,6 @@ const app = new Hono()
 		const id = c.env.TRIS_RECEIVER.idFromName(gameId);
 		const stub = c.env.TRIS_RECEIVER.get(id);
 
-		if (clearDo) {
-			console.log('[clear DO]', gameId);
-			stub.clearDo();
-		}
-
 		return stub.fetch(c.req.raw);
 	});
 
