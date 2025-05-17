@@ -1,8 +1,6 @@
-﻿@inject IWebAssemblyHostEnvironment Env
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@using Microsoft.AspNetCore.Components.Authorization
-@using System.Security.Claims
-
+﻿@using System.Text.Json
+@inject IWebAssemblyHostEnvironment Env
+@inject IAccessTokenProvider AuthorizationService
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -86,20 +84,43 @@
 
 @code {
     private bool collapseNavMenu = true;
-
-    private ClaimsPrincipal user;
-    private HashSet<string> permissions = new();    
+    private HashSet<string> permissions = new();   
+    private Task<AuthenticationState> AuthenticationState { get; set; }
+    public AccessToken AccessToken { get; set; } 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        user = authState.User;
+        await base.OnInitializedAsync();
+        var state = await AuthenticationState;
+        var accessTokenResult = await AuthorizationService.RequestAccessToken();
 
-        if (user.Identity?.IsAuthenticated == true)
+        if (!accessTokenResult.TryGetToken(out var token))
         {
-            permissions = user.FindAll("permissions").Select(p => p.Value).ToHashSet();
+            throw new InvalidOperationException("Failed to provision the access token.");
         }
+
+        AccessToken = token;
+        permissions = GetAccessTokenClaims()
+            .Where(claim => claim.Key == "permissions")
+            .Select(claim => claim.Value.ToString())
+            .ToHashSet()!;
     }
     private bool HasPermission(string permission) => permissions.Contains(permission);
+
+    protected IDictionary<string, object> GetAccessTokenClaims()
+    {
+        if (AccessToken == null)
+        {
+           return new Dictionary<string, object>();
+        }
+
+        // header.payload.signature
+        var payload = AccessToken.Value.Split(".")[1];
+        var base64Payload = payload.Replace('-', '+').Replace('_', '/')
+            .PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
+
+        return JsonSerializer.Deserialize<IDictionary<string, object>>(
+            Convert.FromBase64String(base64Payload));
+    }
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
