@@ -16,7 +16,7 @@
 <PageTitle>Tris</PageTitle>
 
 <h3 class="mb-4">Tris</h3>
-
+StateHasChanged
 <div class="mb-3">
     <button class="btn btn-primary mt-2" 
         @onclick="async () => await Start()">Inizia Partita
@@ -121,10 +121,9 @@
     private async Task Start()
     {
         using var http = HttpClientFactory.CreateClient("api");
-        game = await http?.GetFromJsonAsync<Game>($"tris/{userName}");        
-        StateHasChanged();
-
+        game = await http?.GetFromJsonAsync<Game>($"tris/{userName}");
         await ConnectAsync();
+        StateHasChanged();
     }
 
     private async Task MakeMove(int row, int col)
@@ -139,11 +138,11 @@
         game.ItemList.RemoveAt(0);
         game.Board[row][col] = symbol;       
 
-        game.CheckWinOrDraw();
-
-        StateHasChanged();
+        game.CheckWinOrDraw();       
 
         await SendMessageAsync();
+
+        StateHasChanged();
     }
 
     private string? GetCurrentPlayer()
@@ -181,10 +180,11 @@
                 game.Board[i][j] = string.Empty;
         }
 
-        gameResult = null;
-        StateHasChanged();
+        gameResult = null;       
 
-        await SendMessageAsync();        
+        await SendMessageAsync();
+
+        StateHasChanged();        
     }
 
     protected override async Task OnInitializedAsync()
