@@ -24,7 +24,7 @@
 </div>
 
 <div class="container">
-    <div class="row justify-content-center">
+    <div class="row">
         <div class="col-auto">
             <div class="d-flex align-items-center gap-2 mb-3">
                 <input class="form-control w-auto" placeholder="Game ID" @bind="gameIdToClear" />
@@ -38,7 +38,7 @@
 @if (game != null)
 {
     <div class="mb-12">
-        <span class="badge bg-primary me-2">GameId: @game.GameId</span>
+        <span class="me-2">GameId: @game.GameId</span>
 
         @foreach (var player in game.PlayerList)
         {
@@ -121,10 +121,10 @@
     private async Task Start()
     {
         using var http = HttpClientFactory.CreateClient("api");
-        game = await http?.GetFromJsonAsync<Game>($"tris/{userName}");
-
-        //await ConnectAsync();
+        game = await http?.GetFromJsonAsync<Game>($"tris/{userName}");        
         StateHasChanged();
+
+        await ConnectAsync();
     }
 
     private async Task MakeMove(int row, int col)
@@ -132,26 +132,19 @@
         if (game.Phase == Game.GamePhase.End)
             return;
 
-        if (row < 0 || row >= game.Board.Length || col < 0 || col >= game.Board[row].Length)
-        {
-            Console.WriteLine($"Invalid move: ({row}, {col})");
-            return;
-        }
-
         if (!string.IsNullOrEmpty(game.Board[row][col]) || !IsMyTurn())
             return;
 
         var symbol = game.ItemList[0];
         game.ItemList.RemoveAt(0);
-        game.Board[row][col] = symbol;
-
-        //await SendMessageAsync();
+        game.Board[row][col] = symbol;       
 
         game.CheckWinOrDraw();
 
         StateHasChanged();
-    }
 
+        await SendMessageAsync();
+    }
 
     private string? GetCurrentPlayer()
     {
@@ -172,7 +165,6 @@
         return countX == countO ? "X" : "O";
     }
 
-
     private bool IsMyTurn()
     {
         return game.Phase == Game.GamePhase.Start &&
@@ -190,7 +182,9 @@
         }
 
         gameResult = null;
-        //await SendMessageAsync();
+        StateHasChanged();
+
+        await SendMessageAsync();        
     }
 
     protected override async Task OnInitializedAsync()
