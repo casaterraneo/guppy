@@ -23,8 +23,6 @@ export class TrisReceiver extends DurableObject {
 		const [client, server] = Object.values(webSocketPair);
 		this.ctx.acceptWebSocket(server);
 
-		//this.board = (await ctx.storage.get('board')) || '';
-
 		if (this.board) {
 			console.log(`Server send board to client: ${this.board}`);
 			server.send(this.board);
@@ -48,5 +46,15 @@ export class TrisReceiver extends DurableObject {
 	async webSocketClose(ws, code, reason, wasClean) {
 		// If the client closes the connection, the runtime will invoke the webSocketClose() handler.
 		ws.close(code, 'Durable Object is closing WebSocket');
+	}
+
+	// Clears Durable Object storage
+	async clearDo(): Promise<void> {
+		// If you've configured a Durable Object alarm
+		//await this.ctx.storage.deleteAlarm();
+
+		// This will delete all the storage associated with this Durable Object instance
+		// This will also delete the Durable Object instance itself
+		await this.ctx.storage.deleteAll();
 	}
 }

@@ -7,11 +7,11 @@ const app = new Hono()
 		if (!userName) return c.json({ error: 'UserName is required' }, 400);
 
 		const player1 = new Papi.Player();
-		player1.playerId = "X";
+		player1.playerId = 'X';
 		player1.name = `${userName}`;
 
 		const player2 = new Papi.Player();
-		player2.playerId = "O";
+		player2.playerId = 'O';
 		player2.name = `${userName}`;
 
 		const game = new Papi.Game();
@@ -26,6 +26,7 @@ const app = new Hono()
 		}
 
 		const gameId = c.req.query('gameId');
+		const clearDo = c.req.query('clearDo')?.toLowerCase() === 'true';
 
 		console.log('[gameId for DO]', gameId);
 		if (!gameId) {
@@ -35,6 +36,11 @@ const app = new Hono()
 
 		const id = c.env.TRIS_RECEIVER.idFromName(gameId);
 		const stub = c.env.TRIS_RECEIVER.get(id);
+
+		if (clearDo) {
+			console.log('[clear DO]', gameId);
+			stub.clearDo();
+		}
 
 		return stub.fetch(c.req.raw);
 	});

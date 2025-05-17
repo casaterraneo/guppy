@@ -23,6 +23,11 @@
     </button>
 </div>
 
+<div class="mb-3">
+    <input type="checkbox" @bind="clearDo" />
+    <label>Clear Durable Object</label>
+</div>
+
 @if (game != null)
 {
     <div class="mb-12">
@@ -90,11 +95,12 @@
     //enum GameState { Idle, Searching, Playing }     
     //GameState gameState = GameState.Idle;    
     string userName  = "";    
-    Game game = null;
+    Game game = null;    
     string gameResult = string.Empty;
     string _uri = string.Empty;
     private ClientWebSocket _webSocket;
     private CancellationTokenSource _cts;    
+    bool clearDo = false;
 
 
     //rename play game, is possible to reconnect to game already started?
@@ -177,8 +183,8 @@
                 Scheme = "wss",
                 Port = -1,
             };
-            _uri = uriBuilder.Uri.ToString().Replace("/api", "/wstris").TrimEnd('/');
-            _uri = $"{_uri}?gameId={Uri.EscapeDataString(game.GameId)}";
+            _uri = uriBuilder.Uri.ToString().Replace("/api", "/wstris").TrimEnd('/');            
+            _uri = $"{_uri}?gameId={Uri.EscapeDataString(game.GameId)}&clearDo={clearDo.ToString().ToLower()}";
 
             _webSocket = new ClientWebSocket();
             _cts = new CancellationTokenSource();
