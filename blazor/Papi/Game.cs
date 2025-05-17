@@ -4,7 +4,7 @@ namespace Blazor.Papi;
 
 public class Game
 {
-    public enum GamePhase { Started, Finished }
+    public enum GamePhase { Start, End }
 
     public string GameId { get; set; } = string.Empty;
     public List<Player> PlayerList { get; set; } = [];
@@ -12,7 +12,7 @@ public class Game
     public string[] Board = [];
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public GamePhase Phase { get; set; } = GamePhase.Started;
+    public GamePhase Phase { get; set; } = GamePhase.Start;
     
     public string? GameResult { get; set; }
 
@@ -33,7 +33,7 @@ public class Game
                     Board[wins[i,2]] == symbol)
                 {
                     GameResult = symbol;
-                    Phase = GamePhase.Finished;
+                    Phase = GamePhase.End;
                     return;
                 }
             }
@@ -42,7 +42,7 @@ public class Game
         if (Board.All(cell => !string.IsNullOrEmpty(cell)))
         {
             GameResult = "Draw";
-            Phase = GamePhase.Finished;
+            Phase = GamePhase.End;
         }
     }    
 }

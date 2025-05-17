@@ -11,6 +11,7 @@
 @using System.Text
 @using System.Security.Claims
 @using Blazor.Papi
+@using System.Text.Json
 
 <PageTitle>Tris</PageTitle>
 
@@ -71,7 +72,7 @@
         </div>
         <div class="row mt-4 justify-content-center">
             <div class="col-auto">
-                @if (game.Phase == Game.GamePhase.Finished)
+                @if (game.Phase == Game.GamePhase.End)
                 {
                     <div class="alert alert-success">
                         @game.GameResult
@@ -108,7 +109,7 @@
 
     private async Task MakeMove(int idx)
     {
-        if(game.Phase == Game.GamePhase.Finished)
+        if(game.Phase == Game.GamePhase.End)
             return;
 
         if (!string.IsNullOrEmpty(game.Board[idx]) 
@@ -120,7 +121,7 @@
         //simula la mossa dalla scatola alla board
         game.ItemList.RemoveAt(0);
         game.Board[idx] = symbol;
-        
+
         //se il gioco non è local? come faccio a ricaricare la partita per
         await SendMessageAsync();
 
@@ -133,7 +134,7 @@
     {
         return game.PlayerList.FirstOrDefault(p => p.PlayerId == GetTurn())?.Name;
     }
-    
+
     private string GetTurn()
     {
         int countX = game.Board.Count(c => c == "X");
@@ -144,7 +145,7 @@
 
     private bool IsMyTurn()
     {
-        return game.Phase == Game.GamePhase.Started &&
+        return game.Phase == Game.GamePhase.Start &&
             game.PlayerList.Exists(p => p.PlayerId == GetTurn());
     }
 
@@ -210,7 +211,7 @@
                 if(string.IsNullOrWhiteSpace(text)) 
                     continue; 
 
-                game.Board = text.Split('|').ToArray();
+                Game game = JsonSerializer.Deserialize<Game>(text);
                 StateHasChanged();
             }
         }
@@ -228,8 +229,8 @@
     {       
         if (_webSocket.State == WebSocketState.Open)
         {
-            var _message = string.Join("|", game.Board);
-            var bytes = Encoding.UTF8.GetBytes(_message);
+            string json = JsonSerializer.Serialize(game);
+            var bytes = Encoding.UTF8.GetBytes(json);
             await _webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, _cts.Token);            
         }
     }

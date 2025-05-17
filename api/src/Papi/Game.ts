@@ -5,5 +5,5 @@ export class Game {
     playerList: Player[] = [];
 	itemList: string[] = ["X", "O", "X", "O", "X", "O", "X", "O", "X"];
 	board: string[] = new Array(9).fill("");
-	phase: 'started' | 'finished' = 'started';
+	phase: 'start' | 'end' = 'start';
 }
