@@ -20,13 +20,24 @@ const app = new Hono()
 
 		return c.json(game);
 	})
+	.get('clearDo/:gameId', async c => {
+		const gameId = c.req.param('gameId');
+		if (!gameId) return c.json({ error: 'GameId is required' }, 400);
+
+		const id = c.env.TRIS_RECEIVER.idFromName(gameId);
+		const stub = c.env.TRIS_RECEIVER.get(id);
+
+		console.log('[clear DO]', gameId);
+		stub.clearDo();
+
+		return c.json(gameId);
+	})
 	.get('/', async c => {
 		if (c.req.header('upgrade') !== 'websocket') {
 			return c.text('Expected Upgrade: websocket', 426);
 		}
 
 		const gameId = c.req.query('gameId');
-		const clearDo = c.req.query('clearDo')?.toLowerCase() === 'true';
 
 		console.log('[gameId for DO]', gameId);
 		if (!gameId) {

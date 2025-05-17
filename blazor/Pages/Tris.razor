@@ -24,8 +24,14 @@
 </div>
 
 <div class="mb-3">
-    <input type="checkbox" @bind="clearDo" />
-    <label>Clear Durable Object</label>
+    <label for="gameIdInput" class="form-label">Game ID</label>
+    <input id="gameIdInput" class="form-control" @bind="gameIdToClear" placeholder="Inserisci Game ID" />
+</div>
+
+<div class="mb-3">
+    <button class="btn btn-primary mt-2" 
+        @onclick="async () => await ClearDo()">Clear Do
+    </button>
 </div>
 
 @if (game != null)
@@ -99,9 +105,16 @@
     string gameResult = string.Empty;
     string _uri = string.Empty;
     private ClientWebSocket _webSocket;
-    private CancellationTokenSource _cts;    
-    bool clearDo = false;
+    private CancellationTokenSource _cts;
+    private string gameIdToClear = string.Empty;
 
+    private async Task ClearDo()
+    {
+        using var http = HttpClientFactory.CreateClient("api");
+        var clearResult = await http?.GetFromJsonAsync<string>($"tris/clearDo/{Uri.EscapeDataString(gameIdToClear)}");
+
+        StateHasChanged();
+    }
 
     //rename play game, is possible to reconnect to game already started?
     private async Task Start()
@@ -184,7 +197,7 @@
                 Port = -1,
             };
             _uri = uriBuilder.Uri.ToString().Replace("/api", "/wstris").TrimEnd('/');            
-            _uri = $"{_uri}?gameId={Uri.EscapeDataString(game.GameId)}&clearDo={clearDo.ToString().ToLower()}";
+            _uri = $"{_uri}?gameId={Uri.EscapeDataString(game.GameId)}";
 
             _webSocket = new ClientWebSocket();
             _cts = new CancellationTokenSource();
