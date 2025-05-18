@@ -227,10 +227,13 @@
                 var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cts.Token);             
                 var text = Encoding.UTF8.GetString(buffer, 0, result.Count);   
 
-                if(string.IsNullOrWhiteSpace(text) || game.GamePhase == GamePhase.Init) 
+                if(string.IsNullOrWhiteSpace(text)) 
                     continue; 
+                
+                var currentGame = JsonSerializer.Deserialize<Game>(text);
+                if (currentGame.GamePhase != GamePhase.Init)
+                   game = currentGame;
 
-                game = JsonSerializer.Deserialize<Game>(text);
                 StateHasChanged();
             }
         }
