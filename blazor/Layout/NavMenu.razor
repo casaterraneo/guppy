@@ -84,7 +84,7 @@
 
 @code {
     private bool collapseNavMenu = true;
-    private HashSet<string> permissions = new();   
+    private string permissions = string.Empty;   
     private Task<AuthenticationState> AuthenticationState { get; set; }    
     protected override async Task OnInitializedAsync()
     {
@@ -114,9 +114,8 @@
                 .ToHashSet()!;
         }*@
 
-        permissions.Add("[\"read:employees\"]");
-        permissions.Add("[\"game:tris\"]");
-
+        permissions = ("[\"read:employees\"]");
+        //permissions.Add("[\"game:tris\"]");
     }
     private bool HasPermission(string permission) => permissions.Contains(permission);
 
