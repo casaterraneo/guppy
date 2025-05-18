@@ -17,9 +17,9 @@
 
 <h3 class="mb-4">Tris</h3>
 
-<div class="mt-2">
+<div class="mb-3">
     <label>Game Mode:</label>
-    <select @bind="gameMode" class="form-select">
+    <select @bind="gameMode" class="form-select mt-2">
         <option value="">-- Seleziona --</option>
         @foreach (var mode in Enum.GetValues<Game.GameMode>())
         {
@@ -50,20 +50,13 @@
 {
     <div class="mb-12">
         <span class="me-2">GameId: @game.GameId</span>
-
+        <span class="me-2">Phase: @game.Phase</span>
         @foreach (var player in game.PlayerList)
         {
             <span class="me-2">Player: @player.Name</span>
         }
-
-        @if (!string.IsNullOrWhiteSpace(game.GetCurrentPlayer()))
-        {
-            <span class="me-2">Current player: @game.GetCurrentPlayer()</span>
-        }
-        @if (!string.IsNullOrWhiteSpace(game.@GetTurn()))
-        {
-            <span class="me-2">Current turn: @game.GetTurn()</span>
-        }    
+        <span class="me-2">Current player: @game.GetCurrentPlayer()</span>        
+        <span class="me-2">Current turn: @game.GetTurn()</span>
     </div>
 
     <div class="mb-6">
@@ -76,11 +69,11 @@
                 <div class="d-grid gap-2">
                     @for (int r = 0; r < game.Board.Length; r++)
                     {
-                        int row = r; // variabile temporanea per evitare problemi con la closure
+                        int row = r;
                         <div class="btn-group">
                             @for (int c = 0; c < game.Board[row].Length; c++)
                             {
-                                int col = c; // variabile temporanea per lo stesso motivo
+                                int col = c;
                                 <button class="btn btn-outline-primary btn-lg"
                                         style="width: 70px; height: 70px; font-size:2rem;"
                                         disabled="@(!string.IsNullOrEmpty(game.Board[row][col]) || !game.IsMyTurn(userName))"
@@ -134,8 +127,7 @@
     private async Task Start()
     {
         if (string.IsNullOrWhiteSpace(userName) || !gameMode.HasValue)
-        {
-            // Facoltativo: gestisci errore lato client
+        {            
             throw new InvalidOperationException("userName and gameMode are required.");
         }        
         using var http = HttpClientFactory.CreateClient("api");
@@ -146,7 +138,7 @@
 
     private async Task MakeMove(int row, int col)
     {
-        if (game.Phase == Game.GamePhase.End
+        if (game.Phase != Game.GamePhase.Start
             || !game.IsMyTurn(userName)
             || !string.IsNullOrEmpty(game.Board[row][col]))
             return;

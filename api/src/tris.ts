@@ -2,9 +2,9 @@ import { Hono } from 'hono';
 import * as Papi from './Papi';
 
 const app = new Hono()
-.get('/:userName/:gameMode', async c => {
-	const userName = c.req.param('userName');
-	const gameMode = c.req.param('gameMode');
+	.get('/:userName/:gameMode', async c => {
+		const userName = c.req.param('userName');
+		const gameMode = c.req.param('gameMode');
 
 		if (!userName) return c.json({ error: 'UserName is required' }, 400);
 		if (!gameMode) return c.json({ error: 'GameMode is required' }, 400);

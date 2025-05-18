@@ -4,7 +4,7 @@ namespace Blazor.Papi;
 
 public class Game
 {
-    public enum GamePhase { Start, End }
+    public enum GamePhase { Init, Start, End }
     public enum GameMode { Local, Remote }
 
     public string GameId { get; set; } = string.Empty;
@@ -13,7 +13,7 @@ public class Game
     public string[][] Board { get; set; } = [];
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public GamePhase Phase { get; set; } = GamePhase.Start;
+    public GamePhase Phase { get; set; } = GamePhase.Init;
 
     public string? GameResult { get; set; }
 
