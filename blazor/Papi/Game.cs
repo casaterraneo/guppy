@@ -5,6 +5,7 @@ namespace Blazor.Papi;
 public class Game
 {
     public enum GamePhase { Start, End }
+    public enum GameMode { Local, Remote }
 
     public string GameId { get; set; } = string.Empty;
     public List<Player> PlayerList { get; set; } = [];
@@ -79,4 +80,3 @@ public class Game
         return PlayerList.FirstOrDefault(p => p.PlayerId == GetTurn())?.Name;
     }     
 }
-

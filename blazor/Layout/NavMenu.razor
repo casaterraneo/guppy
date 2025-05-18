@@ -102,7 +102,7 @@
             .Select(claim => claim.Value.ToString())
             .ToHashSet()!; *@
 
-        var claims = GetAccessTokenClaims(token);
+        @* var claims = GetAccessTokenClaims(token);
 
         if (claims.TryGetValue("permissions", out var value) 
             && value is JsonElement element 
@@ -112,7 +112,11 @@
                 .Select(p => p.GetString())
                 .Where(p => !string.IsNullOrEmpty(p))
                 .ToHashSet()!;
-        }            
+        }*@
+
+        permissions.Add("[\"read:employees\"]");
+        permissions.Add("[\"game:tris\"]");
+
     }
     private bool HasPermission(string permission) => permissions.Contains(permission);
 
