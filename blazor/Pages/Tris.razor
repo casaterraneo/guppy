@@ -101,7 +101,8 @@
 
     //enum GameState { Idle, Searching, Playing }     
     //GameState gameState = GameState.Idle;    
-    string userName  = "";    
+    string userName  = "";       
+    string gameMode  = Game.GameMode.Local.ToString(); 
     Game game = null;    
     string gameResult = string.Empty;
     string _uri = string.Empty;
@@ -120,8 +121,13 @@
     //rename play game, is possible to reconnect to game already started?
     private async Task Start()
     {
+        if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(gameMode))
+        {
+            // Facoltativo: gestisci errore lato client
+            throw new InvalidOperationException("userName and gameMode are required.");
+        }        
         using var http = HttpClientFactory.CreateClient("api");
-        game = await http?.GetFromJsonAsync<Game>($"tris/{userName}");
+        game = await http?.GetFromJsonAsync<Game>($"tris/{Uri.EscapeDataString(userName)}/{gameMode}");
         await ConnectAsync();
         StateHasChanged();
     }

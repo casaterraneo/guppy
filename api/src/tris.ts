@@ -2,9 +2,12 @@ import { Hono } from 'hono';
 import * as Papi from './Papi';
 
 const app = new Hono()
-	.get('/:username', async c => {
-		const userName = c.req.param('username');
+.get('/:userName/:gameMode', async c => {
+	const userName = c.req.param('userName');
+	const gameMode = c.req.param('gameMode');
+
 		if (!userName) return c.json({ error: 'UserName is required' }, 400);
+		if (!gameMode) return c.json({ error: 'GameMode is required' }, 400);
 
 		const player1 = new Papi.Player();
 		player1.playerId = 'X';
@@ -16,6 +19,7 @@ const app = new Hono()
 
 		const game = new Papi.Game();
 		game.gameId = `${userName}|${userName}`;
+		game.gameMode = gameMode;
 		game.playerList.push(player1, player2);
 
 		return c.json(game);

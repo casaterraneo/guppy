@@ -6,6 +6,7 @@ export class Game {
 	itemList: string[] = ['X', 'O', 'X', 'O', 'X', 'O', 'X', 'O', 'X'];
 	board: string[][] = Game.createEmptyBoard(3);
 	phase: 'start' | 'end' = 'start';
+	gameMode: 'local' | 'remote' = 'local';
 
 	static createEmptyBoard(size: number): string[][] {
 		return Array.from({ length: size }, () => Array(size).fill(''));
