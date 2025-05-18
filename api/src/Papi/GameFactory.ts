@@ -1,4 +1,4 @@
-import { Game, GameMode, GamePhase } from './Game';
+import { Game, GameMode } from './Game';
 import { Player } from './Player';
 
 export class GameFactory {
@@ -14,7 +14,7 @@ export class GameFactory {
 		const game = new Game();
 		game.gameId = `${player1.name}|${player2.name}`;
 		game.gameMode = gameMode;
-		game.phase = 'start';
+		game.gamePhase = 'start';
 		game.playerList.push(player1, player2);
 
 		return game;

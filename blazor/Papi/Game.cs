@@ -2,18 +2,21 @@ using System.Text.Json.Serialization;
 
 namespace Blazor.Papi;
 
+public enum GamePhase { Init, Start, End }
+public enum GameMode { Local, Remote }
+
 public class Game
 {
-    public enum GamePhase { Init, Start, End }
-    public enum GameMode { Local, Remote }
-
     public string GameId { get; set; } = string.Empty;
     public List<Player> PlayerList { get; set; } = [];
     public List<string> ItemList { get; set; } = [];
     public string[][] Board { get; set; } = [];
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public GamePhase Phase { get; set; } = GamePhase.Init;
+    public GamePhase GamePhase { get; set; } = GamePhase.Init;
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public GameMode GameMode { get; set; } = GameMode.Local;
 
     public string? GameResult { get; set; }
 
@@ -42,7 +45,7 @@ public class Game
                 if (line.All(pos => b[pos.Item1][pos.Item2] == symbol))
                 {
                     GameResult = symbol;
-                    Phase = GamePhase.End;
+                    GamePhase = GamePhase.End;
                     return;
                 }
             }
@@ -51,7 +54,7 @@ public class Game
         if (b.All(row => row.All(cell => !string.IsNullOrEmpty(cell))))
         {
             GameResult = "Draw";
-            Phase = GamePhase.End;
+            GamePhase = GamePhase.End;
         }
     }
 
@@ -71,12 +74,12 @@ public class Game
 
     public bool IsMyTurn(string userName)
     {
-        return Phase == GamePhase.Start &&
+        return GamePhase == GamePhase.Start &&
             PlayerList.Exists(p => p.Name == userName && p.PlayerId == GetTurn());
-    }     
-    
+    }
+
     public string? GetCurrentPlayer()
     {
         return PlayerList.FirstOrDefault(p => p.PlayerId == GetTurn())?.Name;
-    }     
+    }
 }

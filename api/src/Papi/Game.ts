@@ -8,7 +8,7 @@ export class Game {
 	playerList: Player[] = [];
 	itemList: string[] = ['X', 'O', 'X', 'O', 'X', 'O', 'X', 'O', 'X'];
 	board: string[][] = Game.createEmptyBoard(3);
-	phase: GamePhase = 'init';
+	gamePhase: GamePhase = 'init';
 	gameMode: GameMode = 'local';
 
 	static createEmptyBoard(size: number): string[][] {
