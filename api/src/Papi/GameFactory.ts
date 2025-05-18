@@ -9,6 +9,7 @@ export class GameFactory {
 
 		const player2 = new Player();
 		player2.playerId = 'O';
+		player2.name = userName;
 
 		const game = new Game();
 		game.gameId = `${player1.name}|${player2.name}`;
