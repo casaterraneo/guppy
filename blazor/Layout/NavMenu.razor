@@ -104,10 +104,19 @@
             .Select(claim => claim.Value.ToString())
             .ToHashSet()!; *@
 
-        var claims = GetAccessTokenClaims(token);
+        var claims = GetAccessTokenClaims(token)
+                .Where(claim => claim.Key.Contains("permissions"));
 
-        permissions = "[\"read:employees\"]";
-        //permissions = "[\"game:tris\"]";
+        if(claims.Any())
+        {
+            permissions = claims.First().Value.ToString();
+        }
+        else
+        {
+            //permissions = "[\"read:employees\"]";
+            permissions = "[\"game:tris\"]";
+        }   
+
     }
     private bool HasPermission(string permission) => permissions.Contains(permission);
 
