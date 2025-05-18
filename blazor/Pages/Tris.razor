@@ -131,9 +131,13 @@
             throw new InvalidOperationException("userName and gameMode are required.");
         }        
         using var http = HttpClientFactory.CreateClient("api");
-        game = await http?.GetFromJsonAsync<Game>
-                            ($"tris/{Uri.EscapeDataString(userName)}/{gameMode.Value.ToString().ToLower()}");
+        var uri = $"tris/{Uri.EscapeDataString(userName)}/{gameMode.Value.ToString().ToLower()}";        
+        game = await http?.GetFromJsonAsync<Game>(uri);
         await ConnectAsync();
+        if(game.GameMode == GameMode.Remote)
+        {
+            await SendMessageAsync();
+        }            
         StateHasChanged();
     }
 
