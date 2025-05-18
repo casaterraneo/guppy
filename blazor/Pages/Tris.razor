@@ -133,11 +133,7 @@
         using var http = HttpClientFactory.CreateClient("api");
         var uri = $"tris/{Uri.EscapeDataString(userName)}/{gameMode.Value.ToString().ToLower()}";        
         game = await http?.GetFromJsonAsync<Game>(uri);
-        await ConnectAsync();
-        if(game.GameMode == GameMode.Remote)
-        {
-            await SendMessageAsync();
-        }            
+        await ConnectAsync();           
         StateHasChanged();
     }
 
@@ -222,8 +218,9 @@
     private async Task ReceiveLoopAsync()
     {        
         var buffer = new byte[1024];
+        await SendMessageAsync();
         try
-        {
+        {            
             while (_webSocket.State == WebSocketState.Open && !_cts.IsCancellationRequested)
             {                
                 var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cts.Token);             
