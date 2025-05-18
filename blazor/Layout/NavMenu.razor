@@ -83,12 +83,14 @@
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
-    private string permissions = string.Empty;   
+    [CascadingParameter]  
     private Task<AuthenticationState> AuthenticationState { get; set; }    
+    private bool collapseNavMenu = true;
+    private string permissions = string.Empty;     
+
     protected override async Task OnInitializedAsync()
     {
-        @* await base.OnInitializedAsync();
+        await base.OnInitializedAsync();
         var state = await AuthenticationState;
         var accessTokenResult = await AuthorizationService.RequestAccessToken();
 
@@ -96,7 +98,7 @@
         {
             throw new InvalidOperationException("Failed to provision the access token.");
         }
-         *@
+         
         @* permissions = GetAccessTokenClaims()
             .Where(claim => claim.Key == "permissions")
             .Select(claim => claim.Value.ToString())
@@ -114,8 +116,8 @@
                 .ToHashSet()!;
         }*@
 
-        permissions = ("[\"read:employees\"]");
-        //permissions.Add("[\"game:tris\"]");
+        //permissions = "[\"read:employees\"]";
+        permissions = "[\"game:tris\"]";
     }
     private bool HasPermission(string permission) => permissions.Contains(permission);
 
